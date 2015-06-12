@@ -106,8 +106,10 @@ function startAutoAbilityUser() {
 			console.log("Checking if it's useful to use an ability.");
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];	
-		var targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
+		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var targetPercentHPRemaining;
+		if(target)
+			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
 		
 		// Morale Booster
 		if(hasAbility(5)) { 
@@ -150,7 +152,7 @@ function startAutoAbilityUser() {
 		}
 		
 		// Tactical Nuke		
-		if(target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+		if(target && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
 			// TODO: make sure no other nuke is active
 			if(hasAbility(10)) {
 				if(debug)
