@@ -67,23 +67,21 @@ function startAutoTargetSwapper() {
 
 	// Credit to /u/leandr0c for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39l1wx/javascript_autosmart_clicker_respawner/
 	autoTargetSwapper = setInterval(function() {
-		var e=!1,
-		a=!1,
-		n=-1,
-		t=-1,
-		r=null;
-		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(m) {
-			e || (2==m.m_data.type ? 
-			(e =! 0, r = m) : n > 0 && 0 === m.m_data.type && m.m_data.hp < n ? 
-			(n = m.m_data.hp, r = m) : 0>n && 0 === m.m_data.type ? 
-			(n = m.m_data.hp, a =! 0, r = m) : t > 0 && !a && m.m_data.hp < t ?
-			(t = m.m_data.hp, r = m) : 0 > t && !a && (t = m.m_data.hp, r = m)
-			);
-		});
-		
-		if(r)
-			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != r.m_nLane && g_Minigame.CurrentScene().TryChangeLane(r.m_nLane);
-		g_Minigame.CurrentScene().TryChangeTarget(r.m_nID);
+        var isBoss =! 1,
+            isSpawner =!1,
+            lSpawner =-1,
+            lMinion =-1,
+            target =null;
+        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(mob){
+            isBoss || (2 == mob.m_data.type ? 
+                (isBoss =! 0, target = mob) : lSpawner > 0 && 0 == mob.m_data.type && mob.m_data.hp < lSpawner ? 
+                    (lSpawner = mob.m_data.hp, target = mob) : 0 > lSpawner && 0 == mob.m_data.type ? 
+                        (lSpawner = mob.m_data.hp, isSpawner =! 0, target = mob) : lMinion > 0 && !isSpawner && mob.m_data.hp < lMinion ?
+                            (lMinion = mob.m_data.hp, target = mob) : 0 > lMinion && !isSpawner && (lMinion = mob.m_data.hp, target = mob)
+            )
+        });
+        g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != target.m_nLane && g_Minigame.CurrentScene().TryChangeLane(target.m_nLane);
+        g_Minigame.CurrentScene().TryChangeTarget(target.m_nID);
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
