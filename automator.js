@@ -36,7 +36,7 @@ function startAutoClicker() {
 		g_Minigame.m_CurrentScene.m_nClicks = clicks;
 
 		if(debug)
-			console.log('clicking ' + clicks + ' times this second.');
+			console.log('Clicking ' + clicks + ' times this second.');
 	}, autoClickerFreq);
 
 	console.log("autoClicker has been started.");
@@ -239,6 +239,7 @@ function stopAllAutos() {
 
 function disableAutoNukes() {
 	useNukeOnSpawnerAbovePercent = 200;
+	console.log('Automatic nukes have been disabled');
 }
 
 // ================ HELPER FUNCTIONS ================
