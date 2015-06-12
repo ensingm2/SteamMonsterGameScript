@@ -6,16 +6,22 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 3 - 
 4 - Swap Target - {"ability":4,"new_target":n} (where 'n' is the target ID 0-3, not sure how the layout is set)
 5 - 
-6 - 
-7 - 
-8 - 
-9 - 
-10 - 
+6 - Good Luck Charms - {"ability":6}
+7 - Medics - {"ability":7}
+8 - Metal Detector - {"ability":8}
+9 - Decrease Cooldowns - {"ability":9}
+10 - Nuke - {"ability":10}
 11 - 
 12 - 
 13 - 
-14 - 
+14 - Cripple Spawner - {"ability":14}
 15 - 
 16 - 
-17 - 
+17 - Raining Gold - {"ability":17}
 18 - Crit - {"ability":18}
+19 - Pumped Up -  {"ability":19}
+20 - Throw Money at Screen - {"ability":20}
+21 - God Mode - {"ability":21}
+22 - 
+23 - Steal Health - {"ability":23}
+24 - Reflect Damage - {"ability":24}
