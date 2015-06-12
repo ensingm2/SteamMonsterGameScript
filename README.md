@@ -1,5 +1,5 @@
 # SteamMonsterGameScript
-A Javascript automater for the 2015 Summer Steam Monster Minigame
+A Javascript automator for the 2015 Summer Steam Monster Minigame
 
 #Basic Use:
 Just load the script, and all automated processes will start immediately.
