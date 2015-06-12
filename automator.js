@@ -71,21 +71,48 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
-	// Credit to /u/leandr0c for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39l1wx/javascript_autosmart_clicker_respawner/
 	autoTargetSwapper = setInterval(function() {
-        var isBoss =! 1,
-            isSpawner =!1,
-            lSpawner =-1,
-            lMinion =-1,
-            target =null;
+        var target = null;
         g_Minigame.m_CurrentScene.m_rgEnemies.each(function(mob){
-            isBoss || (2 == mob.m_data.type ? 
-                (isBoss =! 0, target = mob) : lSpawner > 0 && 0 == mob.m_data.type && mob.m_data.hp < lSpawner ? 
-                    (lSpawner = mob.m_data.hp, target = mob) : 0 > lSpawner && 0 == mob.m_data.type ? 
-                        (lSpawner = mob.m_data.hp, isSpawner =! 0, target = mob) : lMinion > 0 && !isSpawner && mob.m_data.hp < lMinion ?
-                            (lMinion = mob.m_data.hp, target = mob) : 0 > lMinion && !isSpawner && (lMinion = mob.m_data.hp, target = mob)
-            )
+			
+			//No target yet
+			if(!target)
+				target = mob;
+			
+			//different type, prioritize by type (treasure > boss > miniboss > spawner > creep)
+			// 0 - Spawner
+			// 1 - Creeps
+			// 2 - Boss
+			// 3 - MiniBoss
+			// 4 - Treasure Mob
+			//(why are the types so disorganized?)
+			else if(mob.m_data.type == target.m_data.type) {
+				
+				// Treasure Mob
+				if(mob.m_data.type == 4)
+					target = mob;
+				
+				//Boss (?)
+				else if(mob.m_data.type == 2 && target.m_data.type != 3 && target.m_data.type != 0 )
+					target = mob;
+				
+				//MiniBoss (?)
+				if(mob.m_data.type == 3 && target.m_data.type < 2)
+					target = mob;
+				
+				// Spawner
+				else if(mob.m_data.type == 0)
+					target = mob;
+				
+				//Creeps should never be targeted by this block
+			}
+			
+			//Same type, prioritize by health remaining
+			else if(target.m_data.hp < mob.m_data.hp)
+				target = mob;
         });
+		
+		//Switch to that target
 		if(target){
 			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != target.m_nLane && g_Minigame.CurrentScene().TryChangeLane(target.m_nLane);
 			g_Minigame.CurrentScene().TryChangeTarget(target.m_nID);

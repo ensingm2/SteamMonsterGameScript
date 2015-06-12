@@ -22,6 +22,6 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 19 - Pumped Up -  {"ability":19}
 20 - Throw Money at Screen - {"ability":20}
 21 - God Mode - {"ability":21}
-22 - 
+22 - Treasure - {"ability":22} (!NOT TESTED, CARE!) 
 23 - Steal Health - {"ability":23}
 24 - Reflect Damage - {"ability":24}
