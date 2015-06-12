@@ -1,5 +1,5 @@
 // Compiled and costomized by reddit user /u/therusher
-// Credit to reddit users /u/kolodz and /u/leandr0c for additional code
+// Credit to reddit users /u/leandr0c and /u/kolodz for additional code
 
 // Custom variables
 var debug = false;
@@ -7,12 +7,17 @@ var clicksPerSecond = 100;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
+var abilityUseCheckFreq = 2000;
+var itemUseCheckFreq = 5000;
+
+//item use variables
+var useMedicsAtPercent = 30;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
 
 // variables to store the setIntervals
-var autoRespawner, autoClicker, autoTargetSwapper;
+var autoRespawner, autoClicker, autoTargetSwapper, autoAbilityUser, autoItemUser;
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -80,17 +85,88 @@ function startAutoTargetSwapper() {
                             (lMinion = mob.m_data.hp, target = mob) : 0 > lMinion && !isSpawner && (lMinion = mob.m_data.hp, target = mob)
             )
         });
-        g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != target.m_nLane && g_Minigame.CurrentScene().TryChangeLane(target.m_nLane);
-        g_Minigame.CurrentScene().TryChangeTarget(target.m_nID);
+		if(target){
+			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != target.m_nLane && g_Minigame.CurrentScene().TryChangeLane(target.m_nLane);
+			g_Minigame.CurrentScene().TryChangeTarget(target.m_nID);
+		}
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
+}
+
+function startAutoAbilityUser() {
+	if(autoAbilityUser) {
+		console.log("autoAbilityUser is already running!");
+		return;
+	}
+
+	autoAbilityUser = setInterval(function() {
+		if(debug)
+			console.log("Checking if it's useful to use an ability.");
+		
+		// Good Luck Charm
+		if(hasAbility(6)) { 
+			// TODO: Implement this
+		}
+		
+		// Medics
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100	
+		if(percentHPRemaining <= useMedicsAtPercent) {
+			if(debug)
+				console.log("Health below threshold. Need medics!");
+			
+			if(hasAbility(7)) {
+				if(debug)
+					console.log("Unleash the medics!");
+				castAbility(7);
+			}
+			else if(debug)
+				console.log("No medics to unleash!");
+		}
+	
+		// Metal Detector
+		if(hasAbility(8)) { 
+			// TODO: Implement this
+		}
+		
+		// Decrease Cooldowns
+		if(hasAbility(9)) { 
+			// TODO: Implement this
+		}
+		
+		// Tactical Nuke
+		if(hasAbility(10)) { 
+			// TODO: Implement this
+		}
+		
+	}, abilityUseCheckFreq);
+	
+	console.log("autoAbilityUser has been started.");
+}
+
+function startAutoItemUser() {
+	if(autoItemUser) {
+		console.log("autoItemUser is already running!");
+		return;
+	}
+
+	autoItemUser = setInterval(function() {
+		if(debug)
+			console.log("Checking if it's useful to use an item.");
+		
+		// TODO: Implement This
+		
+	}, itemUseCheckFreq);
+	
+	console.log("autoItemUser has been started.");
 }
 
 function startAllAutos() {
 	startAutoClicker();
 	startAutoRespawner();
 	startAutoTargetSwapper();
+	startAutoAbilityUser();
+	startAutoItemUser();
 }
 
 // ================ STOPPER FUNCTIONS ================
@@ -122,11 +198,45 @@ function stopAutoTargetSwapper() {
 	else
 		console.log("No autoTargetSwapper is running to stop.");
 }
+function stopAutoAbilityUser() {
+	if(autoAbilityUser){
+		clearInterval(autoAbilityUser);
+		autoAbilityUser = null;
+		console.log("autoAbilityUser has been stopped.");
+	}
+	else
+		console.log("No autoAbilityUser is running to stop.");
+}
+function stopAutoItemUser() {
+	if(autoItemUser){
+		clearInterval(autoItemUser);
+		autoItemUser = null;
+		console.log("autoItemUser has been stopped.");
+	}
+	else
+		console.log("No autoItemUser is running to stop.");
+}
 
 function stopAllAutos() {
 	stopAutoClicker();
 	stopAutoRespawner();
 	stopAutoTargetSwapper();
+	stopAutoAbilityUser();
+	stopAutoItemUser();
+}
+
+// ================ HELPER FUNCTIONS ================
+function castAbility(abilityID) {
+	if(hasAbility(abilityID))
+		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+}
+
+// thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
+function hasAbility(abilityID) {
+	// each bit in unlocked_abilities_bitfield corresponds to an ability.
+	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
+	// the player has purchased the specified ability.
+	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
 }
 
 //Start all autos

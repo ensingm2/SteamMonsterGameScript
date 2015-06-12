@@ -3,7 +3,7 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 ###DISCLAIMER: I take no responsibility for the use of this program. See http://www.reddit.com/r/SteamMonsterGame/comments/39lszy/steam_is_banning_for_autoclickers_apparently/ for risks!###
 
 ##Basic Use:
-Just load the script, and all automated processes will start immediately.
+Just load the script after the game fully loads in, and all automated processes will start immediately.
 To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console, and hit return to run it.
 To stop, run "stopAllAutos()" in the console.
 
@@ -20,6 +20,9 @@ Feel free to edit any variables to suit your needs
 - **autoClickerVariance (default: 10% of clicksPerSecond):** amount that the clicks per second can be randomized by (range is clicksPersecond +/- autoClickerVariance)
 - **respawnCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if the player needs to be revived.
 - **targetSwapperFreq (default: 1000ms):** Duration (in milliseconds) between checks to see if the player needs to change targets.
+- **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
+- **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
+- **useMedicsAtPercent (default: 20):** % max hp at which to use the medics ability
 
 ##Testing:
 If you would like to test the script, you have a few options
