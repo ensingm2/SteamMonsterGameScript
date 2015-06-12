@@ -1,5 +1,6 @@
 # SteamMonsterGameScript
 A Javascript automator for the 2015 Summer Steam Monster Minigame
+###DISCLAIMER: I take no responsibility for the use of this program. See http://www.reddit.com/r/SteamMonsterGame/comments/39lszy/steam_is_banning_for_autoclickers_apparently/ for risks!###
 
 ##Basic Use:
 Just load the script, and all automated processes will start immediately.
