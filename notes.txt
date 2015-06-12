@@ -13,7 +13,7 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 10 - Nuke - {"ability":10}
 11 - Cluster Bomb - {"ability":11}
 12 - Napalm - {"ability":12}
-13 - 
+13 - Resurrect - {"ability":13} (!NOT TESTED, CARE!) 
 14 - Cripple Spawner - {"ability":14}
 15 - Cripple Monster - {"ability":15}
 16 - Max Elemental Damage - {"ability":16}
