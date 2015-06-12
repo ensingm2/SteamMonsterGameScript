@@ -22,7 +22,8 @@ Feel free to edit any variables to suit your needs
 - **targetSwapperFreq (default: 1000ms):** Duration (in milliseconds) between checks to see if the player needs to change targets.
 - **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
-- **useMedicsAtPercent (default: 20):** % max hp at which to use the medics ability
+- **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
+- **useNukeOnSpawnerAbovePercent (default: 75):** Above this % percentage threshold, a nuke will be used on a targeted spawner
 
 ##Testing:
 If you would like to test the script, you have a few options

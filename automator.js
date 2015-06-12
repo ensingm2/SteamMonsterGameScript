@@ -12,6 +12,7 @@ var itemUseCheckFreq = 5000;
 
 //item use variables
 var useMedicsAtPercent = 30;
+var useNukeOnSpawnerAbovePercent = 75;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -110,11 +111,12 @@ function startAutoAbilityUser() {
 		}
 		
 		// Medics
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100	
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;	
 		if(percentHPRemaining <= useMedicsAtPercent) {
 			if(debug)
 				console.log("Health below threshold. Need medics!");
 			
+			// TODO: Only use if there isn't already a Medics active?
 			if(hasAbility(7)) {
 				if(debug)
 					console.log("Unleash the medics!");
@@ -135,8 +137,18 @@ function startAutoAbilityUser() {
 		}
 		
 		// Tactical Nuke
-		if(hasAbility(10)) { 
-			// TODO: Implement this
+		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
+		
+		// TODO: make sure no other nuke is active
+		if(target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+			if(hasAbility(10)) {
+				if(debug)
+					console.log('Nuclear launch detected.');
+				
+				castAbility(10);
+			}
+			
 		}
 		
 	}, abilityUseCheckFreq);
@@ -223,6 +235,10 @@ function stopAllAutos() {
 	stopAutoTargetSwapper();
 	stopAutoAbilityUser();
 	stopAutoItemUser();
+}
+
+function disableAutoNukes() {
+	useNukeOnSpawnerAbovePercent = 200;
 }
 
 // ================ HELPER FUNCTIONS ================
