@@ -26,5 +26,11 @@ If you would like to test the script, you have a few options
 - Use a browser add-on such as Firebug for Firefox and view the POST data being sent to the server. This is the best testing method as you can see exactly what's being sent to the server.
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
+##TODO:
+- Find abilityID of each ability for use
+- Automate use of abilities
+- Automate upgrades? Not sure.
+- Prioritize based on DPS (Take elemental damage into account)?
+
 ###Other Notes:
 None
