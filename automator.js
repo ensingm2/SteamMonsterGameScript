@@ -105,13 +105,21 @@ function startAutoAbilityUser() {
 		if(debug)
 			console.log("Checking if it's useful to use an ability.");
 		
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];	
+		var targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
+		
+		// Morale Booster
+		if(hasAbility(5)) { 
+			// TODO: Implement this
+		}
+		
 		// Good Luck Charm
 		if(hasAbility(6)) { 
 			// TODO: Implement this
 		}
 		
 		// Medics
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;	
 		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
 				console.log("Health below threshold. Need medics!");
@@ -133,15 +141,16 @@ function startAutoAbilityUser() {
 		
 		// Decrease Cooldowns
 		if(hasAbility(9)) { 
-			// TODO: Implement this
+			// TODO: Any logic to using this?
+			if(debug)
+				console.log('Decreasing cooldowns.');
+			
+			castAbility(9);
 		}
 		
-		// Tactical Nuke
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		var targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
-		
-		// TODO: make sure no other nuke is active
+		// Tactical Nuke		
 		if(target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+			// TODO: make sure no other nuke is active
 			if(hasAbility(10)) {
 				if(debug)
 					console.log('Nuclear launch detected.');
@@ -149,6 +158,16 @@ function startAutoAbilityUser() {
 				castAbility(10);
 			}
 			
+		}
+		
+		// Cluster Bomb
+		if(hasAbility(11)) { 
+			// TODO: Implement this
+		}
+		
+		// Napalm
+		if(hasAbility(12)) { 
+			// TODO: Implement this
 		}
 		
 	}, abilityUseCheckFreq);
