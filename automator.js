@@ -145,6 +145,7 @@ function startAutoAbilityUser() {
 			if(debug)
 				console.log('Decreasing cooldowns.');
 			
+			// TODO: make sure one's not active already
 			castAbility(9);
 		}
 		

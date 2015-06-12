@@ -5,14 +5,14 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 2 - Swap Lane - {"ability":2,"new_lane":n} (where 'n' is the lane number 0-2)
 3 - 
 4 - Swap Target - {"ability":4,"new_target":n} (where 'n' is the target ID 0-3, not sure how the layout is set)
-5 - 
+5 - Morale Booster - {"ability":7}
 6 - Good Luck Charms - {"ability":6}
 7 - Medics - {"ability":7}
 8 - Metal Detector - {"ability":8}
 9 - Decrease Cooldowns - {"ability":9}
 10 - Nuke - {"ability":10}
-11 - 
-12 - 
+11 - Cluster Bomb - {"ability":11}
+12 - Napalm - {"ability":12}
 13 - 
 14 - Cripple Spawner - {"ability":14}
 15 - Cripple Monster - {"ability":15}
