@@ -112,7 +112,7 @@ function startAutoAbilityUser() {
 		
 		// Medics
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;	
-		if(percentHPRemaining <= useMedicsAtPercent) {
+		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
 				console.log("Health below threshold. Need medics!");
 			
