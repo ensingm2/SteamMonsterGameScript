@@ -16,7 +16,7 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 13 - 
 14 - Cripple Spawner - {"ability":14}
 15 - 
-16 - 
+16 - Max Elemental Damage - {"ability":16}
 17 - Raining Gold - {"ability":17}
 18 - Crit - {"ability":18}
 19 - Pumped Up -  {"ability":19}
