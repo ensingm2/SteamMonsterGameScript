@@ -30,7 +30,9 @@ var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
 var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
+var elementUpdateRate = 60000;
 var userElementMultipliers = [1, 1, 1, 1];
+var userMaxElementMultiiplier = 1;
 var swapReason;
 
 // ================ STARTER FUNCTIONS ================
@@ -84,6 +86,9 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
+	updateUserElementMultipliers();
+	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
+	
 	autoTargetSwapper = setInterval(function() {
 			
 		var currentTarget = null;
@@ -304,6 +309,15 @@ function hasAbility(abilityID) {
 	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
 }
 
+function updateUserElementMultipliers() {
+	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
+	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
+	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
+	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
+	
+	userMaxElementMultiiplier = Math.max.apply(null, userElementMultipliers);
+ }
+
 // Return a value to compare mobs' priority (lower value = less important)
 //  (treasure > boss > miniboss > spawner > creep)
 function getMobTypePriority(potentialTarget) {
@@ -332,6 +346,13 @@ function compareMobPriority(mobA, mobB) {
 	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
 	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
 
+	//check for Max Elemental Damage Ability
+	if(g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[16])
+		aElemMult = userMaxElementMultiiplier;
+	if(g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[16])
+		bElemMult = userMaxElementMultiiplier;
+	
+	
 	var aHP = mobA.m_data.hp;
 	var bHP = mobB.m_data.hp;
 
