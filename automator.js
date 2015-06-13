@@ -101,15 +101,17 @@ function startAutoTargetSwapper() {
 
 		var currentTarget = null;
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-				if(currentTarget == null || compareMobPriority(potentialTarget, currentTarget) > 0)
+				if(compareMobPriority(potentialTarget, currentTarget))
 					currentTarget = potentialTarget;
 		});
 			
 		//Switch to that target
 		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
 		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
-			if(debug) 
+			if(debug && swapReason != null) {
 				console.log(swapReason);
+				swapReason = null;
+			}
 			
 			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
 				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
@@ -347,6 +349,13 @@ function getMobTypePriority(potentialTarget) {
 
 // Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
 function compareMobPriority(mobA, mobB) {
+	if(mobA == null)
+		return false;
+	if(mobB == null) {
+		swapReason = "Swapping off a non-existent mob.";
+		return true;
+	}
+	
 	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 	var aHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[7];
 	var bHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[7];
@@ -372,45 +381,47 @@ function compareMobPriority(mobA, mobB) {
 
 	//First, make sure they're alive
 	if(mobA.m_bIsDestroyed)
-		return 1;
-	else if(mobB.m_bIsDestroyed)
-		return -1;
+		return false;
+	else if(mobB.m_bIsDestroyed) {
+		swapReason = "Swapping off a destroyed mob.";
+		return true;
+	}
 	
 	//Run to a medic lane if needed
 	else if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 		if(aHasHealing != bHasHealing) {
-			if(!aHasHealing)
+			if(aHasHealing) {
 				swapReason = "Swapping to lane with active healing.";
-
-			return (aHasHealing ? 1 : -1);
+				return true;
+			}
 		}
 	}
 
-	if(aIsGold != bIsGold) {
-		if(!aIsGold)
+	else if(aIsGold != bIsGold) {
+		if(aIsGold) {
 			swapReason = "Switching to target with Raining Gold.";
-		
-		return (aIsGold ? 1 : -1);
+			return true;
+		}
 	}
-	if(aTypePriority != bTypePriority) {		
-		if(aTypePriority < bTypePriority)
+	else if(aTypePriority != bTypePriority) {		
+		if(aTypePriority > bTypePriority) {
 			swapReason = "Switching to higher priority target.";
-		
-		return aTypePriority - bTypePriority;
+			return true;
+		}
 	}
-	if(aElemMult != bElemMult) {
-		if(bElemMult < aElemMult)
+	else if(aElemMult != bElemMult) {
+		if(aElemMult > bElemMult) {
 			swapReason = "Switching to elementally weaker target.";
-		
-		return aElemMult - bElemMult;
+			return true;
+		}
 	}
-	if(aHP != bHP) {
-		if(bHP < aHP)
+	else if(aHP != bHP) {
+		if(aHP < bHP) {
 			swapReason = "Switching to lower HP target.";
-		
-		return bHP - aHP;
+			return true;
+		}
 	}
-	return 0;
+	return false;
 }
 
 function gameRunning() {
