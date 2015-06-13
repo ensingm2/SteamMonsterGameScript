@@ -81,26 +81,24 @@ function startAutoTargetSwapper() {
 		console.log("autoTargetSwapper is already running!");
 		return;
 	}
+        var target = null;
 
 	autoTargetSwapper = setInterval(function() {
-        var newTarget = null;
-		var newTargetIsGold = false;
-        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
+            var newTarget = g_Minigame.m_CurrentScene.m_rgEnemies.reduce(function(currentTarget, newTarget){
 			
-			var setTarget = false;
-			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
-			//var testMobIsElemental = false;
-			
-			//No target yet
-			if(newTarget == undefined)
-				setTarget = true;
-			
+                        if(!currentTarget) {
+                            return newTarget;
+                        }
+
+                        var currentTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[currentTarget.m_nLane].abilities[17];
+                  
+                        var newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
+						
 			//check for raining gold above all else (ability 17)
-			else if(testMobIsGold && !newTargetIsGold) {
-				if(debug)
-					console.log('Switching lanes for Raining Gold!');
-				setTarget = true
-			}
+			if(currentTargetIsGold && !newTargetIsGold) {
+                            //If we already found a gold mob only continue if the newTarget is also gold.
+		            return currentTarget;
+                        }
 			
 			//different type, prioritize by type (treasure > boss > miniboss > spawner > creep)
 			// 0 - Spawner
@@ -109,50 +107,53 @@ function startAutoTargetSwapper() {
 			// 3 - MiniBoss
 			// 4 - Treasure Mob
 			//(why are the types so disorganized?)
-			else if(testMob.m_data.type != newTarget.m_data.type) {
+			if(currentTarget.m_data.type != newTarget.m_data.type) {
 				
 				// Treasure Mob
-				if(testMob.m_data.type == 4)
-					setTarget = true;
-				
+				if(newTarget.m_data.type == 4) {
+                                        return newTarget;
+				}
 				//Boss (?)
-				else if(testMob.m_data.type == 2 && newTarget.m_data.type != 3 && newTarget.m_data.type != 0 )
-					setTarget = true;
-				
+				else if(newTarget.m_data.type == 2 && currentTarget.m_data.type != 4){
+                                        return newTarget;		
+                                }
 				//MiniBoss (?)
-				if(testMob.m_data.type == 3 && newTarget.m_data.type < 2)
-					setTarget = true;
-				
+				else if(newTarget.m_data.type == 3 && currentTarget.m_data.type != 4 && currentTarget.m_data.type != 2) {
+					return newTarget;
+                                }
 				// Spawner
-				else if(testMob.m_data.type == 0)
-					setTarget = true;
-				
-				if(setTarget && debug)
-					console.log('Switching to a higher priority mob type.');
-				
+				else if(newTarget.m_data.type == 0 && currentTarget.m_data.type == 1) {
+					return newTarget;
+                                }
 				//Creeps should never be targeted by this block
 			}
 			
 			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp > testMob.m_data.hp) {
-				setTarget = true;
-				
-				if(setTarget && debug)
-					console.log('Switching to a lower health target.');
+			else if(newTarget.m_data.hp < currentTarget.m_data.hp) {
+                            return newTarget;
 			}
-			
-			//If needed, overwrite the new target to the mob
-			if(setTarget){
-				newTarget = testMob;
-				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
-			}
-        });
+                        
+                        return currentTarget;
+            });
 		
 		//Switch to that target
-		if(newTarget != undefined){
+		if(newTarget != target){
+                    if(debug) {
+                        console.log("Switching to a new target. ");
+                        console.log(newTarget);
+                    }
+
 			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane && g_Minigame.CurrentScene().TryChangeLane(newTarget.m_nLane);
 			g_Minigame.CurrentScene().TryChangeTarget(newTarget.m_nID);
+                        
+                        target=newTarget;
 		}
+                else {
+                    if(debug) {
+                        console.log("Did not find new target worth switching to.");
+                        console.log(target);
+                    }
+                }
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
