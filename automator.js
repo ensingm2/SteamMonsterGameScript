@@ -414,39 +414,7 @@ function startAutoAbilityUser() {
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		var targetPercentHPRemaining;
-		if(target)
-			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
-		
-		// Moral Booster, Good Luck Charm, and Decrease Cooldowns
-		var moralBoosterReady = hasAbility(5);
-		var goodLuckCharmReady = hasAbility(6);
-		if(moralBoosterReady || goodLuckCharmReady) {
-			// If we have both we want to combo them
-			var moralBoosterUnlocked = abilityIsUnlocked(5);
-			var goodLuckCharmUnlocked = abilityIsUnlocked(6);
-			
-			// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-			if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
-				// Only use on targets that are spawners and have nearly full health
-				if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 75) {
-					// Combo with Decrease Cooldowns ability
 
-					// If Decreased Cooldowns will be available soon, wait
-					if(abilityIsUnlocked(9) && abilityCooldown(9) < 60) {
-						if(hasAbility(9) && !currentLaneHasAbility(9)) {
-							// Other abilities won't benifit if used at the same time
-							castAbility(9);
-						} else {
-							// Use these abilities next pass
-							castAbility(5);
-							castAbility(6);
-						}
-					}
-				}
-			}
-		}
-		
 		// Medics
 		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
@@ -461,37 +429,105 @@ function startAutoAbilityUser() {
 			else if(debug)
 				console.log("No medics to unleash!");
 		}
+
+		// Abilities only used on targets
+		if(target) {
+			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+		
+			// Moral Booster, Good Luck Charm, and Decrease Cooldowns
+			var moralBoosterReady = hasAbility(5);
+			var goodLuckCharmReady = hasAbility(6);
+			if(moralBoosterReady || goodLuckCharmReady) {
+				// If we have both we want to combo them
+				var moralBoosterUnlocked = abilityIsUnlocked(5);
+				var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+				
+				// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+				if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
+					// Only use on targets that are spawners and have nearly full health
+					if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 75) {
+						// Combo with Decrease Cooldowns ability
+
+						// If Decreased Cooldowns will be available soon, wait
+						if(abilityIsUnlocked(9) && abilityCooldown(9) < 60) {
+							if(hasAbility(9) && !currentLaneHasAbility(9)) {
+								// Other abilities won't benifit if used at the same time
+								castAbility(9);
+							} else {
+								// Use these abilities next pass
+								castAbility(5);
+								castAbility(6);
+							}
+						}
+					}
+				}
+			}
+		
 	
-		// Metal Detector
-		if(target != undefined && target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
-			if(hasAbility(8)) {
-				if(debug)
-					console.log('Using Metal Detector.');
-				
-				castAbility(8);
+			// Metal Detector
+			if(target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
+				if(hasAbility(8)) {
+					if(debug)
+						console.log('Using Metal Detector.');
+					
+					castAbility(8);
+				}
 			}
 			
-		}
+			// Abilitys only used when targeting Spawners
+			if(target.m_data.type == 0) {
+
+	                        // Moral Booster, Good Luck Charm, and Decrease Cooldowns
+	                        var moralBoosterReady = hasAbility(5);
+        	                var goodLuckCharmReady = hasAbility(6);
+                	        if(moralBoosterReady || goodLuckCharmReady) {
+                        	        // If we have both we want to combo them
+                                	var moralBoosterUnlocked = abilityIsUnlocked(5);
+	                                var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+
+	                                // "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+        	                        if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
+                	                        // Only use on targets that are spawners and have nearly full health
+                        	                if(targetPercentHPRemaining >= 70) {
+                                	                // Combo these with Decrease Cooldowns ability
+
+                                        	        // If Decreased Cooldowns will be available soon, wait
+                                                	if(abilityIsUnlocked(9) && abilityCooldown(9) < 60) {
+                                                        	if(hasAbility(9) && !currentLaneHasAbility(9)) {
+                                                                	// Other abilities won't benifit if used at the same time
+	                                                                castAbility(9);
+        	                                                } else {
+                	                                                // Use these abilities next pass
+                        	                                        castAbility(5);
+                                	                                castAbility(6);
+                                        	                }
+                                                	}
+	                                        }
+        	                        }
+                	        }
+
+
+				// Tactical Nuke
+				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+					if(debug)
+						console.log('Nuclear launch detected.');
+					
+					castAbility(10);
+				}
+
 		
-		// Tactical Nuke
-		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-			if(hasAbility(10)) {
-				if(debug)
-					console.log('Nuclear launch detected.');
-				
-				castAbility(10);
+				// Cluster Bomb
+				if(hasAbility(11) && targetPercentHPRemaining >= 25) { 
+					castAbility(11);
+				}
+
+		
+				// Napalm
+				if(hasAbility(12) && !currentLaneHasAbility(12) && targetPercentHPRemaining >= 50) { 
+					castAbility(12);
+				}
+
 			}
-			
-		}
-		
-		// Cluster Bomb
-		if(hasAbility(11) && !currentLaneHasAbility(11) && target.m_data.type == 0 && targetPercentHPRemaining >= 50) { 
-			castAbility(11);
-		}
-		
-		// Napalm
-		if(hasAbility(12) && !currentLaneHasAbility(11) && target.m_data.type == 0 && targetPercentHPRemaining >= 50) { 
-			castAbility(12);
 		}
 		
 	}, abilityUseCheckFreq);
