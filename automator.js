@@ -320,6 +320,8 @@ function hasAbility(abilityID) {
 }
 
 function updateUserElementMultipliers() {
+	if(!gameRunning()) return;
+		
 	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
 	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
 	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
