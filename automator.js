@@ -13,7 +13,7 @@
 
 // Custom variables
 var debug = false;
-var clicksPerSecond = 100;
+var clicksPerSecond = 50;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
@@ -28,8 +28,10 @@ var useMetalDetectorOnBossBelowPercent = 30;
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
 
-// variables to store the setIntervals
-var autoRespawner, autoClicker, autoTargetSwapper, autoAbilityUser, autoItemUser;
+// Internal variables, you shouldn't need to touch these
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
+var userElementMultipliers = [1, 1, 1, 1];
+
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -82,6 +84,10 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
+	//Update the user's element multipliers every 30s
+	updateUserElementMultipliers();
+	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
+
 	autoTargetSwapper = setInterval(function() {
 	var newTarget = null;
 	g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
@@ -91,9 +97,11 @@ function startAutoTargetSwapper() {
 	});
 		
 		//Switch to that target
-		if(newTarget != undefined){
-			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane && g_Minigame.CurrentScene().TryChangeLane(newTarget.m_nLane);
-			g_Minigame.CurrentScene().TryChangeTarget(newTarget.m_nID);
+		if(newTarget != undefined) {
+			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane) {
+				g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane))
+			}
+			g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
 		}
 	}, targetSwapperFreq);
 	
@@ -123,6 +131,9 @@ function compareMobPriority(mobA, mobB) {
 	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
 	var aTypePriority = getMobTypePriority(mobA);
 	var bTypePriority = getMobTypePriority(mobB);
+	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
+	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
+
 	var aHP = mobA.m_data.hp;
 	var bHP = mobB.m_data.hp;
 
@@ -131,6 +142,9 @@ function compareMobPriority(mobA, mobB) {
 	}
 	if(aTypePriority != bTypePriority) {
 		return aTypePriority - bTypePriority;
+	}
+	if(aElemMult != bElemMult) {
+		return aElemMult - bElemMult;
 	}
 	if(aHP != bHP) {
 		return aHP - bHP;
@@ -314,11 +328,11 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID))
-		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+		g_Minigame.m_CurrentScene.TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
 }
 
 function currentLaneHasAbility(abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].abilities[abilityID];
+	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -326,7 +340,14 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+	return ((1 << abilityID) & g_Minigame.m_CurrentScene.m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.m_CurrentScene.GetCooldownForAbility(abilityID) <= 0;
+}
+
+function updateUserElementMultipliers() {
+	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
+	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
+	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
+	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
 }
 
 //Expose functions if running in userscript

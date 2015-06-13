@@ -16,7 +16,7 @@ Any of the additions can be started or stopped individually:
 ##Variables:
 Feel free to edit any variables to suit your needs
 - **debug (default: false):** if true, logs all actions to the console.
-- **clicksPerSecond (default: 100 [or 30 in minified_30cps.js]):** Number of clicks to be sent to the server each second.
+- **clicksPerSecond (default: 50):** Number of clicks to be sent to the server each second.
 - **autoClickerVariance (default: 10% of clicksPerSecond):** amount that the clicks per second can be randomized by (range is clicksPersecond +/- autoClickerVariance)
 - **respawnCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if the player needs to be revived.
 - **targetSwapperFreq (default: 1000ms):** Duration (in milliseconds) between checks to see if the player needs to change targets.
