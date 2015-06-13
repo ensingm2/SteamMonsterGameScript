@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.08
+// @version 1.09
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -454,12 +454,20 @@ if(typeof unsafeWindow != 'undefined') {
 }
 
 //Keep trying to start every second till success
-var showPointer = setInterval(function() { 
+var startAll = setInterval(function() { 
 		if(!gameRunning())
 			return;
 		
 		startAllAutos();
 		addPointer();
-		clearInterval(showPointer);
+		clearInterval(startAll);
 	}, 1000)
+
+// Overwrite this function so it doesn't delete our sexy pointer
+CSceneGame.prototype.ClearNewPlayer = function() {
+	if( this.m_spriteFinger )  {
+		var bPlayedBefore = WebStorage.SetLocal('mg_how2click', 1);
+		$J('#newplayer').hide();
+	}
+}
 
