@@ -420,20 +420,17 @@ function startAutoAbilityUser() {
 		
 		// Moral Booster and Good Luck Charm
 		if(hasAbility(5) || hasAbility(6)) {
-			// Don't use on bosses, we want to maximize gold
-			if(target.m_data.type != 2) {
+			// Only use on targets that are spawners and have nearly full health
+			if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 80) {
 				// Don't use one if we don't have the other
 				if(!abilityIsUnlocked(5) || !abilityIsUnlocked(6) || (hasAbility(5) & hasAbility(6))) {
-					// Logic needs to go here to decide if the lane has enough health
-					if (true) {
-						// Combo with decreased cooldowns
-						if (hasAbility(9) && !currentLaneHasAbility(9)) {
-							castAbility(9);
-						} else {
-							// Can't be cast at the same time as Decrease Cooldowns
-							castAbility(5);
-							castAbility(6);
-						}
+					// Combo with decreased cooldowns
+					if (hasAbility(9) && !currentLaneHasAbility(9)) {
+						castAbility(9);
+					} else {
+						// Can't be cast at the same time as Decrease Cooldowns
+						castAbility(5);
+						castAbility(6);
 					}
 				}
 			}
