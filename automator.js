@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.10
+// @version 1.11
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -402,7 +402,7 @@ function compareMobPriority(mobA, mobB) {
 		if(bElemMult < aElemMult)
 			swapReason = "Switching to elementally weaker target.";
 		
-		return bElemMult - aElemMult;
+		return aElemMult - bElemMult;
 	}
 	if(aHP != bHP) {
 		if(bHP < aHP)
