@@ -24,6 +24,7 @@ Feel free to edit any variables to suit your needs
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useNukeOnSpawnerAbovePercent (default: 75):** Above this % percentage threshold, a nuke will be used on a targeted spawner
+- **useMetalDetectorOnBossBelowPercent (default: 30):** Below this % percentage threshold, a Metal Detector will be used on a targeted boss
 
 ##Testing:
 If you would like to test the script, you have a few options
@@ -31,6 +32,7 @@ If you would like to test the script, you have a few options
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
 ##TODO:
+- Prioritize lanes with Raining Gold
 - Find abilityID of each ability for use
 - Automate use of abilities
 - Automate upgrades? Not sure.
