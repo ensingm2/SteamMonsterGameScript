@@ -58,7 +58,7 @@ function startAutoClicker() {
 			clicks *= rainingGoldClickMultiplier;
 		
 		// Set the variable to be sent to the server
-		g_Minigame.m_CurrentScene.m_nClicks = clicks;
+		g_Minigame.m_CurrentScene.m_nClicks += clicks;
 		
 		// Anti-anti-clicker countermeasure
 		g_msTickRate = 1100;
