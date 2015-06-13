@@ -429,9 +429,11 @@ function startAutoAbilityUser() {
 						// Combo with decreased cooldowns
 						if (hasAbility(9) && !currentLaneHasAbility(9)) {
 							castAbility(9);
+						} else {
+							// Can't be cast at the same time as Decrease Cooldowns
+							castAbility(5);
+							castAbility(6);
 						}
-						castAbility(5);
-						castAbility(6);
 					}
 				}
 			}
