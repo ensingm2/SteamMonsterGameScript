@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.20
+// @version 1.21
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -60,7 +60,16 @@ function startAutoClicker() {
 		
 		// Anti-anti-clicker countermeasure
 		g_msTickRate = 1100;
-
+		
+		// Update Gold Counter
+		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
+        var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
+        if( enemy != undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
+			var nClickGold = enemy.m_data.gold * nClickGoldPct * clicks;
+			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
+			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
+		};
+			
 		//Clear out the crits
 		var numCrits =  g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
 		g_Minigame.m_CurrentScene.m_rgStoredCrits = [];
