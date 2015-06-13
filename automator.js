@@ -880,8 +880,8 @@ function addCustomButtons() {
 	$J(".game_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn"><span>Disable AutoUpgrader</span></span>');
 	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
 	
-	$J(".game_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn"><span>Enable Spammer</span></span>');
-	$J("#toggleSpammerBtn").click (toggleSpammerBtn);
+	//$J(".game_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn"><span>Enable Spammer</span></span>');
+	//$J("#toggleSpammerBtn").click (toggleSpammerBtn);
 }
 
 function toggleAutoClicker() {
