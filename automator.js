@@ -13,7 +13,7 @@ var itemUseCheckFreq = 5000;
 //item use variables
 var useMedicsAtPercent = 30;
 var useNukeOnSpawnerAbovePercent = 75;
-//var useMetalDetectorOnBossBelowPercent = 30;
+var useMetalDetectorOnBossBelowPercent = 30;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -190,8 +190,14 @@ function startAutoAbilityUser() {
 		}
 	
 		// Metal Detector
-		if(hasAbility(8)) { 
-			// TODO: Implement this
+		if(target != undefined && target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
+			if(hasAbility(8)) {
+				if(debug)
+					console.log('Using Metal Detector.');
+				
+				castAbility(8);
+			}
+			
 		}
 		
 		// Decrease Cooldowns
@@ -204,9 +210,8 @@ function startAutoAbilityUser() {
 			castAbility(9);
 		}
 		
-		// Tactical Nuke		
+		// Tactical Nuke
 		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-			// TODO: make sure no other nuke is active
 			if(hasAbility(10)) {
 				if(debug)
 					console.log('Nuclear launch detected.');
