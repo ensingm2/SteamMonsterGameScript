@@ -107,7 +107,7 @@ function startAutoTargetSwapper() {
 			
 		//Switch to that target
 		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		if(currentTarget != null && (oldTarget == 'undefined' || currentTarget.m_data.id != oldTarget.m_data.id)) {
+		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
 			if(debug) 
 				console.log(swapReason);
 			
@@ -116,7 +116,7 @@ function startAutoTargetSwapper() {
 			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
 		}
 		//Move back to lane if still targetting
-		else if(currentTarget != null && oldTarget == 'undefined' && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+		else if(currentTarget != null && oldTarget == undefined && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
 	}, targetSwapperFreq);
