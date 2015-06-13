@@ -13,6 +13,7 @@ var itemUseCheckFreq = 5000;
 //item use variables
 var useMedicsAtPercent = 30;
 var useNukeOnSpawnerAbovePercent = 75;
+//var useMetalDetectorOnBossBelowPercent = 30;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -72,12 +73,24 @@ function startAutoTargetSwapper() {
 	}
 
 	autoTargetSwapper = setInterval(function() {
-        var target = null;
-        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(mob){
+        var newTarget = null;
+		var newTargetIsGold = false;
+        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
+			
+			var setTarget = false;
+			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
+			var testMobIsElemental = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
 			
 			//No target yet
-			if(!target)
-				target = mob;
+			if(newTarget == undefined)
+				setTarget = true;
+			
+			//check for raining gold above all else (ability 17)
+			else if(testMobIsGold && !newTargetIsGold) {
+				if(debug)
+					console.log('Switching lanes for Raining Gold!');
+				setTarget = true
+			}
 			
 			//different type, prioritize by type (treasure > boss > miniboss > spawner > creep)
 			// 0 - Spawner
@@ -86,36 +99,49 @@ function startAutoTargetSwapper() {
 			// 3 - MiniBoss
 			// 4 - Treasure Mob
 			//(why are the types so disorganized?)
-			else if(mob.m_data.type == target.m_data.type) {
+			else if(testMob.m_data.type != newTarget.m_data.type) {
 				
 				// Treasure Mob
-				if(mob.m_data.type == 4)
-					target = mob;
+				if(testMob.m_data.type == 4)
+					setTarget = true;
 				
 				//Boss (?)
-				else if(mob.m_data.type == 2 && target.m_data.type != 3 && target.m_data.type != 0 )
-					target = mob;
+				else if(testMob.m_data.type == 2 && newTarget.m_data.type != 3 && newTarget.m_data.type != 0 )
+					setTarget = true;
 				
 				//MiniBoss (?)
-				if(mob.m_data.type == 3 && target.m_data.type < 2)
-					target = mob;
+				if(testMob.m_data.type == 3 && newTarget.m_data.type < 2)
+					setTarget = true;
 				
 				// Spawner
-				else if(mob.m_data.type == 0)
-					target = mob;
+				else if(testMob.m_data.type == 0)
+					setTarget = true;
+				
+				if(setTarget && debug)
+					console.log('Switching to a higher priority mob type.');
 				
 				//Creeps should never be targeted by this block
 			}
 			
 			//Same type, prioritize by health remaining
-			else if(target.m_data.hp < mob.m_data.hp)
-				target = mob;
+			else if(newTarget.m_data.hp < testMob.m_data.hp) {
+				setTarget = true;
+				
+				if(setTarget && debug)
+					console.log('Switching to a higher health target.');
+			}
+			
+			//If needed, overwrite the new target to the mob
+			if(setTarget){
+				newTarget = testMob;
+				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
+			}
         });
 		
 		//Switch to that target
-		if(target){
-			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != target.m_nLane && g_Minigame.CurrentScene().TryChangeLane(target.m_nLane);
-			g_Minigame.CurrentScene().TryChangeTarget(target.m_nID);
+		if(newTarget != undefined){
+			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane && g_Minigame.CurrentScene().TryChangeLane(newTarget.m_nLane);
+			g_Minigame.CurrentScene().TryChangeTarget(newTarget.m_nID);
 		}
 	}, targetSwapperFreq);
 	
@@ -179,7 +205,7 @@ function startAutoAbilityUser() {
 		}
 		
 		// Tactical Nuke		
-		if(target && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
 			// TODO: make sure no other nuke is active
 			if(hasAbility(10)) {
 				if(debug)
