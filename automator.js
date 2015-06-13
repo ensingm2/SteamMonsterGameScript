@@ -674,7 +674,7 @@ function hasAbility(abilityID) {
 }
 
 function updateUserElementMultipliers() {
-	if(!gameRunning()) return;
+	if(!gameRunning() || g_Minigame.m_CurrentScene.m_rgPlayerTechTree == 'undefined') return;
 	
 	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
 	userElementMultipliers[4] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
@@ -778,7 +778,12 @@ function compareMobPriority(mobA, mobB) {
 }
 
 function gameRunning() {
-	return typeof g_Minigame === "object" && g_Minigame.m_CurrentScene.m_rgGameData.status == 2;
+	try {
+		return (typeof g_Minigame === "object" && g_Minigame.m_CurrentScene.m_rgGameData.status == 2);
+	}
+	catch (e) {
+		return false;
+	}
 }
 
 function addPointer() {
@@ -857,14 +862,26 @@ var startAll = setInterval(function() {
 	
 function addCustomButtons() {
 	//Smack the TV Easter Egg
-	 $J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
-
+	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
+	
 	//Automator buttons
-	$J(".game_options").append('<span onclick="toggleAutoClicker()" id="toggleAutoClickerBtn" class="toggle_music_btn"><span>Disable AutoClicker</span></span>');
-	$J(".game_options").append('<span onclick="toggleAutoTargetSwapper()" id="toggleAutoTargetSwapperBtn" class="toggle_music_btn"><span>Disable AutoTargetSwapper</span></span>');
-	$J(".game_options").append('<span onclick="toggleAutoAbilityUser()" id="toggleAutoAbilityUserBtn" class="toggle_music_btn"><span>Disable AutoAbilityUser</span></span>');
-	$J(".game_options").append('<span onclick="toggleAutoItemUser()" id="toggleAutoItemUserBtn" class="toggle_music_btn"><span>Disable AutoItemUser</span></span>');
-	$J(".game_options").append('<span onclick="toggleAutoUpgradeManager()" id="toggleAutoUpgradeBtn" class="toggle_music_btn"><span>Disable AutoUpgrader</span></span>');
+	$J(".game_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn"><span>Disable AutoClicker</span></span>');
+	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
+	
+	$J(".game_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn"><span>Disable AutoTargetSwapper</span></span>');
+	$J("#toggleAutoTargetSwapper").click (toggleAutoTargetSwapper);
+	
+	$J(".game_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn"><span>Disable AutoAbilityUser</span></span>');
+	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
+	
+	$J(".game_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn"><span>Disable AutoItemUser</span></span>');
+	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
+	
+	$J(".game_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn"><span>Disable AutoUpgrader</span></span>');
+	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
+	
+	$J(".game_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn"><span>Enable Spammer</span></span>');
+	$J("#toggleSpammerBtn").click (toggleSpammerBtn);
 }
 
 function toggleAutoClicker() {
@@ -917,4 +934,88 @@ function toggleAutoUpgradeManager(){
 		$J("#toggleAutoUpgradeBtn").html("<span>Disable AutoUpgrader</span>");
 	}
 }
+
+var spammer;
+function spamNoClick() {
+	if( g_Minigame.m_CurrentScene.m_rgPlayerData.hp <= 0 || !g_Minigame.m_CurrentScene.m_rgGameData )
+		return;
+
+	var element = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].element;
+	var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
+
+	if( !enemy || enemy.m_data.hp <= 0 )
+		return;
+
+
+	enemy.TakeDamage();
+
+	var x = enemy.m_Sprite.x + (g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane * 50);
+	var y = enemy.m_Sprite.y;
+
+	var worldTransform = enemy.m_Sprite.worldTransform;
+
+	// do a cheeky transform to get the mouse coords;
+	var a00 = worldTransform.a, a01 = worldTransform.c, a02 = worldTransform.tx,
+		a10 = worldTransform.b, a11 = worldTransform.d, a12 = worldTransform.ty,
+		id = 1 / (a00 * a11 + a01 * -a10);
+
+
+	x = a11 * id * x + -a01 * id * x + (a12 * a01 - a02 * a11) * id;
+	y = a00 * id * y + -a10 * id * y + (-a12 * a00 + a02 * a10) * id;
+
+		
+	if ( g_Minigame.m_CurrentScene.m_rgStoredCrits.length > 0 ) {
+		var rgDamage = g_Minigame.m_CurrentScene.m_rgStoredCrits.splice(0,1);
+
+		g_Minigame.m_CurrentScene.DoCritEffect( rgDamage[0],x, y, 'Crit!' );
+	}
+	else {
+		g_Minigame.m_CurrentScene.DoClickEffect(g_Minigame.m_CurrentScene.CalculateDamage( g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, element ), x, y);
+	}
+
+
+	g_Minigame.m_CurrentScene.SpawnEmitter( g_rgEmitterCache.click_burst, x - g_Minigame.m_CurrentScene.m_containerParticles.position.x, y );
+
+	var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[ g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
+	var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
+	if( nClickGoldPct > 0 && enemy.m_data.hp > 0)
+	{
+		var nClickGold = enemy.m_data.gold * nClickGoldPct;
+		var text = new PIXI.Text("+" + FormatNumberForDisplay( nClickGold, 5 ), {font: "35px 'Press Start 2P'", fill: "#e1b21e", stroke: '#000', strokeThickness: 2, align:"left" });
+		g_AudioManager.play('goldclick');
+		g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
+		g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
+
+		text.x = x + 50;
+		text.y = y + 50;
+
+		g_Minigame.m_CurrentScene.m_containerUI.addChild( text );
+		text.container = g_Minigame.m_CurrentScene.m_containerUI;
+
+		var e = new CEasingSinOut( text.y, -200, 1000 );
+		e.parent = text;
+		text.m_easeY = e;
+
+		var e = new CEasingSinOut( 2, -2, 1000 );
+		e.parent = text;
+		text.m_easeAlpha = e;
+
+		g_Minigame.m_CurrentScene.m_rgClickNumbers.push(text)
+
+	}
+}
+function toggleSpammer() {
+	if(spammer) {
+		clearInterval(spammer);
+		spammer = null;
+		$J("#toggleSpammerBtn").html("<span>Enable Particle Spam</span>");
+	}
+	else {
+		spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
+		$J("#toggleSpammerBtn").html("<span>Disable Particle Spam</span>");
+	}
+		
+}
+
+
 
