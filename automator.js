@@ -623,12 +623,16 @@ function laneHasAbility(lane, abilityID) {
 	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
 }
 
+function abilityIsUnlocked(abilityID) {
+	return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
+}
+
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
 function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+	return abilityIsUnlocked(abilityID) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
 }
 
 function updateUserElementMultipliers() {
