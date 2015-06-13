@@ -21,6 +21,7 @@ var targetSwapperFreq = 1000;
 var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
+var upgradeManagerFreq = 1000;
 
 //item use variables
 var useMedicsAtPercent = 30;
@@ -31,7 +32,7 @@ var useMetalDetectorOnBossBelowPercent = 30;
 var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
-var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser, autoUpgradeManager;
 var elementUpdateRate = 60000;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
@@ -73,6 +74,204 @@ function startAutoClicker() {
 	}, autoClickerFreq);
 
 	console.log("autoClicker has been started.");
+}
+
+function startUpgradeManager() {
+	if( autoUpgradeManager ) {
+		console.log("UpgradeManager is already running!");
+		return;
+	}
+var upgradeManager = (function() {
+  /************
+   * SETTINGS *
+   ************/
+  var survivalTime = 30; // buy armor if survival time is less than this (seconds)
+
+  /***********
+   * GLOBALS *
+   ***********/
+  var scene;
+  var next = {
+    id: -1,
+    cost: 0
+  };
+  var necessary = [
+    { id: 0, level: 1 }, // Light Armor
+    { id: 11, level: 1 }, // Medics
+    { id: 2, level: 10 }, // Armor Piercing Round
+    { id: 1, level: 10 }, // Auto-fire Cannon
+  ];
+
+  var gAbilities = [
+    11, // Medics
+    13, // Good Luck Charms
+    16, // Tactical Nuke
+    18, // Napalm
+    17, // Cluster Bomb
+    14, // Metal Detector
+    15, // Decrease Cooldowns
+    12, // Morale Booster
+  ];
+  var gDamageUpgrades = [2, 10, 22];
+  var gElementalUpgrades = [3, 4, 5, 6];
+  var gHealthUpgrades = [0, 8, 20];
+
+  /***********
+   * HELPERS *
+   ***********/
+  var getUpgrade = function(id) {
+    var result = null;
+    if (scene.m_rgPlayerUpgrades) {
+      scene.m_rgPlayerUpgrades.some(function(upgrade) {
+        if (upgrade.upgrade == id) {
+          result = upgrade;
+          return true;
+        }
+      });
+    }
+    return result;
+  };
+
+  var canUpgrade = function(id) {
+    if (!scene.bHaveUpgrade(id)) return false;
+    var data = scene.m_rgTuningData.upgrades[id];
+    var required = data.required_upgrade;
+    if (required !== undefined) {
+      var level = data.required_upgrade_level || 1;
+      return (level <= scene.GetUpgradeLevel(required));
+    }
+    return true;
+  };
+
+  var necessaryUpgrade = function() {
+    var best = { id: -1, cost: 0 };
+    var upgrade, id;
+    while (necessary.length > 0) {
+      upgrade = necessary[0];
+      id = upgrade.id;
+      if (getUpgrade(id).level < upgrade.level) {
+        best = { id: id, cost: scene.m_rgTuningData.upgrades[id].cost };
+        break;
+      }
+      necessary.shift();
+    }
+    return best;
+  };
+
+  var nextAbilityUpgrade = function() {
+    var best = { id: -1, cost: 0 };
+    gAbilities.some(function(id) {
+      if (canUpgrade(id) && getUpgrade(id).level < 1) {
+        best = { id: id, cost: scene.m_rgTuningData.upgrades[id].cost };
+        return true;
+      }
+    });
+    return best;
+  };
+
+  var bestHealthUpgrade = function() {
+    var best = { id: -1, cost: 0, hpg: 0 };
+    gHealthUpgrades.forEach(function(id) {
+      if (!canUpgrade(id)) return;
+      var data = scene.m_rgTuningData.upgrades[id];
+      var upgrade = getUpgrade(id);
+      var cost = data.cost * Math.pow(data.cost_exponential_base, upgrade.level);
+      var hpg = scene.m_rgTuningData.player.hp * data.multiplier / cost;
+      if (hpg >= best.hpg) {
+        best = { id: id, cost: cost, hpg: hpg };
+      }
+    });
+    return best;
+  };
+
+  var bestDamageUpgrade = function() {
+    var best = { id: -1, cost: 0, dpg: 0 };
+
+    // check click damage direct upgrades
+    gDamageUpgrades.forEach(function(id) {
+      if (!canUpgrade(id)) return;
+      var data = scene.m_rgTuningData.upgrades[id];
+      var upgrade = getUpgrade(id);
+      var cost = data.cost * Math.pow(data.cost_exponential_base, upgrade.level);
+      var dpg = scene.m_rgTuningData.player.damage_per_click * data.multiplier / cost;
+      if (dpg >= best.dpg) {
+        best = { id: id, cost: cost, dpg: dpg };
+      }
+    });
+
+    // check elementals
+    var data = scene.m_rgTuningData.upgrades[4];
+    var elementalLevels = gElementalUpgrades.reduce(function(sum, id) {
+      return sum + getUpgrade(id).level;
+    }, 1);
+    var cost = data.cost * Math.pow(data.cost_exponential_base, elementalLevels);
+    var dpg = (0.25 * scene.m_rgPlayerTechTree.damage_per_click) * data.multiplier / cost;
+    if (dpg >= best.dpg) {
+      var level = gElementalUpgrades
+        .map(function(id) { return getUpgrade(id).level; })
+        .sort(function(a, b) { return b - a; })[1];
+      var match = gElementalUpgrades
+        .filter(function(id) { return getUpgrade(id).level == level; });
+      match = match[Math.floor(Math.random() * match.length)];
+      best = { id: match, cost: cost, dpg: dpg };
+    }
+
+    return best;
+  };
+
+  var timeToDie = function() {
+    var maxHp = scene.m_rgPlayerTechTree.max_hp;
+    var enemyDps = scene.m_rgGameData.lanes.reduce(function(max, lane) {
+      return Math.max(max, lane.enemies.reduce(function(sum, enemy) {
+        return sum + enemy.dps;
+      }, 0));
+    }, 0);
+    return maxHp / (enemyDps || scene.m_rgGameData.level * 4 || 1);
+  };
+
+  var updateNext = function() {
+    next = necessaryUpgrade();
+    if (next.id === -1) {
+      if (timeToDie() < survivalTime) {
+        next = bestHealthUpgrade();
+      } else {
+        var damage = bestDamageUpgrade();
+        var ability = nextAbilityUpgrade();
+        next = (damage.cost < ability.cost || ability.id === -1) ? damage : ability;
+      }
+    }
+    if (next.id !== -1) {
+      console.log(
+        'next buy:',
+        scene.m_rgTuningData.upgrades[next.id].name,
+        '(' + FormatNumberForDisplay(next.cost) + ')'
+      );
+    }
+  };
+
+  /********
+   * MAIN *
+   ********/
+  return function() {
+    scene = g_Minigame.CurrentScene();
+    if (scene.m_bUpgradesBusy) return;
+    if (next.id === -1 || timeToDie() < survivalTime) updateNext();
+    if (next.id !== -1) {
+      if (next.cost <= scene.m_rgPlayerData.gold) {
+        $J('.link').each(function() {
+          if ($J(this).data('type') === next.id) {
+            scene.TryUpgrade(this);
+            next.id = -1;
+            return false;
+          }
+        });
+      }
+    }
+  };
+})();
+
+	autoUpgradeManager = setInterval( upgradeManager, upgradeManagerFreq );
+	console.log("autoUpgradeManager has been started.");
 }
 
 function startAutoRespawner() {
@@ -252,6 +451,7 @@ function startAllAutos() {
 	startAutoTargetSwapper();
 	startAutoAbilityUser();
 	startAutoItemUser();
+	startUpgradeManager();
 }
 
 // ================ STOPPER FUNCTIONS ================
@@ -308,6 +508,7 @@ function stopAllAutos() {
 	stopAutoTargetSwapper();
 	stopAutoAbilityUser();
 	stopAutoItemUser();
+	stopAutoUpgradeManager();
 }
 
 function disableAutoNukes() {
