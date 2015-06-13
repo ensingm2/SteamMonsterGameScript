@@ -12,6 +12,9 @@ Any of the additions can be started or stopped individually:
 - **autoClicker:** run "startAutoClicker()" or "stopAutoClicker()" in the console.
 - **autoRespawner:** run "startAutoRespawner()" or "stopAutoRespawner()" in the console.
 - **autoTargetSwapper:** run "startAutoTargetSwapper()" or "stopAutoTargetSwapper()" in the console.
+- **autoAbilityUser:** run "startAutoAbilityUser()" or "stopAutoAbilityUser()" in the console.
+- **autoItemUser:** run "startAutoItemUser()" or "stopAutoItemUser()" in the console.
+- **autoUpgradeManager:** run "startAutoUpgradeManager()" or "stopAutoUpgradeManager()" in the console.
 
 ##Variables:
 Feel free to edit any variables to suit your needs
@@ -22,6 +25,7 @@ Feel free to edit any variables to suit your needs
 - **targetSwapperFreq (default: 1000ms):** Duration (in milliseconds) between checks to see if the player needs to change targets.
 - **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
+- **upgradeManagerFreq (default: 30000):** Duration (in milliseconds) between checks to see if it is beneficial to purchase an upgrade
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useNukeOnSpawnerAbovePercent (default: 75):** Above this % percentage threshold, a nuke will be used on a targeted spawner
 - **useMetalDetectorOnBossBelowPercent (default: 30):** Below this % percentage threshold, a Metal Detector will be used on a targeted boss
