@@ -19,6 +19,7 @@ var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
 var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
+var seekHealingPercent = 50;
 
 //item use variables
 var useMedicsAtPercent = 30;
@@ -323,6 +324,10 @@ function getMobTypePriority(potentialTarget) {
 
 // Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
 function compareMobPriority(mobA, mobB) {
+	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+	var aHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[7];
+	var bHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[7];
+
 	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
 	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
 	
@@ -334,6 +339,14 @@ function compareMobPriority(mobA, mobB) {
 
 	var aHP = mobA.m_data.hp;
 	var bHP = mobB.m_data.hp;
+
+	if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
+		if(aHasHealing != bHasHealing) {
+			swapReason = "Swapping to lane with active healing.";
+
+			return (aHasHealing ? 1 : -1);
+		}
+	}
 
 	if(aIsGold != bIsGold) {		
 		swapReason = "Switching to target with Raining Gold.";
