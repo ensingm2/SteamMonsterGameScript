@@ -284,17 +284,19 @@ function startAutoUpgradeManager() {
 
 	var timeToDie = (function() {
 		var lastLevel = 0;
-		var enemyDps;
+		var lastTime;
 		return function() {
 			var level = scene.m_rgGameData.level;
 			if (level !== lastLevel) {
-				enemyDps = scene.m_rgGameData.lanes.reduce(function(max, lane) {
+				var enemyDps = scene.m_rgGameData.lanes.reduce(function(max, lane) {
 					return Math.max(max, lane.enemies.reduce(function(sum, enemy) {
 						return sum + enemy.dps;
 					}, 0));
-				}, 0);
+				}, 0) || level * 4;
+				lastTime = scene.m_rgPlayerTechTree.max_hp / enemyDps;
 			}
-			return scene.m_rgPlayerTechTree.max_hp / (enemyDps || scene.m_rgGameData.level * 4 || 1);
+			lastLevel = level;
+			return lastTime;
 		};
 	})();
 
