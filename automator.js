@@ -448,15 +448,15 @@ function startAutoAbilityUser() {
 			if(target.m_data.type == 0) {
 
 	                        // Moral Booster, Good Luck Charm, and Decrease Cooldowns
-	                        var moralBoosterReady = hasAbility(5);
+	                        var moraleBoosterReady = hasAbility(5);
         	                var goodLuckCharmReady = hasAbility(6);
-                	        if(moralBoosterReady || goodLuckCharmReady) {
+                	        if(moraleBoosterReady || goodLuckCharmReady) {
                         	        // If we have both we want to combo them
-                                	var moralBoosterUnlocked = abilityIsUnlocked(5);
+                                	var moraleBoosterUnlocked = abilityIsUnlocked(5);
 	                                var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
 	                                // "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-        	                        if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
+        	                        if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
                 	                        // Only use on targets that are spawners and have nearly full health
                         	                if(targetPercentHPRemaining >= 70) {
                                 	                // Combo these with Decrease Cooldowns ability
