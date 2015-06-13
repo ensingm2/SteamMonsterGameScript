@@ -67,7 +67,7 @@ function startAutoClicker() {
 		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
         var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
         if( enemy != undefined && enemy.m_data != undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
-			var nClickGold = enemy.m_data.gold * nClickGoldPct * clicks;
+			var nClickGold = enemy.m_data.gold * nClickGoldPct * g_Minigame.m_CurrentScene.m_nClicks;
 			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
 			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
 		};
@@ -78,11 +78,11 @@ function startAutoClicker() {
 		
 		if(debug) {
 			if(numCrits > 1)
-				console.log('Clicking ' + clicks + ' times this second. (' + numCrits + ' crits).');
+				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second. (' + numCrits + ' crits).');
 			if(numCrits == 1)
-				console.log('Clicking ' + clicks + ' times this second. (1 crit).');
+				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second. (1 crit).');
 			else
-				console.log('Clicking ' + clicks + ' times this second.');
+				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second.');
 			
 			//Calculate Damage done
 			var damage = g_Minigame.m_CurrentScene.CalculateDamage(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * userMaxElementMultiiplier * g_Minigame.m_CurrentScene.m_nClicks);
