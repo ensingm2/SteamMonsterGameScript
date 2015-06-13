@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.11
+// @version 1.12
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -191,6 +191,8 @@ function startAutoAbilityUser() {
 		}
 		
 		// Decrease Cooldowns (doesn't stack, so make sure it's not already active)
+		//Temporarily disabled until we find a better trigger condition
+		/*
 		if(hasAbility(9) && !currentLaneHasAbility(9)) { 
 			// TODO: Any logic to using this?
 			if(debug)
@@ -198,6 +200,7 @@ function startAutoAbilityUser() {
 			
 			castAbility(9);
 		}
+		*/
 		
 		// Tactical Nuke
 		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
@@ -436,7 +439,7 @@ function compareMobPriority(mobA, mobB) {
 }
 
 function gameRunning() {
-	return typeof g_Minigame === "object";
+	return typeof g_Minigame === "object" && g_Minigame.m_CurrentScene.m_rgGameData.status == 2;
 }
 
 function addPointer() {
