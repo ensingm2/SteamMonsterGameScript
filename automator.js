@@ -94,9 +94,6 @@ function startAutoUpgradeManager() {
 		return;
 	}
 	
-	autoUpgradeManager = setInterval(function() {
-		if(debug)
-			console.log('Checking for worthwhile upgrades');
 	  /************
 	   * SETTINGS *
 	   ************/
@@ -318,7 +315,9 @@ function startAutoUpgradeManager() {
 	  /********
 	   * MAIN *
 	   ********/
-	  return function() {
+	autoUpgradeManager = setInterval(function() {
+		if(debug)
+			console.log('Checking for worthwhile upgrades');
 		scene = g_Minigame.CurrentScene();
 		if (scene.m_bUpgradesBusy) return;
 		if (next.id === -1 || timeToDie() < survivalTime) updateNext();
@@ -333,7 +332,6 @@ function startAutoUpgradeManager() {
 			});
 		  }
 		}
-	  };
 	}, upgradeManagerFreq );
 	
 	console.log("autoUpgradeManager has been started.");
