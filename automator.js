@@ -419,16 +419,23 @@ function startAutoAbilityUser() {
 			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
 		
 		// Moral Booster, Good Luck Charm, and Decrease Cooldowns
-		if(hasAbility(5) || hasAbility(6)) {
-			// Only use on targets that are spawners and have nearly full health
-			if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 80) {
-				// Don't use one if we don't have the other
-				if(!abilityIsUnlocked(5) || !abilityIsUnlocked(6) || (hasAbility(5) & hasAbility(6))) {
-					// Combo with decreased cooldowns
-					if (hasAbility(9) && !currentLaneHasAbility(9)) {
+		var moralBoosterReady = hasAbility(5);
+		var goodLuckCharmReady = hasAbility(6);
+		if(moralBoosterReady || goodLuckCharmReady) {
+			// If we have both we want to combo them
+			var moralBoosterUnlocked = abilityIsUnlocked(5);
+			var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+			
+			// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+			if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
+				// Only use on targets that are spawners and have nearly full health
+				if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 75) {
+					// Combo with Decrease Cooldowns ability
+					if(hasAbility(9) && !currentLaneHasAbility(9)) {
+						// Other abilities won't benifit if used at the same time
 						castAbility(9);
 					} else {
-						// Can't be cast at the same time as Decrease Cooldowns
+						// Use the abilities next pass
 						castAbility(5);
 						castAbility(6);
 					}
