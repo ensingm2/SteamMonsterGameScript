@@ -25,7 +25,7 @@ Feel free to edit any variables to suit your needs
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useNukeOnSpawnerAbovePercent (default: 75):** Above this % percentage threshold, a nuke will be used on a targeted spawner
 - **useMetalDetectorOnBossBelowPercent (default: 30):** Below this % percentage threshold, a Metal Detector will be used on a targeted boss
-- **seekHealingPercent (default: 50)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
+- **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
 
 ##Testing:
 If you would like to test the script, you have a few options

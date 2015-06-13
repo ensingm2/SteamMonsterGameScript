@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.05
+// @version 1.06
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -19,7 +19,7 @@ var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
 var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
-var seekHealingPercent = 50;
+var seekHealingPercent = 20;
 
 //item use variables
 var useMedicsAtPercent = 30;
