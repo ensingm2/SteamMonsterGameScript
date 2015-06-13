@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.29
+// @version 1.30
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -844,6 +844,11 @@ var startAll = setInterval(function() {
 		addPointer();
 		clearInterval(startAll);
 		addCustomButtons();
+		
+		//Hide the stupid "Leave game" tooltip
+		$J('.leave_game_btn').mouseover(function(){$J('.leave_game_helper').show();})
+			.mouseout(function(){$J('.leave_game_helper').hide();})
+			.mouseout();
 		
 		// Overwrite this function so it doesn't delete our sexy pointer
 		CSceneGame.prototype.ClearNewPlayer = function() {
