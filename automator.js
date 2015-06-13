@@ -701,7 +701,7 @@ function compareMobPriority(mobA, mobB) {
 	}
 
 	else if(aIsGold != bIsGold) {
-		if(aIsGold) {
+		if(aIsGold > bIsGold) {
 			swapReason = "Switching to target with Raining Gold.";
 			return true;
 		}
