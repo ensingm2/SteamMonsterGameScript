@@ -440,6 +440,8 @@ function startAutoItemUser() {
 			console.log("Checking if it's useful to use an item.");
 		
 		// Steal Health
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+		
 		if(percentHPRemaining <= useStealHealthAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			
 			//Can  cast and no other heals
