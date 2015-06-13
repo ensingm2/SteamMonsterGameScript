@@ -12,7 +12,7 @@
 // Credit to reddit users /u/leandr0c, /u/nbadal and /u/kolodz for additional code
 
 // Custom variables
-var debug = false;
+var debug = true;
 var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 clicksPerSecond -= Math.ceil(autoClickerVariance / 2);
@@ -22,6 +22,7 @@ var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
 var upgradeManagerFreq = 1000;
+var abilityUsageCD =15000;
 
 //item use variables
 var useMedicsAtPercent = 30;
@@ -38,6 +39,7 @@ var elementUpdateRate = 60000;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
 var swapReason;
+var timestampLastAbilityUsage =0;
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -318,7 +320,7 @@ function startAutoTargetSwapper() {
 			
 		//Switch to that target
 		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
+		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id) ) {
 			if(debug && swapReason != null) {
 				console.log(swapReason);
 				swapReason = null;
@@ -403,24 +405,25 @@ function startAutoAbilityUser() {
 		*/
 		
 		// Tactical Nuke
-		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && (timestampLastAbilityUsage+abilityUsageCD) <Date.now()) {
 			if(hasAbility(10)) {
 				if(debug)
 					console.log('Nuclear launch detected.');
 				
 				castAbility(10);
+				timestampLastAbilityUsage = Date.now();
+			} else if(hasAbility(11)) {
+				if(debug)
+					console.log('Cluster Bomb usage detected.');
+				castAbility(11);
+				timestampLastAbilityUsage = Date.now();
+			} else if(hasAbility(12)){
+				if(debug)
+					console.log('Napalm usage detected.');
+				castAbility(12);
+				timestampLastAbilityUsage = Date.now();
 			}
 			
-		}
-		
-		// Cluster Bomb
-		if(hasAbility(11)) { 
-			// TODO: Implement this
-		}
-		
-		// Napalm
-		if(hasAbility(12)) { 
-			// TODO: Implement this
 		}
 		
 	}, abilityUseCheckFreq);
