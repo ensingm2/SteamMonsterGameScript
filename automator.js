@@ -394,12 +394,12 @@ function compareMobPriority(mobA, mobB) {
 	if(aElemMult != bElemMult) {
 		swapReason = "Switching to elementally weaker target.";
 		
-		return aElemMult - bElemMult;
+		return bElemMult - aElemMult;
 	}
 	if(aHP != bHP) {
 		swapReason = "Switching to lower HP target.";
 		
-		return aHP - bHP;
+		return bHP - aHP;
 	}
 	return 0;
 }
