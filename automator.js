@@ -21,7 +21,7 @@ var targetSwapperFreq = 1000;
 var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
-var upgradeManagerFreq = 30000;
+var upgradeManagerFreq = 5000;
 
 //item use variables
 var useMedicsAtPercent = 30;
@@ -282,15 +282,21 @@ function startAutoUpgradeManager() {
 		return best;
 	  };
 
-	  var timeToDie = function() {
-		var maxHp = scene.m_rgPlayerTechTree.max_hp;
-		var enemyDps = scene.m_rgGameData.lanes.reduce(function(max, lane) {
-		  return Math.max(max, lane.enemies.reduce(function(sum, enemy) {
-			return sum + enemy.dps;
-		  }, 0));
-		}, 0);
-		return maxHp / (enemyDps || scene.m_rgGameData.level * 4 || 1);
-	  };
+	var timeToDie = (function() {
+		var lastLevel = 0;
+		var enemyDps;
+		return function() {
+			var level = scene.m_rgGameData.level;
+			if (level !== lastLevel) {
+				enemyDps = scene.m_rgGameData.lanes.reduce(function(max, lane) {
+					return Math.max(max, lane.enemies.reduce(function(sum, enemy) {
+						return sum + enemy.dps;
+					}, 0));
+				}, 0);
+			}
+			return scene.m_rgPlayerTechTree.max_hp / (enemyDps || scene.m_rgGameData.level * 4 || 1);
+		};
+	})();
 
 	  var updateNext = function() {
 		next = necessaryUpgrade();
