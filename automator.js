@@ -86,7 +86,31 @@ var upgradeManager = (function() {
   /************
    * SETTINGS *
    ************/
-  var survivalTime = 30; // buy armor if survival time is less than this (seconds)
+  // On each level, we check for the lane that has the highest enemy DPS.
+  // Based on that DPS, if we would not be able to survive more than
+  // `survivalTime` seconds, we should buy some armor.
+  var survivalTime = 30;
+
+  // To estimate the overall boost in damage from upgrading an element,
+  // we multiply the damage gained for just that element by this number.
+  // By default this is 25% under the assumption that each element is
+  // targeted with the same chance. However, if your playstyle (or auto
+  // clicker) focuses more on elements you're strong against, you can
+  // increase this number. Note that there's about a 58% chance of any
+  // single element to appear on a level, so I wouldn't recommend setting
+  // this higher than about 0.6 at most.
+  var elementalCoefficient = 0.35;
+
+  // How many elements do you want to upgrade? If we decide to upgrade an
+  // element, we'll try to always keep this many as close in levels as we
+  // can, and ignore the rest.
+  var elementalSpecializations = 2;
+
+  // To include passive DPS upgrades (Auto-fire, etc.) we have to scale
+  // down their DPS boosts for an accurate comparison to clicking. This
+  // is approximately how many clicks per second we should assume you are
+  // consistently doing. If you have an autoclicker, this is easy to set.
+  var clickFrequency = clicksPerSecond + Math.ceil(autoClickerVariance / 2);
 
   /***********
    * GLOBALS *
@@ -113,9 +137,10 @@ var upgradeManager = (function() {
     15, // Decrease Cooldowns
     12, // Morale Booster
   ];
+  var gHealthUpgrades = [0, 8, 20];
+  var gAutoUpgrades = [1, 9, 21];
   var gDamageUpgrades = [2, 10, 22];
   var gElementalUpgrades = [3, 4, 5, 6];
-  var gHealthUpgrades = [0, 8, 20];
 
   /***********
    * HELPERS *
@@ -187,33 +212,59 @@ var upgradeManager = (function() {
 
   var bestDamageUpgrade = function() {
     var best = { id: -1, cost: 0, dpg: 0 };
+    var dpc = scene.m_rgPlayerTechTree.damage_per_click;
+    var data, cost, dpg;
 
-    // check click damage direct upgrades
-    gDamageUpgrades.forEach(function(id) {
+    // check auto damage upgrades
+    gAutoUpgrades.forEach(function(id) {
       if (!canUpgrade(id)) return;
-      var data = scene.m_rgTuningData.upgrades[id];
-      var upgrade = getUpgrade(id);
-      var cost = data.cost * Math.pow(data.cost_exponential_base, upgrade.level);
-      var dpg = scene.m_rgTuningData.player.damage_per_click * data.multiplier / cost;
+      data = scene.m_rgTuningData.upgrades[id];
+      cost = data.cost * Math.pow(data.cost_exponential_base, getUpgrade(id).level);
+      dpg = (scene.m_rgPlayerTechTree.base_dps / clickFrequency) * data.multiplier / cost;
       if (dpg >= best.dpg) {
         best = { id: id, cost: cost, dpg: dpg };
       }
     });
 
+    // check click damage direct upgrades
+    gDamageUpgrades.forEach(function(id) {
+      if (!canUpgrade(id)) return;
+      data = scene.m_rgTuningData.upgrades[id];
+      cost = data.cost * Math.pow(data.cost_exponential_base, getUpgrade(id).level);
+      dpg = scene.m_rgTuningData.player.damage_per_click * data.multiplier / cost;
+      if (dpg >= best.dpg) {
+        best = { id: id, cost: cost, dpg: dpg };
+      }
+    });
+
+    // check Lucky Shot
+    if (canUpgrade(7)) {
+      data = scene.m_rgTuningData.upgrades[7];
+      cost = data.cost * Math.pow(data.cost_exponential_base, getUpgrade(7).level);
+      dpg = (scene.m_rgPlayerTechTree.crit_percentage * dpc) * data.multiplier / cost;
+      if (dpg > best.dpg) {
+        best = { id: 7, cost: cost, dpg: dpg };
+      }
+    }
+
     // check elementals
-    var data = scene.m_rgTuningData.upgrades[4];
+    data = scene.m_rgTuningData.upgrades[4];
     var elementalLevels = gElementalUpgrades.reduce(function(sum, id) {
       return sum + getUpgrade(id).level;
     }, 1);
-    var cost = data.cost * Math.pow(data.cost_exponential_base, elementalLevels);
-    var dpg = (0.25 * scene.m_rgPlayerTechTree.damage_per_click) * data.multiplier / cost;
+    cost = data.cost * Math.pow(data.cost_exponential_base, elementalLevels);
+    dpg = (elementalCoefficient * dpc) * data.multiplier / cost;
     if (dpg >= best.dpg) {
+      // get level of upgrade based on number of `elementalSpecializations`
       var level = gElementalUpgrades
         .map(function(id) { return getUpgrade(id).level; })
-        .sort(function(a, b) { return b - a; })[1];
+        .sort(function(a, b) { return b - a; })[elementalSpecializations - 1];
+
+      // find all matches elements and randomly pick one
       var match = gElementalUpgrades
         .filter(function(id) { return getUpgrade(id).level == level; });
       match = match[Math.floor(Math.random() * match.length)];
+
       best = { id: match, cost: cost, dpg: dpg };
     }
 
@@ -241,7 +292,7 @@ var upgradeManager = (function() {
         next = (damage.cost < ability.cost || ability.id === -1) ? damage : ability;
       }
     }
-    if (next.id !== -1) {
+    if (debug && next.id !== -1) {
       console.log(
         'next buy:',
         scene.m_rgTuningData.upgrades[next.id].name,
