@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.31
+// @version 1.32
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -464,39 +464,39 @@ function startAutoAbilityUser() {
 			// Abilitys only used when targeting Spawners
 			if(target.m_data.type == 0) {
 
-	                        // Moral Booster, Good Luck Charm, and Decrease Cooldowns
-	                        var moraleBoosterReady = hasAbility(5);
-        	                var goodLuckCharmReady = hasAbility(6);
-                	        if(moraleBoosterReady || goodLuckCharmReady) {
-                        	        // If we have both we want to combo them
-                                	var moraleBoosterUnlocked = abilityIsUnlocked(5);
-	                                var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+				// Moral Booster, Good Luck Charm, and Decrease Cooldowns
+				var moraleBoosterReady = hasAbility(5);
+				var goodLuckCharmReady = hasAbility(6);
+				if(moraleBoosterReady || goodLuckCharmReady) {
+					// If we have both we want to combo them
+					var moraleBoosterUnlocked = abilityIsUnlocked(5);
+					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
-	                                // "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-        	                        if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
+					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+					if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
-                	                        // Only use on targets that are spawners and have nearly full health
-                        	                if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
-                                	                // Combo these with Decrease Cooldowns ability
+						// Only use on targets that are spawners and have nearly full health
+						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+							// Combo these with Decrease Cooldowns ability
 
-                                        	        // If Decreased Cooldowns will be available soon, wait
+							// If Decreased Cooldowns will be available soon, wait
 							if(
 							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
 							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
 							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds and < 60
 							  ) {
-                                                        	if(hasAbility(9) && !currentLaneHasAbility(9)) {
-                                                                	// Other abilities won't benifit if used at the same time
-	                                                                castAbility(9);
-        	                                                } else {
-                	                                                // Use these abilities next pass
-                        	                                        castAbility(5);
-                                	                                castAbility(6);
-                                        	                }
-                                                	}
-	                                        }
-        	                        }
-                	        }
+									if(hasAbility(9) && !currentLaneHasAbility(9)) {
+											// Other abilities won't benifit if used at the same time
+											castAbility(9);
+									} else {
+											// Use these abilities next pass
+											castAbility(5);
+											castAbility(6);
+									}
+							}
+						}
+					}
+				}
 
 
 				// Tactical Nuke
@@ -729,9 +729,9 @@ function compareMobPriority(mobA, mobB) {
 	var bHP = mobB.m_data.hp;
 
 	//First, make sure they're alive
-	if(mobA.m_bIsDestroyed)
+	if(mobA.m_bIsDestroyed || aHP <= 0)
 		return false;
-	else if(mobB.m_bIsDestroyed) {
+	else if(mobB.m_bIsDestroyed || bHP <= 0) {
 		swapReason = "Swapping off a destroyed mob.";
 		return true;
 	}
