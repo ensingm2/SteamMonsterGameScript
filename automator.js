@@ -200,13 +200,12 @@ function startAutoAbilityUser() {
 			
 		}
 		
-		// Decrease Cooldowns
-		if(hasAbility(9)) { 
+		// Decrease Cooldowns (doesn't stack, so make sure it's not already active)
+		if(hasAbility(9) && !currentLaneHasAbility(9)) { 
 			// TODO: Any logic to using this?
 			if(debug)
 				console.log('Decreasing cooldowns.');
 			
-			// TODO: make sure one's not active already
 			castAbility(9);
 		}
 		
@@ -326,6 +325,10 @@ function disableAutoNukes() {
 function castAbility(abilityID) {
 	if(hasAbility(abilityID))
 		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+}
+
+function currentLaneHasAbility(abilityID) {
+	return g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
