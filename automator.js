@@ -134,11 +134,11 @@ function startAutoTargetSwapper() {
 			}
 			
 			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp < testMob.m_data.hp) {
+			else if(newTarget.m_data.hp > testMob.m_data.hp) {
 				setTarget = true;
 				
 				if(setTarget && debug)
-					console.log('Switching to a higher health target.');
+					console.log('Switching to a lower health target.');
 			}
 			
 			//If needed, overwrite the new target to the mob
