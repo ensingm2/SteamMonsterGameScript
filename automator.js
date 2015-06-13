@@ -431,13 +431,17 @@ function startAutoAbilityUser() {
 				// Only use on targets that are spawners and have nearly full health
 				if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 75) {
 					// Combo with Decrease Cooldowns ability
-					if(hasAbility(9) && !currentLaneHasAbility(9)) {
-						// Other abilities won't benifit if used at the same time
-						castAbility(9);
-					} else {
-						// Use the abilities next pass
-						castAbility(5);
-						castAbility(6);
+
+					// If Decreased Cooldowns will be available soon, wait
+					if(abilityIsUnlocked(9) && abilityCooldown(9) < 60) {
+						if(hasAbility(9) && !currentLaneHasAbility(9)) {
+							// Other abilities won't benifit if used at the same time
+							castAbility(9);
+						} else {
+							// Use these abilities next pass
+							castAbility(5);
+							castAbility(6);
+						}
 					}
 				}
 			}
@@ -621,12 +625,17 @@ function abilityIsUnlocked(abilityID) {
 	return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
 }
 
+// Ability cooldown time remaining (in seconds)
+function abilityCooldown(abilityID) {
+	return g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
+}
+
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
 function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return abilityIsUnlocked(abilityID) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
 }
 
 function updateUserElementMultipliers() {
