@@ -434,36 +434,6 @@ function startAutoAbilityUser() {
 		if(target) {
 			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
 		
-			// Moral Booster, Good Luck Charm, and Decrease Cooldowns
-			var moralBoosterReady = hasAbility(5);
-			var goodLuckCharmReady = hasAbility(6);
-			if(moralBoosterReady || goodLuckCharmReady) {
-				// If we have both we want to combo them
-				var moralBoosterUnlocked = abilityIsUnlocked(5);
-				var goodLuckCharmUnlocked = abilityIsUnlocked(6);
-				
-				// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-				if(!moralBoosterUnlocked || !goodLuckCharmUnlocked || (moralBoosterReady && goodLuckCharmReady)) {
-					// Only use on targets that are spawners and have nearly full health
-					if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 75) {
-						// Combo with Decrease Cooldowns ability
-
-						// If Decreased Cooldowns will be available soon, wait
-						if(abilityIsUnlocked(9) && abilityCooldown(9) < 60) {
-							if(hasAbility(9) && !currentLaneHasAbility(9)) {
-								// Other abilities won't benifit if used at the same time
-								castAbility(9);
-							} else {
-								// Use these abilities next pass
-								castAbility(5);
-								castAbility(6);
-							}
-						}
-					}
-				}
-			}
-		
-	
 			// Metal Detector
 			if(target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
 				if(hasAbility(8)) {
