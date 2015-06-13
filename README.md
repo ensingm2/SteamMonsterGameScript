@@ -4,7 +4,7 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 
 ##Basic Use:
 Just load the script after the game fully loads in, and all automated processes will start immediately.
-To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console, and hit return to run it.
+To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
 To stop, run "stopAllAutos()" in the console.
 
 ##Specifics:
