@@ -774,10 +774,14 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.stopAutoTargetSwapper = stopAutoTargetSwapper;
 	unsafeWindow.stopAutoAbilityUser = stopAutoAbilityUser;
 	unsafeWindow.stopAutoItemUser = stopAutoItemUser;
+	unsafeWindow.stopAutoUpgradeManager = stopAutoUpgradeManager;
 	unsafeWindow.stopAllAutos = stopAllAutos;
 	unsafeWindow.disableAutoNukes = disableAutoNukes;
 	unsafeWindow.castAbility = castAbility;
 	unsafeWindow.hasAbility = hasAbility;
+	//Add closure 'debug' getter and setter
+    	unsafeWindow.getDebug = function() { return debug; };
+    	unsafeWindow.setDebug = function(state) { debug = state; };
 }
 
 //Keep trying to start every second till success
