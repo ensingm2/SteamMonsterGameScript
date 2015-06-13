@@ -420,20 +420,7 @@ function startAutoAbilityUser() {
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		var targetPercentHPRemaining;
-		if(target)
-			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
-		
-		// Morale Booster
-		if(hasAbility(5)) { 
-			// TODO: Implement this
-		}
-		
-		// Good Luck Charm
-		if(hasAbility(6)) { 
-			// TODO: Implement this
-		}
-		
+
 		// Medics
 		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
@@ -448,49 +435,80 @@ function startAutoAbilityUser() {
 			else if(debug)
 				console.log("No medics to unleash!");
 		}
-	
-		// Metal Detector
-		if(target != undefined && target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
-			if(hasAbility(8)) {
-				if(debug)
-					console.log('Using Metal Detector.');
-				
-				castAbility(8);
+
+		// Abilities only used on targets
+		if(target) {
+			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+		
+			// Metal Detector
+			if(target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
+				if(hasAbility(8)) {
+					if(debug)
+						console.log('Using Metal Detector.');
+					
+					castAbility(8);
+				}
 			}
 			
-		}
+			// Abilitys only used when targeting Spawners
+			if(target.m_data.type == 0) {
+
+	                        // Moral Booster, Good Luck Charm, and Decrease Cooldowns
+	                        var moraleBoosterReady = hasAbility(5);
+        	                var goodLuckCharmReady = hasAbility(6);
+                	        if(moraleBoosterReady || goodLuckCharmReady) {
+                        	        // If we have both we want to combo them
+                                	var moraleBoosterUnlocked = abilityIsUnlocked(5);
+	                                var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+
+	                                // "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+        	                        if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
+						var currentLaneHasCooldown = currentLaneHasAbility(9);
+                	                        // Only use on targets that are spawners and have nearly full health
+                        	                if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+                                	                // Combo these with Decrease Cooldowns ability
+
+                                        	        // If Decreased Cooldowns will be available soon, wait
+							if(
+							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
+							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
+							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds and < 60
+							  ) {
+                                                        	if(hasAbility(9) && !currentLaneHasAbility(9)) {
+                                                                	// Other abilities won't benifit if used at the same time
+	                                                                castAbility(9);
+        	                                                } else {
+                	                                                // Use these abilities next pass
+                        	                                        castAbility(5);
+                                	                                castAbility(6);
+                                        	                }
+                                                	}
+	                                        }
+        	                        }
+                	        }
+
+
+				// Tactical Nuke
+				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+					if(debug)
+						console.log('Nuclear launch detected.');
+					
+					castAbility(10);
+				}
+
 		
-		// Decrease Cooldowns (doesn't stack, so make sure it's not already active)
-		//Temporarily disabled until we find a better trigger condition
-		/*
-		if(hasAbility(9) && !currentLaneHasAbility(9)) { 
-			// TODO: Any logic to using this?
-			if(debug)
-				console.log('Decreasing cooldowns.');
-			
-			castAbility(9);
-		}
-		*/
+				// Cluster Bomb
+				if(hasAbility(11) && targetPercentHPRemaining >= 25) { 
+					castAbility(11);
+				}
+
 		
-		// Tactical Nuke
-		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-			if(hasAbility(10)) {
-				if(debug)
-					console.log('Nuclear launch detected.');
-				
-				castAbility(10);
+				// Napalm
+				if(hasAbility(12) && !currentLaneHasAbility(12) && targetPercentHPRemaining >= 50) { 
+					castAbility(12);
+				}
+
 			}
-			
-		}
-		
-		// Cluster Bomb
-		if(hasAbility(11)) { 
-			// TODO: Implement this
-		}
-		
-		// Napalm
-		if(hasAbility(12)) { 
-			// TODO: Implement this
 		}
 		
 	}, abilityUseCheckFreq);
@@ -617,7 +635,16 @@ function currentLaneHasAbility(abilityID) {
 }
 
 function laneHasAbility(lane, abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+	return typeof(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID]) != 'undefined';
+}
+
+function abilityIsUnlocked(abilityID) {
+	return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
+}
+
+// Ability cooldown time remaining (in seconds)
+function abilityCooldown(abilityID) {
+	return g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -625,7 +652,7 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
 }
 
 function updateUserElementMultipliers() {
