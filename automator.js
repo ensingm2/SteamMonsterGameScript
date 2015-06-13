@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.12
+// @version 1.13
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -27,6 +27,7 @@ var upgradeManagerFreq = 1000;
 var useMedicsAtPercent = 30;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
+var useStealHealthAtPercent = 15;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -368,8 +369,8 @@ function startAutoAbilityUser() {
 			if(debug)
 				console.log("Health below threshold. Need medics!");
 			
-			// TODO: Only use if there isn't already a Medics active?
-			if(hasAbility(7)) {
+			// Only use if there isn't already a Medics active?
+			if(hasAbility(7) && !currentLaneHasAbility(7)) {
 				if(debug)
 					console.log("Unleash the medics!");
 				castAbility(7);
@@ -438,7 +439,16 @@ function startAutoItemUser() {
 		if(debug)
 			console.log("Checking if it's useful to use an item.");
 		
-		// TODO: Implement This
+		// Steal Health
+		if(percentHPRemaining <= useStealHealthAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
+			
+			//Can  cast and no other heals
+			if(hasAbility(23) && !currentLaneHasAbility(7)) {
+				if(debug)
+					console.log("Stealing Health!");
+				castAbility(23);
+			}
+		}
 		
 	}, itemUseCheckFreq);
 	
