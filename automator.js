@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.21
+// @version 1.22
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -39,7 +39,6 @@ var elementUpdateRate = 60000;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
 var swapReason;
-var modifiedCPS = clicksPerSecond;
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -53,7 +52,10 @@ function startAutoClicker() {
 
 		//Vary the number of clicks by up to the autoClickerVariance variable (plus or minus)
 		var randomVariance = Math.floor(Math.random() * autoClickerVariance * 2) - (autoClickerVariance);
-		var clicks = modifiedCPS + randomVariance;
+		var clicks = clicksPerSecond + randomVariance;
+		
+		if(currentLaneHasAbility(17))
+			clicks *= rainingGoldClickMultiplier;
 		
 		// Set the variable to be sent to the server
 		g_Minigame.m_CurrentScene.m_nClicks = clicks;
@@ -64,7 +66,7 @@ function startAutoClicker() {
 		// Update Gold Counter
 		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
         var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
-        if( enemy != undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
+        if( enemy != undefined && enemy.m_data != undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
 			var nClickGold = enemy.m_data.gold * nClickGoldPct * clicks;
 			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
 			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
@@ -408,11 +410,6 @@ function startAutoTargetSwapper() {
 			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
 				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
-			
-			if(swapReason != "Switching to target with Raining Gold.")
-				modifiedCPS = g_TuningData.abilities[1].max_num_clicks = clicksPerSecond;
-			else
-				modifiedCPS = g_TuningData.abilities[1].max_num_clicks = clicksPerSecond * rainingGoldClickMultiplier;
 
 		}
 		//Move back to lane if still targetting
@@ -437,7 +434,8 @@ function startAutoAbilityUser() {
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-
+		
+		//TODO: Also trigger if overall lane health is low?
 		// Medics
 		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
