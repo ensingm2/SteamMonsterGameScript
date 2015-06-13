@@ -418,14 +418,23 @@ function startAutoAbilityUser() {
 		if(target)
 			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
 		
-		// Morale Booster
-		if(hasAbility(5)) { 
-			// TODO: Implement this
-		}
-		
-		// Good Luck Charm
-		if(hasAbility(6)) { 
-			// TODO: Implement this
+		// Moral Booster and Good Luck Charm
+		if(hasAbility(5) || hasAbility(6)) {
+			// Don't use on bosses, we want to maximize gold
+			if(target.m_data.type != 2) {
+				// Don't use one if we don't have the other
+				if(!abilityIsUnlocked(5) || !abilityIsUnlocked(6) || (hasAbility(5) & hasAbility(6)) {
+					// Logic needs to go here to decide if the lane has enough health
+					if (true) {
+						// Combo with decreased cooldowns
+						if (hasAbility(9) && !currentLaneHasAbility(9)) {
+							castAbility(9);
+						}
+						castAbility(5);
+						castAbility(6);
+					}
+				}
+			}
 		}
 		
 		// Medics
