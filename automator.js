@@ -88,7 +88,8 @@ function startAutoTargetSwapper() {
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
 	
 	autoTargetSwapper = setInterval(function() {
-        var newTarget = null;
+		var currentTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+        var newTarget = currentTarget;
 		var newTargetIsGold = false;
 		var newTargetElement = -1;
 		
@@ -99,12 +100,12 @@ function startAutoTargetSwapper() {
 			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
 			var testMobElement = g_Minigame.m_CurrentScene.m_rgGameData.lanes[testMob.m_nLane].element;
 			
-			//No target yet
-			if(newTarget == undefined)
-				setTarget = true;
+			//Do nothing if already selected
+			if(testMob == currentTarget || testMob == newTarget) {}
 			
-			//Same mob
-			//else if(testMob.m_bIsDestroyed || newTarget.m_data.id == testMob.m_data.id); // Do nothing
+			//No target yet
+			else if(newTarget == undefined)
+				setTarget = true;
 			
 			//check for raining gold above all else (ability 17)
 			else if(testMobIsGold && !newTargetIsGold) {
@@ -145,22 +146,21 @@ function startAutoTargetSwapper() {
 			}
 			
 			//Same type, prioritize by element
-			else if(newTargetElement != testMobElement)
+			else if(newTargetElement != testMobElement) {
 				if(userElementMultipliers[newTargetElement] < userElementMultipliers[testMobElement]) {
-					if(setTarget && debug)
-						console.log('Switching to a lane with elemental weakness.');
 					setTarget = true;
+					if(debug)
+						console.log('Switching to a lane with elemental weakness.');
 				}
+			}
+			
 			
 			//Same type & element, prioritize by health remaining
 			else if(newTarget.m_data.hp > testMob.m_data.hp) {
 				setTarget = true;
 				
-				if(debug) {
+				if(debug)
 					console.log('Switching to a lower health target.');
-					console.log(newTarget);
-					console.log(testMob);
-				}
 			}
 			
 			//If needed, overwrite the new target to the mob
@@ -172,10 +172,10 @@ function startAutoTargetSwapper() {
         });
 		
 		//Switch to that target
-		if(newTarget != undefined){
+		if(newTarget != currentTarget){
 			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane)
-				if(g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane))
-					g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
+				g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane);
+			g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
 		}
 	}, targetSwapperFreq);
 	
