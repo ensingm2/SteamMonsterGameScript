@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.35
+// @version 1.36
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -758,7 +758,7 @@ function compareMobPriority(mobA, mobB) {
 	}
 
 	else if(aIsGold != bIsGold) {
-		if(aIsGold > bIsGold) {
+		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
 			swapReason = "Switching to target with Raining Gold.";
 			return true;
 		}
