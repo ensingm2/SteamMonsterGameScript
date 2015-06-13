@@ -457,15 +457,16 @@ function startAutoAbilityUser() {
 
 	                                // "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
         	                        if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
+						var currentLaneHasCooldown = currentLaneHasAbility(9);
                 	                        // Only use on targets that are spawners and have nearly full health
-                        	                if(targetPercentHPRemaining >= 70) {
+                        	                if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
                                 	                // Combo these with Decrease Cooldowns ability
 
                                         	        // If Decreased Cooldowns will be available soon, wait
 							if(
-							   currentLaneHasAbility(9) || // If current lane already has Decreased Cooldown, or
-							   !abilityIsUnlocked(9) ||    // if we haven't unlocked the ability yet, or
-							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds, but < 60
+							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
+							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
+							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds and < 60
 							  ) {
                                                         	if(hasAbility(9) && !currentLaneHasAbility(9)) {
                                                                 	// Other abilities won't benifit if used at the same time
