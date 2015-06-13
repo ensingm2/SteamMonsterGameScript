@@ -461,7 +461,7 @@ var startAll = setInterval(function() {
 		startAllAutos();
 		addPointer();
 		clearInterval(startAll);
-	}, 1000)
+	}, 1000);
 
 // Overwrite this function so it doesn't delete our sexy pointer
 CSceneGame.prototype.ClearNewPlayer = function() {
