@@ -70,6 +70,7 @@ function startAutoClicker() {
 				console.log('Clicking ' + clicks + ' times this second. (1 crit).');
 			else
 				console.log('Clicking ' + clicks + ' times this second.');
+				console.log('We did roughly ' + (g_Minigame.m_CurrentScene.CalculateDamage(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * userMaxElementMultiiplier * g_Minigame.m_CurrentScene.m_nClicks)) + ' damage in the last second.');
 		}
 		
 	}, autoClickerFreq);
