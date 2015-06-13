@@ -98,28 +98,25 @@ function startAutoTargetSwapper() {
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
 	
 	autoTargetSwapper = setInterval(function() {
-		
-			
+
 		var currentTarget = null;
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-				if(currentTarget == null || compareMobPriority(potentialTarget, currentTarget) > 0) {
+				if(currentTarget == null || compareMobPriority(potentialTarget, currentTarget) > 0)
 					currentTarget = potentialTarget;
-				}
 		});
 			
 		//Switch to that target
-		if(currentTarget != null && currentTarget != g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target]) {
-			if(debug) {
-				console.log("switching targets");
+		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
+			if(debug) 
 				console.log(swapReason);
-			}
 			
 			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
 				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
 		}
 		//Move back to lane if still targetting
-		else if(currentTarget != null && currentTarget == currentTarget && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+		else if(currentTarget != null && oldTarget == undefined && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
 	}, targetSwapperFreq);
@@ -323,10 +320,10 @@ function hasAbility(abilityID) {
 function updateUserElementMultipliers() {
 	if(!gameRunning()) return;
 	
-	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
-	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
-	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
-	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
+	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
+	userElementMultipliers[4] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
+	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
+	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
 	
 	userMaxElementMultiiplier = Math.max.apply(null, userElementMultipliers);
  }
@@ -377,21 +374,31 @@ function compareMobPriority(mobA, mobB) {
 	var aNearDeath = aHPPercent < 0.05;
 	var bNearDeath = bHPPercent < 0.05;
 
-	if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
+	//First, make sure they're alive
+	if(mobA.m_bIsDestroyed)
+		return 1;
+	else if(mobB.m_bIsDestroyed)
+		return -1;
+	
+	//Run to a medic lane if needed
+	else if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
 		if(aHasHealing != bHasHealing) {
-			swapReason = "Swapping to lane with active healing.";
+			if(!aHasHealing)
+				swapReason = "Swapping to lane with active healing.";
 
 			return (aHasHealing ? 1 : -1);
 		}
 	}
 
-	if(aIsGold != bIsGold) {		
-		swapReason = "Switching to target with Raining Gold.";
+	if(aIsGold != bIsGold) {
+		if(!aIsGold)
+			swapReason = "Switching to target with Raining Gold.";
 		
 		return (aIsGold ? 1 : -1);
 	}
-	if(aTypePriority != bTypePriority) {
-		swapReason = "Switching to higher priority target.";
+	if(aTypePriority != bTypePriority) {		
+		if(aTypePriority < bTypePriority)
+			swapReason = "Switching to higher priority target.";
 		
 		return aTypePriority - bTypePriority;
 	}
@@ -401,12 +408,14 @@ function compareMobPriority(mobA, mobB) {
 		return bHPPercent - aHPPercent;
 	}
 	if(aElemMult != bElemMult) {
-		swapReason = "Switching to elementally weaker target.";
+		if(bElemMult < aElemMult)
+			swapReason = "Switching to elementally weaker target.";
 		
 		return bElemMult - aElemMult;
 	}
 	if(aHP != bHP) {
-		swapReason = "Switching to lower HP target.";
+		if(bHP < aHP)
+			swapReason = "Switching to lower HP target.";
 		
 		return bHP - aHP;
 	}
