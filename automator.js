@@ -67,7 +67,6 @@ function startAutoRespawner() {
 	}
 	
 	autoRespawner = setInterval( function(){
-		if(!gameRunning()) return;
 		
 		if(debug)
 			console.log('Checking if the player is dead.');
@@ -95,7 +94,6 @@ function startAutoTargetSwapper() {
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
 	
 	autoTargetSwapper = setInterval(function() {
-		if(!gameRunning()) return;
 		
 			
 		var currentTarget = null;
@@ -132,7 +130,6 @@ function startAutoAbilityUser() {
 	}
 
 	autoAbilityUser = setInterval(function() {
-		if(!gameRunning()) return;
 		
 		if(debug)
 			console.log("Checking if it's useful to use an ability.");
@@ -221,7 +218,6 @@ function startAutoItemUser() {
 	}
 
 	autoItemUser = setInterval(function() {
-		if(!gameRunning()) return;
 		
 		if(debug)
 			console.log("Checking if it's useful to use an item.");
@@ -407,6 +403,35 @@ function compareMobPriority(mobA, mobB) {
 function gameRunning() {
 	return typeof g_Minigame === "object";
 }
+
+function addPointer() {
+	g_Minigame.m_CurrentScene.m_rgFingerTextures = [];
+	var w = 26;
+	var h = 49;
+
+
+	for( var y = 0; y < 4; y++)
+	{
+		for( var x = 0; x < 5; x++ )
+
+		{
+			g_Minigame.m_CurrentScene.m_rgFingerTextures.push( new PIXI.Texture( g_rgTextureCache.pointer.texture, {
+				x: x * w,
+				y: y * h,
+				width: w,
+				height: h
+			} )
+			);
+		}
+	}
+
+	g_Minigame.m_CurrentScene.m_nFingerIndex = 0;
+
+	g_Minigame.m_CurrentScene.m_spriteFinger = new PIXI.Sprite( g_Minigame.m_CurrentScene.m_rgFingerTextures[g_Minigame.m_CurrentScene.m_nFingerIndex] );
+	g_Minigame.m_CurrentScene.m_spriteFinger.scale.x = g_Minigame.m_CurrentScene.m_spriteFinger.scale.y = 2;
+
+	g_Minigame.m_CurrentScene.m_containerParticles.addChild( g_Minigame.m_CurrentScene.m_spriteFinger );
+}
 		
 
 //Expose functions if running in userscript
@@ -428,5 +453,13 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.hasAbility = hasAbility;
 }
 
-//Start all autos
-startAllAutos();
+//Keep trying to start every second till success
+var showPointer = setInterval(function() { 
+		if(!gameRunning())
+			return;
+		
+		startAllAutos();
+		addPointer();
+		clearInterval(showPointer);
+	}, 1000)
+
