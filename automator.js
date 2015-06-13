@@ -462,7 +462,11 @@ function startAutoAbilityUser() {
                                 	                // Combo these with Decrease Cooldowns ability
 
                                         	        // If Decreased Cooldowns will be available soon, wait
-                                                	if((abilityIsUnlocked(9) && abilityCooldown(9) < 60) || currentLaneHasAbility(9)) {
+							if(
+							   currentLaneHasAbility(9) || // If current lane already has Decreased Cooldown, or
+							   !abilityIsUnlocked(9) ||    // if we haven't unlocked the ability yet, or
+							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds, but < 60
+							  ) {
                                                         	if(hasAbility(9) && !currentLaneHasAbility(9)) {
                                                                 	// Other abilities won't benifit if used at the same time
 	                                                                castAbility(9);
