@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.32
+// @version 1.34
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -464,16 +464,17 @@ function startAutoAbilityUser() {
 			// Abilitys only used when targeting Spawners
 			if(target.m_data.type == 0) {
 
-				// Moral Booster, Good Luck Charm, and Decrease Cooldowns
+				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
+				var critReady = hasAbility(18) && autoItemUser;
 				if(moraleBoosterReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
 					var moraleBoosterUnlocked = abilityIsUnlocked(5);
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || (moraleBoosterReady && goodLuckCharmReady)) {
+					if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady )&& goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
 						// Only use on targets that are spawners and have nearly full health
 						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
@@ -483,14 +484,20 @@ function startAutoAbilityUser() {
 							if(
 							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
 							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
-							   (abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 0 seconds and < 60
+							   !(abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 60
 							  ) {
 									if(hasAbility(9) && !currentLaneHasAbility(9)) {
 											// Other abilities won't benifit if used at the same time
 											castAbility(9);
 									} else {
 											// Use these abilities next pass
-											castAbility(5);
+											
+											//Use crit if one's available
+											if(critReady)
+												castAbility(18);
+											else
+												castAbility(5);
+											
 											castAbility(6);
 									}
 							}
@@ -637,8 +644,12 @@ function disableAutoNukes() {
 
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
-	if(hasAbility(abilityID))
-		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+	if(hasAbility(abilityID)) {
+		if(abilityID <= 12)
+			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+		else 
+			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
+	}
 }
 
 function currentLaneHasAbility(abilityID) {
@@ -666,7 +677,7 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
+	return (abilityIsUnlocked(abilityID) || abilityID > 12) && abilityCooldown(abilityID) <= 0;
 }
 
 function updateUserElementMultipliers() {
@@ -830,6 +841,14 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.disableAutoNukes = disableAutoNukes;
 	unsafeWindow.castAbility = castAbility;
 	unsafeWindow.hasAbility = hasAbility;
+	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
+	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
+	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
+	unsafeWindow.toggleAutoItemUser = toggleAutoItemUser;
+	unsafeWindow.toggleAutoUpgradeManager = toggleAutoUpgradeManager;
+	unsafeWindow.spamNoClick = spamNoClick;
+	unsafeWindow.toggleSpammer = toggleSpammer;
+	
 	//Add closure 'debug' getter and setter
     	unsafeWindow.getDebug = function() { return debug; };
     	unsafeWindow.setDebug = function(state) { debug = state; };
