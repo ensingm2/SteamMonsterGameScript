@@ -83,70 +83,12 @@ function startAutoTargetSwapper() {
 	}
 
 	autoTargetSwapper = setInterval(function() {
-        var newTarget = null;
-		var newTargetIsGold = false;
-        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
-			
-			var setTarget = false;
-			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
-			//var testMobIsElemental = false;
-			
-			//No target yet
-			if(newTarget == undefined)
-				setTarget = true;
-			
-			//check for raining gold above all else (ability 17)
-			else if(testMobIsGold && !newTargetIsGold) {
-				if(debug)
-					console.log('Switching lanes for Raining Gold!');
-				setTarget = true
-			}
-			
-			//different type, prioritize by type (treasure > boss > miniboss > spawner > creep)
-			// 0 - Spawner
-			// 1 - Creeps
-			// 2 - Boss
-			// 3 - MiniBoss
-			// 4 - Treasure Mob
-			//(why are the types so disorganized?)
-			else if(testMob.m_data.type != newTarget.m_data.type) {
-				
-				// Treasure Mob
-				if(testMob.m_data.type == 4)
-					setTarget = true;
-				
-				//Boss (?)
-				else if(testMob.m_data.type == 2 && newTarget.m_data.type != 3 && newTarget.m_data.type != 0 )
-					setTarget = true;
-				
-				//MiniBoss (?)
-				if(testMob.m_data.type == 3 && newTarget.m_data.type < 2)
-					setTarget = true;
-				
-				// Spawner
-				else if(testMob.m_data.type == 0)
-					setTarget = true;
-				
-				if(setTarget && debug)
-					console.log('Switching to a higher priority mob type.');
-				
-				//Creeps should never be targeted by this block
-			}
-			
-			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp < testMob.m_data.hp) {
-				setTarget = true;
-				
-				if(setTarget && debug)
-					console.log('Switching to a higher health target.');
-			}
-			
-			//If needed, overwrite the new target to the mob
-			if(setTarget){
+	var newTarget = null;
+	g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
+			if(newTarget == null || compareMobPriority(testMob, newTarget) > 0) {
 				newTarget = testMob;
-				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
 			}
-        });
+	});
 		
 		//Switch to that target
 		if(newTarget != undefined){
@@ -156,6 +98,44 @@ function startAutoTargetSwapper() {
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
+}
+
+// Return a value to compare mobs' priority (lower value = less important)
+//  (treasure > boss > miniboss > spawner > creep)
+function getMobTypePriority(testMob) {
+	mobType = testMob.m_data.type;
+	switch(mobType) {
+		case 0: // Spawner
+			return 0;
+		case 3: // Miniboss
+			return 1;
+		case 2: // Boss
+			return 2;
+		case 4: // Treasure
+			return 3;
+	}
+	return -Number.MAX_VALUE;
+}
+
+// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
+function compareMobPriority(mobA, mobB) {
+	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
+	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
+	var aTypePriority = getMobTypePriority(mobA);
+	var bTypePriority = getMobTypePriority(mobB);
+	var aHP = mobA.m_data.hp;
+	var bHP = mobB.m_data.hp;
+
+	if(aIsGold != bIsGold) {
+		return (aIsGold ? 1 : -1);
+	}
+	if(aTypePriority != bTypePriority) {
+		return aTypePriority - bTypePriority;
+	}
+	if(aHP != bHP) {
+		return aHP - bHP;
+	}
+	return 0;
 }
 
 function startAutoAbilityUser() {
