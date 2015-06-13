@@ -79,7 +79,7 @@ function startAutoTargetSwapper() {
 			
 			var setTarget = false;
 			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
-			var testMobIsElemental = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
+			//var testMobIsElemental = false;
 			
 			//No target yet
 			if(newTarget == undefined)
