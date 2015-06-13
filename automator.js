@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.16
+// @version 1.17
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -75,11 +75,11 @@ function startAutoClicker() {
 			var damage = g_Minigame.m_CurrentScene.CalculateDamage(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * userMaxElementMultiiplier * g_Minigame.m_CurrentScene.m_nClicks);
 			var damageStr = "(unknown)";
 			if (damage > 1000000000)
-				damageStr = (damage / 1000000000) + "B"
+				damageStr = (damage / 1000000000) + "B";
 			else if (damage > 1000000)
-				damageStr = (damage / 1000000) + "M"
+				damageStr = (damage / 1000000) + "M";
 			else if (damage > 1000)
-				damageStr = (damage / 1000) + "K"
+				damageStr = (damage / 1000) + "K";
 			console.log('We did roughly ' + damageStr + ' damage in the last second.');
 		}
 		
