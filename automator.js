@@ -12,7 +12,7 @@
 // Credit to reddit users /u/leandr0c, /u/nbadal and /u/kolodz for additional code
 
 // Custom variables
-var debug = true;
+var debug = false;
 var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 clicksPerSecond -= Math.ceil(autoClickerVariance / 2);
@@ -445,13 +445,20 @@ function startAutoAbilityUser() {
 				console.log("No medics to unleash!");
 		}
 	
-		// Metal Detector
+		// Metal Detector  & Raining Gold for Boss !
 		if(target != undefined && target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
 			if(hasAbility(8)) {
 				if(debug)
 					console.log('Using Metal Detector.');
 				
 				castAbility(8);
+			}
+			
+			if(hasAbility(17)) {
+				if(debug)
+					console.log('Using Raining Gold.');
+				
+				castAbility(17);
 			}
 			
 		}
