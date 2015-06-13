@@ -485,13 +485,13 @@ function startAutoAbilityUser() {
 		}
 		
 		// Cluster Bomb
-		if(hasAbility(11)) { 
-			// TODO: Implement this
+		if(hasAbility(11) && !currentLaneHasAbility(11) && target.m_data.type == 0 && targetPercentHPRemaining >= 50) { 
+			castAbility(11);
 		}
 		
 		// Napalm
-		if(hasAbility(12)) { 
-			// TODO: Implement this
+		if(hasAbility(12) && !currentLaneHasAbility(11) && target.m_data.type == 0 && targetPercentHPRemaining >= 50) { 
+			castAbility(12);
 		}
 		
 	}, abilityUseCheckFreq);
