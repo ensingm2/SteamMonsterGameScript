@@ -650,7 +650,10 @@ function currentLaneHasAbility(abilityID) {
 }
 
 function laneHasAbility(lane, abilityID) {
-	return typeof(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID]) != 'undefined';
+	if(typeof(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID]) == 'undefined')
+		return 0;
+	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+	
 }
 
 function abilityIsUnlocked(abilityID) {
@@ -748,7 +751,7 @@ function compareMobPriority(mobA, mobB) {
 	}
 
 	else if(aIsGold != bIsGold) {
-		if(aIsGold) {
+		if(aIsGold > bIsGold) {
 			swapReason = "Switching to target with Raining Gold.";
 			return true;
 		}
