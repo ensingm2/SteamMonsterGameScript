@@ -322,7 +322,11 @@ function castAbility(abilityID) {
 }
 
 function currentLaneHasAbility(abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].abilities[abilityID];
+	return laneHasAbility(g_Minigame.CurrentScene().m_rgPlayerData.current_lane, abilityID);
+}
+
+function laneHasAbility(lane, abilityID) {
+	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -371,11 +375,11 @@ function compareMobPriority(mobA, mobB) {
 	}
 	
 	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-	var aHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[7];
-	var bHasHealing = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[7];
+	var aHasHealing = laneHasAbility(mobA.m_nLane, 7) || laneHasAbility(mobA.m_nLane, 23);
+	var bHasHealing = laneHasAbility(mobB.m_nLane, 7) || laneHasAbility(mobB.m_nLane, 23);
 
-	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
-	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
+	var aIsGold = laneHasAbility(mobA.m_nLane, 17);
+	var bIsGold = laneHasAbility(mobB.m_nLane, 17);
 	
 	var aTypePriority = getMobTypePriority(mobA);
 	var bTypePriority = getMobTypePriority(mobB);
@@ -384,9 +388,9 @@ function compareMobPriority(mobA, mobB) {
 	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
 
 	//check for Max Elemental Damage Ability
-	if(g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[16])
+	if(laneHasAbility(mobA.m_nLane, 16))
 		aElemMult = userMaxElementMultiiplier;
-	if(g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[16])
+	if(laneHasAbility(mobB.m_nLane, 16))
 		bElemMult = userMaxElementMultiiplier;
 	
 	
