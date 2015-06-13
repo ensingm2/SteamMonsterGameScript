@@ -318,22 +318,20 @@ function startAutoUpgradeManager() {
 	  /********
 	   * MAIN *
 	   ********/
-	  return function() {
-		scene = g_Minigame.CurrentScene();
-		if (scene.m_bUpgradesBusy) return;
-		if (next.id === -1 || timeToDie() < survivalTime) updateNext();
-		if (next.id !== -1) {
-		  if (next.cost <= scene.m_rgPlayerData.gold) {
-			$J('.link').each(function() {
-			  if ($J(this).data('type') === next.id) {
-				scene.TryUpgrade(this);
-				next.id = -1;
-				return false;
-			  }
-			});
+	  scene = g_Minigame.CurrentScene();
+	  if (scene.m_bUpgradesBusy) return;
+	  if (next.id === -1 || timeToDie() < survivalTime) updateNext();
+	  if (next.id !== -1) {
+	    if (next.cost <= scene.m_rgPlayerData.gold) {
+  		$J('.link').each(function() {
+		  if ($J(this).data('type') === next.id) {
+			scene.TryUpgrade(this);
+			next.id = -1;
+			return false;
 		  }
-		}
-	  };
+		});
+	    }
+	  }
 	}, upgradeManagerFreq );
 	
 	console.log("autoUpgradeManager has been started.");
