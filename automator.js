@@ -31,6 +31,7 @@ var autoClickerFreq = 1000;
 // Internal variables, you shouldn't need to touch these
 var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
 var userElementMultipliers = [1, 1, 1, 1];
+var swapReason;
 
 
 // ================ STARTER FUNCTIONS ================
@@ -89,67 +90,32 @@ function startAutoTargetSwapper() {
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
 
 	autoTargetSwapper = setInterval(function() {
-	var newTarget = null;
-	g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
-			if(newTarget == null || compareMobPriority(testMob, newTarget) > 0) {
-				newTarget = testMob;
-			}
-	});
-		
+			
+		var currentTarget = null;
+		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
+				if(currentTarget == null || compareMobPriority(potentialTarget, currentTarget) > 0) {
+					currentTarget = potentialTarget;
+				}
+		});
+			
 		//Switch to that target
-		if(newTarget != undefined) {
-			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane) {
-				g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane))
+		if(currentTarget != null && currentTarget != g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target]) {
+			if(debug) {
+				console.log("switching targets");
+				console.log(swapReason);
 			}
-			g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
+			
+			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
+				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
+			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
+		}
+		//Move back to lane if still targetting
+		else if(currentTarget != null && currentTarget == currentTarget && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
-}
-
-// Return a value to compare mobs' priority (lower value = less important)
-//  (treasure > boss > miniboss > spawner > creep)
-function getMobTypePriority(testMob) {
-	mobType = testMob.m_data.type;
-	switch(mobType) {
-		case 0: // Spawner
-			return 0;
-		case 3: // Miniboss
-			return 1;
-		case 2: // Boss
-			return 2;
-		case 4: // Treasure
-			return 3;
-	}
-	return -Number.MAX_VALUE;
-}
-
-// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
-function compareMobPriority(mobA, mobB) {
-	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
-	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
-	var aTypePriority = getMobTypePriority(mobA);
-	var bTypePriority = getMobTypePriority(mobB);
-	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
-	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
-
-	var aHP = mobA.m_data.hp;
-	var bHP = mobB.m_data.hp;
-
-	if(aIsGold != bIsGold) {
-		return (aIsGold ? 1 : -1);
-	}
-	if(aTypePriority != bTypePriority) {
-		return aTypePriority - bTypePriority;
-	}
-	if(aElemMult != bElemMult) {
-		return aElemMult - bElemMult;
-	}
-	if(aHP != bHP) {
-		return aHP - bHP;
-	}
-	return 0;
 }
 
 function startAutoAbilityUser() {
@@ -348,6 +314,60 @@ function updateUserElementMultipliers() {
 	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
 	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
 	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
+}
+
+// Return a value to compare mobs' priority (lower value = less important)
+//  (treasure > boss > miniboss > spawner > creep)
+function getMobTypePriority(potentialTarget) {
+	mobType = potentialTarget.m_data.type;
+	switch(mobType) {
+		case 0: // Spawner
+			return 0;
+		case 3: // Miniboss
+			return 1;
+		case 2: // Boss
+			return 2;
+		case 4: // Treasure
+			return 3;
+	}
+	return -Number.MAX_VALUE;
+}
+
+// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
+function compareMobPriority(mobA, mobB) {
+	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
+	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
+	
+	var aTypePriority = getMobTypePriority(mobA);
+	var bTypePriority = getMobTypePriority(mobB);
+	
+	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
+	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
+
+	var aHP = mobA.m_data.hp;
+	var bHP = mobB.m_data.hp;
+
+	if(aIsGold != bIsGold) {		
+		swapReason = "Switching to target with Raining Gold.";
+		
+		return (aIsGold ? 1 : -1);
+	}
+	if(aTypePriority != bTypePriority) {
+		swapReason = "Switching to higher priority target.";
+		
+		return aTypePriority - bTypePriority;
+	}
+	if(aElemMult != bElemMult) {
+		swapReason = "Switching to elementally weaker target.";
+		
+		return aElemMult - bElemMult;
+	}
+	if(aHP != bHP) {
+		swapReason = "Switching to lower HP target.";
+		
+		return aHP - bHP;
+	}
+	return 0;
 }
 
 //Expose functions if running in userscript
