@@ -13,7 +13,7 @@
 
 // Custom variables
 var debug = false;
-var clicksPerSecond = 100;
+var clicksPerSecond = 50;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
