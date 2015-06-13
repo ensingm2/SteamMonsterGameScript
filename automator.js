@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.03
+// @version 1.05
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -43,6 +43,8 @@ function startAutoClicker() {
 	}
 
 	autoClicker = setInterval( function(){
+		if(!gameRunning()) return;
+
 		//Vary the number of clicks by up to the autoClickerVariance variable (plus or minus)
 		var randomVariance = Math.floor(Math.random() * autoClickerVariance * 2) - (autoClickerVariance);
 		var clicks = clicksPerSecond + randomVariance;
@@ -64,6 +66,8 @@ function startAutoRespawner() {
 	}
 	
 	autoRespawner = setInterval( function(){
+		if(!gameRunning()) return;
+		
 		if(debug)
 			console.log('Checking if the player is dead.');
 
@@ -90,6 +94,8 @@ function startAutoTargetSwapper() {
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
 	
 	autoTargetSwapper = setInterval(function() {
+		if(!gameRunning()) return;
+		
 			
 		var currentTarget = null;
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
@@ -125,6 +131,8 @@ function startAutoAbilityUser() {
 	}
 
 	autoAbilityUser = setInterval(function() {
+		if(!gameRunning()) return;
+		
 		if(debug)
 			console.log("Checking if it's useful to use an ability.");
 		
@@ -212,6 +220,8 @@ function startAutoItemUser() {
 	}
 
 	autoItemUser = setInterval(function() {
+		if(!gameRunning()) return;
+		
 		if(debug)
 			console.log("Checking if it's useful to use an item.");
 		
@@ -378,6 +388,11 @@ function compareMobPriority(mobA, mobB) {
 	}
 	return 0;
 }
+
+function gameRunning() {
+	return typeof g_Minigame === 'undefined';
+}
+		
 
 //Expose functions if running in userscript
 if(typeof unsafeWindow != 'undefined') {
