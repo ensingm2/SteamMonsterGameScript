@@ -28,8 +28,9 @@ var useMetalDetectorOnBossBelowPercent = 30;
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
 
-// variables to store the setIntervals
-var autoRespawner, autoClicker, autoTargetSwapper, autoAbilityUser, autoItemUser;
+// Internal variables, you shouldn't need to touch these
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
+var userElementMultipliers = [1, 1, 1, 1];
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -82,18 +83,28 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
+	//Update the user's element multipliers every 30s
+	updateUserElementMultipliers();
+	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
+	
 	autoTargetSwapper = setInterval(function() {
         var newTarget = null;
 		var newTargetIsGold = false;
+		var newTargetElement = -1;
+		
+		
         g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
 			
 			var setTarget = false;
 			var testMobIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[17];
-			//var testMobIsElemental = false;
+			var testMobElement = g_Minigame.m_CurrentScene.m_rgGameData.lanes[testMob.m_nLane].element;
 			
 			//No target yet
 			if(newTarget == undefined)
 				setTarget = true;
+			
+			//Same mob
+			//else if(testMob.m_bIsDestroyed || newTarget.m_data.id == testMob.m_data.id); // Do nothing
 			
 			//check for raining gold above all else (ability 17)
 			else if(testMobIsGold && !newTargetIsGold) {
@@ -133,25 +144,38 @@ function startAutoTargetSwapper() {
 				//Creeps should never be targeted by this block
 			}
 			
-			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp < testMob.m_data.hp) {
+			//Same type, prioritize by element
+			else if(newTargetElement != testMobElement)
+				if(userElementMultipliers[newTargetElement] < userElementMultipliers[testMobElement]) {
+					if(setTarget && debug)
+						console.log('Switching to a lane with elemental weakness.');
+					setTarget = true;
+				}
+			
+			//Same type & element, prioritize by health remaining
+			else if(newTarget.m_data.hp > testMob.m_data.hp) {
 				setTarget = true;
 				
-				if(setTarget && debug)
-					console.log('Switching to a higher health target.');
+				if(debug) {
+					console.log('Switching to a lower health target.');
+					console.log(newTarget);
+					console.log(testMob);
+				}
 			}
 			
 			//If needed, overwrite the new target to the mob
 			if(setTarget){
 				newTarget = testMob;
 				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
+				newTargetElement = g_Minigame.m_CurrentScene.m_rgGameData.lanes[newTarget.m_nLane].element;
 			}
         });
 		
 		//Switch to that target
 		if(newTarget != undefined){
-			g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane && g_Minigame.CurrentScene().TryChangeLane(newTarget.m_nLane);
-			g_Minigame.CurrentScene().TryChangeTarget(newTarget.m_nID);
+			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane)
+				if(g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane))
+					g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
 		}
 	}, targetSwapperFreq);
 	
@@ -168,7 +192,7 @@ function startAutoAbilityUser() {
 		if(debug)
 			console.log("Checking if it's useful to use an ability.");
 		
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+		var percentHPRemaining = g_Minigame.m_CurrentScene.m_rgPlayerData.hp  / g_Minigame.m_CurrentScene.m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
 		var targetPercentHPRemaining;
 		if(target)
@@ -334,11 +358,11 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID))
-		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+		g_Minigame.m_CurrentScene.TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
 }
 
 function currentLaneHasAbility(abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].abilities[abilityID];
+	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -346,7 +370,14 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+	return ((1 << abilityID) & g_Minigame.m_CurrentScene.m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.m_CurrentScene.GetCooldownForAbility(abilityID) <= 0;
+}
+
+function updateUserElementMultipliers() {
+	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
+	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
+	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
+	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
 }
 
 //Expose functions if running in userscript
