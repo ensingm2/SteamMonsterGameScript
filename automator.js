@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.34
+// @version 1.35
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -468,13 +468,13 @@ function startAutoAbilityUser() {
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
 				var critReady = hasAbility(18) && autoItemUser;
-				if(moraleBoosterReady || goodLuckCharmReady) {
+				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
 					var moraleBoosterUnlocked = abilityIsUnlocked(5);
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if(!moraleBoosterUnlocked || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady )&& goodLuckCharmReady)) {
+					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady )&& goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
 						// Only use on targets that are spawners and have nearly full health
 						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
