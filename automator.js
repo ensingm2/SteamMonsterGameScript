@@ -57,8 +57,19 @@ function startAutoClicker() {
 		// Anti-anti-clicker countermeasure
 		g_msTickRate = 1100;
 
-		if(debug)
-			console.log('Clicking ' + clicks + ' times this second.');
+		//Clear out the crits
+		var numCrits =  g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
+		g_Minigame.m_CurrentScene.m_rgStoredCrits = [];
+		
+		if(debug) {
+			if(numCrits > 1)
+				console.log('Clicking ' + clicks + ' times this second. (' + numCrits + ' crits).');
+			if(numCrits == 1)
+				console.log('Clicking ' + clicks + ' times this second. (1 crit).');
+			else
+				console.log('Clicking ' + clicks + ' times this second.');
+		}
+		
 	}, autoClickerFreq);
 
 	console.log("autoClicker has been started.");
