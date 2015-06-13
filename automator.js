@@ -423,7 +423,7 @@ function startAutoAbilityUser() {
 			// Don't use on bosses, we want to maximize gold
 			if(target.m_data.type != 2) {
 				// Don't use one if we don't have the other
-				if(!abilityIsUnlocked(5) || !abilityIsUnlocked(6) || (hasAbility(5) & hasAbility(6)) {
+				if(!abilityIsUnlocked(5) || !abilityIsUnlocked(6) || (hasAbility(5) & hasAbility(6))) {
 					// Logic needs to go here to decide if the lane has enough health
 					if (true) {
 						// Combo with decreased cooldowns
