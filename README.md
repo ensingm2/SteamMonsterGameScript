@@ -32,11 +32,10 @@ If you would like to test the script, you have a few options
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
 ##TODO:
-- Prioritize lanes with Raining Gold
-- Find abilityID of each ability for use
-- Automate use of abilities
+- Finish automating use of abilities
 - Automate upgrades? Not sure.
-- Prioritize based on DPS (Take elemental damage into account)?
+- Bug Fixes?
+- Find CPS limit
 
 ###Other Notes:
 None
