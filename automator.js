@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.10
+// @version 1.12
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -369,6 +369,10 @@ function compareMobPriority(mobA, mobB) {
 	
 	var aHP = mobA.m_data.hp;
 	var bHP = mobB.m_data.hp;
+	var aHPPercent = aHP / mobA.m_data.max_hp;
+	var bHPPercent = aHP / mobA.m_data.max_hp;
+	var aNearDeath = aHPPercent < 0.05;
+	var bNearDeath = bHPPercent < 0.05;
 
 	//First, make sure they're alive
 	if(mobA.m_bIsDestroyed)
@@ -397,6 +401,11 @@ function compareMobPriority(mobA, mobB) {
 			swapReason = "Switching to higher priority target.";
 		
 		return aTypePriority - bTypePriority;
+	}
+	if(aNearDeath != bNearDeath) {
+		swapReason = "Switching to near-death target.";
+
+		return bHPPercent - aHPPercent;
 	}
 	if(aElemMult != bElemMult) {
 		if(bElemMult < aElemMult)
