@@ -134,7 +134,7 @@ function startAutoTargetSwapper() {
 			}
 			
 			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp < testMob.m_data.hp) {
+			else if(newTarget.m_data.hp > testMob.m_data.hp && !newTargetIsGold) {
 				setTarget = true;
 				
 				if(setTarget && debug)
@@ -144,7 +144,7 @@ function startAutoTargetSwapper() {
 			//If needed, overwrite the new target to the mob
 			if(setTarget){
 				newTarget = testMob;
-				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
+				newTargetIsGold = testMobIsGold;
 			}
         });
 		
