@@ -1,5 +1,15 @@
-// Compiled and costomized by reddit user /u/therusher
-// Credit to reddit users /u/leandr0c and /u/kolodz for additional code
+// ==UserScript== 
+// @name Steam Monster Game Script
+// @namespace https://github.com/ensingm2/SteamMonsterGameScript
+// @description A Javascript automator for the 2015 Summer Steam Monster Minigame
+// @version 1.0
+// @match http://steamcommunity.com/minigame/towerattack*
+// @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
+// @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
+// ==/UserScript==
+
+// Compiled and customized by reddit user /u/therusher
+// Credit to reddit users /u/leandr0c, /u/nbadal and /u/kolodz for additional code
 
 // Custom variables
 var debug = false;
@@ -303,6 +313,25 @@ function hasAbility(abilityID) {
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
 	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
+}
+
+//Expose functions if running in userscript
+if(typeof unsafeWindow != 'undefined') {
+	unsafeWindow.startAutoClicker = startAutoClicker;
+	unsafeWindow.startAutoRespawner = startAutoRespawner;
+	unsafeWindow.startAutoTargetSwapper = startAutoTargetSwapper;
+	unsafeWindow.startAutoAbilityUser = startAutoAbilityUser;
+	unsafeWindow.startAutoItemUser = startAutoItemUser;
+	unsafeWindow.startAllAutos = startAllAutos;
+	unsafeWindow.stopAutoClicker = stopAutoClicker;
+	unsafeWindow.stopAutoRespawner = stopAutoRespawner;
+	unsafeWindow.stopAutoTargetSwapper = stopAutoTargetSwapper;
+	unsafeWindow.stopAutoAbilityUser = stopAutoAbilityUser;
+	unsafeWindow.stopAutoItemUser = stopAutoItemUser;
+	unsafeWindow.stopAllAutos = stopAllAutos;
+	unsafeWindow.disableAutoNukes = disableAutoNukes;
+	unsafeWindow.castAbility = castAbility;
+	unsafeWindow.hasAbility = hasAbility;
 }
 
 //Start all autos
