@@ -338,7 +338,7 @@ function castAbility(abilityID) {
 }
 
 function currentLaneHasAbility(abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[testMob.m_nLane].abilities[abilityID];
+	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
