@@ -53,6 +53,28 @@ function startAutoClicker() {
 	console.log("autoClicker has been started.");
 }
 
+function startAutoClickerRainingGold() {
+	if (autoClickerRainingGold) {
+		console.log("AutoClickerRainingGold is already running!");
+		return;
+	}
+
+	function doSomething() {}
+
+	autoClickerRainingGold = function(){
+	    var rand = Math.round(Math.random() * (50)) + 50;
+	    setTimeout(function() {
+	        
+	        if (!stopAutoClickerRainingGold)
+            	autoClicker();  
+	    }, rand);
+	}
+
+	autoClickerRainingGold = setInterval( function(){
+
+	}, autoClickerRainingGoldFreq);
+}
+
 function startAutoRespawner() {
 	if(autoRespawner) {
 		console.log("autoRespawner is already running!");
@@ -85,6 +107,7 @@ function startAutoTargetSwapper() {
 	autoTargetSwapper = setInterval(function() {
         var newTarget = null;
 		var newTargetIsGold = false;
+		var laneInfo = g_Minigame.m_CurrentScene.m_rgLaneData;
         g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
 			
 			var setTarget = false;
@@ -108,7 +131,7 @@ function startAutoTargetSwapper() {
 			// 2 - Boss
 			// 3 - MiniBoss
 			// 4 - Treasure Mob
-			//(why are the types so disorganized?)
+			//(why are the types so disorganized?) <- Maybe to difficult hierarchy? (Not sure) /u/leandr0c
 			else if(testMob.m_data.type != newTarget.m_data.type) {
 				
 				// Treasure Mob
@@ -133,8 +156,8 @@ function startAutoTargetSwapper() {
 				//Creeps should never be targeted by this block
 			}
 			
-			//Same type, prioritize by health remaining
-			else if(newTarget.m_data.hp < testMob.m_data.hp) {
+			//Same type, prioritize by health remaining, and by raining Gold! -- Maybe atack lowest first?
+			else if(newTarget.m_data.hp > testMob.m_data.hp && !newTargetIsGold) {
 				setTarget = true;
 				
 				if(setTarget && debug)
@@ -144,7 +167,7 @@ function startAutoTargetSwapper() {
 			//If needed, overwrite the new target to the mob
 			if(setTarget){
 				newTarget = testMob;
-				newTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[newTarget.m_nLane].abilities[17];
+				newTargetIsGold = testMobIsGold;
 			}
         });
 		
