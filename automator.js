@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.28
+// @version 1.29
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -891,7 +891,7 @@ function toggleAutoClicker() {
 	}
 }
 function toggleAutoTargetSwapper() {
-	if(autoUpgradeManager) {
+	if(autoTargetSwapper) {
 		stopAutoTargetSwapper();
 		$J("#toggleAutoTargetSwapperBtn").html("<span>Enable AutoTargetSwapper</span>");
 	}
