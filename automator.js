@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.02
+// @version 1.01
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -32,7 +32,6 @@ var autoClickerFreq = 1000;
 var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
 var userElementMultipliers = [1, 1, 1, 1];
 var swapReason;
-
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -84,10 +83,6 @@ function startAutoTargetSwapper() {
 		console.log("autoTargetSwapper is already running!");
 		return;
 	}
-
-	//Update the user's element multipliers every 30s
-	updateUserElementMultipliers();
-	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
 
 	autoTargetSwapper = setInterval(function() {
 			
@@ -294,11 +289,11 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID))
-		g_Minigame.m_CurrentScene.TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+		g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
 }
 
 function currentLaneHasAbility(abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].abilities[abilityID];
+	return g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].abilities[abilityID];
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -306,14 +301,7 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return ((1 << abilityID) & g_Minigame.m_CurrentScene.m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.m_CurrentScene.GetCooldownForAbility(abilityID) <= 0;
-}
-
-function updateUserElementMultipliers() {
-	userElementMultipliers[0] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
-	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
-	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
-	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
+	return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) && g_Minigame.CurrentScene().GetCooldownForAbility(abilityID) <= 0;
 }
 
 // Return a value to compare mobs' priority (lower value = less important)
