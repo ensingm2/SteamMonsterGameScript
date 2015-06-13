@@ -418,7 +418,7 @@ function startAutoAbilityUser() {
 		if(target)
 			targetPercentHPRemaining = target.m_data.hp  / target.m_data.max_hp * 100;
 		
-		// Moral Booster and Good Luck Charm
+		// Moral Booster, Good Luck Charm, and Decrease Cooldowns
 		if(hasAbility(5) || hasAbility(6)) {
 			// Only use on targets that are spawners and have nearly full health
 			if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= 80) {
@@ -461,18 +461,6 @@ function startAutoAbilityUser() {
 			}
 			
 		}
-		
-		// Decrease Cooldowns (doesn't stack, so make sure it's not already active)
-		//Temporarily disabled until we find a better trigger condition
-		/*
-		if(hasAbility(9) && !currentLaneHasAbility(9)) { 
-			// TODO: Any logic to using this?
-			if(debug)
-				console.log('Decreasing cooldowns.');
-			
-			castAbility(9);
-		}
-		*/
 		
 		// Tactical Nuke
 		if(target != undefined && target.m_data.type == 0 && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
