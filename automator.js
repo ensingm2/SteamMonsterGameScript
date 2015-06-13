@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.09
+// @version 1.10
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -13,8 +13,9 @@
 
 // Custom variables
 var debug = false;
-var clicksPerSecond = 50;
+var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
+clicksPerSecond -= Math.ceil(autoClickerVariance / 2);
 var respawnCheckFreq = 5000;
 var targetSwapperFreq = 1000;
 var abilityUseCheckFreq = 2000;
@@ -50,8 +51,11 @@ function startAutoClicker() {
 		var randomVariance = Math.floor(Math.random() * autoClickerVariance * 2) - (autoClickerVariance);
 		var clicks = clicksPerSecond + randomVariance;
 		
-		//Set the variable to be sent to the server
+		// Set the variable to be sent to the server
 		g_Minigame.m_CurrentScene.m_nClicks = clicks;
+		
+		// Anti-anti-clicker countermeasure
+		g_msTickRate = 1100;
 
 		if(debug)
 			console.log('Clicking ' + clicks + ' times this second.');
