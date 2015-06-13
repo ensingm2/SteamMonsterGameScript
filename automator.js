@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.24
+// @version 1.25
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -842,6 +842,7 @@ var startAll = setInterval(function() {
 		startAllAutos();
 		addPointer();
 		clearInterval(startAll);
+		addCustomButtons();
 		
 		// Overwrite this function so it doesn't delete our sexy pointer
 		CSceneGame.prototype.ClearNewPlayer = function() {
@@ -853,4 +854,67 @@ var startAll = setInterval(function() {
 
 	}, 1000);
 
+	
+function addCustomButtons() {
+	//Smack the TV Easter Egg
+	 $J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
+
+	//Automator buttons
+	$J(".game_options").append('<span onclick="toggleAutoClicker()" id="toggleAutoClickerBtn" class="toggle_music_btn"><span>Disable AutoClicker</span></span>');
+	$J(".game_options").append('<span onclick="toggleAutoTargetSwapper()" id="toggleAutoTargetSwapperBtn" class="toggle_music_btn"><span>Disable AutoTargetSwapper</span></span>');
+	$J(".game_options").append('<span onclick="toggleAutoAbilityUser()" id="toggleAutoAbilityUserBtn" class="toggle_music_btn"><span>Disable AutoAbilityUser</span></span>');
+	$J(".game_options").append('<span onclick="toggleAutoItemUser()" id="toggleAutoItemUserBtn" class="toggle_music_btn"><span>Disable AutoItemUser</span></span>');
+	$J(".game_options").append('<span onclick="toggleAutoUpgradeManager()" id="toggleAutoUpgradeBtn" class="toggle_music_btn"><span>Disable AutoUpgrader</span></span>');
+}
+
+function toggleAutoClicker() {
+	if(autoClicker) {
+		stopAutoClicker();
+		$J("#toggleAutoClickerBtn").html("<span>Enable AutoClicker</span>");
+	}
+	else {
+		startAutoClicker();
+		$J("#toggleAutoClickerBtn").html("<span>Disable AutoClicker</span>");
+	}
+}
+function toggleAutoTargetSwapper() {
+	if(autoUpgradeManager) {
+		stopAutoTargetSwapper();
+		$J("#toggleAutoTargetSwapperBtn").html("<span>Enable AutoTargetSwapper</span>");
+	}
+	else {
+		startAutoTargetSwapper();
+		$J("#toggleAutoTargetSwapperBtn").html("<span>Disable AutoTargetSwapper</span>");
+	}
+}
+function toggleAutoAbilityUser(){
+	if(autoAbilityUser) {
+		stopAutoAbilityUser();
+		$J("#toggleAutoAbilityUserBtn").html("<span>Enable AutoAbilityUser</span>");
+	}
+	else {
+		startAutoAbilityUser();
+		$J("#toggleAutoAbilityUserBtn").html("<span>Disable AutoAbilityUser</span>");
+	}
+}
+function toggleAutoItemUser(){
+	if(autoItemUser) {
+		stopAutoItemUser();
+		$J("#toggleAutoItemUserBtn").html("<span>Enable AutoItemUser</span>");
+	}
+	else {
+		startAutoItemUser();
+		$J("#toggleAutoUpgradeBtn").html("<span>Disable AutoItemUser</span>");
+	}
+}
+function toggleAutoUpgradeManager(){
+	if(autoUpgradeManager) {
+		stopAutoUpgradeManager();
+		$J("#toggleAutoUpgradeBtn").html("<span>Enable AutoUpgrader</span>");
+	}
+	else {
+		startAutoUpgradeManager();
+		$J("#toggleAutoUpgradeBtn").html("<span>Disable AutoUpgrader</span>");
+	}
+}
 
