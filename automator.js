@@ -624,7 +624,7 @@ function currentLaneHasAbility(abilityID) {
 }
 
 function laneHasAbility(lane, abilityID) {
-	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+	return typeof(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID]) != 'undefined';
 }
 
 function abilityIsUnlocked(abilityID) {
