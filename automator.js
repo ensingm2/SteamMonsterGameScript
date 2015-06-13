@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.01
+// @version 1.02
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -31,6 +31,7 @@ var autoClickerFreq = 1000;
 // Internal variables, you shouldn't need to touch these
 var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser;
 var userElementMultipliers = [1, 1, 1, 1];
+
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -86,100 +87,69 @@ function startAutoTargetSwapper() {
 	//Update the user's element multipliers every 30s
 	updateUserElementMultipliers();
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, 30000);
-	
+
 	autoTargetSwapper = setInterval(function() {
-		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-        var currentTarget = oldTarget;
-		var currentTargetIsGold = false;
-		var currentTargetElement = -1;
-		
-		
-        g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-			
-			var setTarget = false;
-			var potentialTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[potentialTarget.m_nLane].abilities[17];
-			var potentialTargetElement = g_Minigame.m_CurrentScene.m_rgGameData.lanes[potentialTarget.m_nLane].element;
-			
-			//Do nothing if already selected
-			if(potentialTarget == oldTarget || potentialTarget == currentTarget) {}
-			
-			//No target yet
-			else if(currentTarget == undefined)
-				setTarget = true;
-			
-			//check for raining gold above all else (ability 17)
-			else if(potentialTargetIsGold && !currentTargetIsGold) {
-				if(debug)
-					console.log('Switching lanes for Raining Gold!');
-				setTarget = true
+	var newTarget = null;
+	g_Minigame.m_CurrentScene.m_rgEnemies.each(function(testMob){
+			if(newTarget == null || compareMobPriority(testMob, newTarget) > 0) {
+				newTarget = testMob;
 			}
-			
-			//different type, prioritize by type (treasure > boss > miniboss > spawner > creep)
-			// 0 - Spawner
-			// 1 - Creeps
-			// 2 - Boss
-			// 3 - MiniBoss
-			// 4 - Treasure Mob
-			//(why are the types so disorganized?)
-			else if(potentialTarget.m_data.type != currentTarget.m_data.type) {
-				
-				// Treasure Mob
-				if(potentialTarget.m_data.type == 4)
-					setTarget = true;
-				
-				//Boss (?)
-				else if(potentialTarget.m_data.type == 2 && currentTarget.m_data.type != 4)
-					setTarget = true;
-				
-				//MiniBoss (?)
-				if(potentialTarget.m_data.type == 3 && currentTarget.m_data.type < 2)
-					setTarget = true;
-				
-				// Spawner
-				else if(potentialTarget.m_data.type == 0)
-					setTarget = true;
-				
-				if(setTarget && debug)
-					console.log('Switching to a higher priority mob type.');
-				
-				//Creeps should never be targeted by this block
-			}
-			
-			//Same type, prioritize by element
-			else if(currentTargetElement != potentialTargetElement) {
-				if(userElementMultipliers[currentTargetElement] < userElementMultipliers[potentialTargetElement]) {
-					setTarget = true;
-					if(debug)
-						console.log('Switching to a lane with elemental weakness.');
-				}
-			}
-			
-			
-			//Same type & element, prioritize by health remaining
-			else if(currentTarget.m_data.hp > potentialTarget.m_data.hp) {
-				setTarget = true;
-				
-				if(debug)
-					console.log('Switching to a lower health target.');
-			}
-			
-			//If needed, overwrite the new target to the mob
-			if(setTarget){
-				currentTarget = potentialTarget;
-				currentTargetIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[currentTarget.m_nLane].abilities[17];
-				currentTargetElement = g_Minigame.m_CurrentScene.m_rgGameData.lanes[currentTarget.m_nLane].element;
-			}
-        });
+	});
 		
 		//Switch to that target
-		if(currentTarget != oldTarget){
-			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
-				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
-			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
+		if(newTarget != undefined) {
+			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != newTarget.m_nLane) {
+				g_Minigame.m_CurrentScene.TryChangeLane(newTarget.m_nLane))
+			}
+			g_Minigame.m_CurrentScene.TryChangeTarget(newTarget.m_nID);
 		}
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
+}
+
+// Return a value to compare mobs' priority (lower value = less important)
+//  (treasure > boss > miniboss > spawner > creep)
+function getMobTypePriority(testMob) {
+	mobType = testMob.m_data.type;
+	switch(mobType) {
+		case 0: // Spawner
+			return 0;
+		case 3: // Miniboss
+			return 1;
+		case 2: // Boss
+			return 2;
+		case 4: // Treasure
+			return 3;
+	}
+	return -Number.MAX_VALUE;
+}
+
+// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
+function compareMobPriority(mobA, mobB) {
+	var aIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobA.m_nLane].abilities[17];
+	var bIsGold = g_Minigame.m_CurrentScene.m_rgLaneData[mobB.m_nLane].abilities[17];
+	var aTypePriority = getMobTypePriority(mobA);
+	var bTypePriority = getMobTypePriority(mobB);
+	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
+	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
+
+	var aHP = mobA.m_data.hp;
+	var bHP = mobB.m_data.hp;
+
+	if(aIsGold != bIsGold) {
+		return (aIsGold ? 1 : -1);
+	}
+	if(aTypePriority != bTypePriority) {
+		return aTypePriority - bTypePriority;
+	}
+	if(aElemMult != bElemMult) {
+		return aElemMult - bElemMult;
+	}
+	if(aHP != bHP) {
+		return aHP - bHP;
+	}
+	return 0;
 }
 
 function startAutoAbilityUser() {
@@ -192,7 +162,7 @@ function startAutoAbilityUser() {
 		if(debug)
 			console.log("Checking if it's useful to use an ability.");
 		
-		var percentHPRemaining = g_Minigame.m_CurrentScene.m_rgPlayerData.hp  / g_Minigame.m_CurrentScene.m_rgPlayerTechTree.max_hp * 100;
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
 		var targetPercentHPRemaining;
 		if(target)
