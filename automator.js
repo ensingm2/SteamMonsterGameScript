@@ -458,8 +458,17 @@ function startAutoAbilityUser() {
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
 					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
+						// Only use items on targets that are spawners and have nearly full health
+						if(targetPercentHPRemaining >= 90) {
+							// Check to see if Cripple Spawner and Cripple Monster items are ready to use
+							if(hasAbility(14)){
+								castAbility(14);
+							}else if(hasAbility(15)){
+								castAbility(15);
+							}
+						}
 						// Only use on targets that are spawners and have nearly full health
-						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+						else if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
 							// Combo these with Decrease Cooldowns ability
 
 							// If Decreased Cooldowns will be available soon, wait
