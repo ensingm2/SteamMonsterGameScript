@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.43
+// @version 1.44
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -13,7 +13,7 @@
 // See a (hopefully) full list of contributors over at https://github.com/ensingm2/SteamMonsterGameScript#contributors
 
 // Custom variables
-var debug = false;
+var enableDebugOutput = false;
 var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
 var autoClickerVariance = Math.floor(clicksPerSecond / 10);
 clicksPerSecond -= Math.ceil(autoClickerVariance / 2);
@@ -76,7 +76,7 @@ function startAutoClicker() {
 		var numCrits =  g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
 		g_Minigame.m_CurrentScene.m_rgStoredCrits = [];
 		
-		if(debug) {
+		if(enableDebugOutput) {
 			if(numCrits > 1)
 				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second. (' + numCrits + ' crits).');
 			if(numCrits == 1)
@@ -324,7 +324,7 @@ function startAutoUpgradeManager() {
 			next = (damage.cost < ability.cost || ability.id === -1) ? damage : ability;
 		  }
 		}
-		if (debug && next.id !== -1) {
+		if (enableDebugOutput && next.id !== -1) {
 		  console.log(
 			'next buy:',
 			scene.m_rgTuningData.upgrades[next.id].name,
@@ -337,7 +337,7 @@ function startAutoUpgradeManager() {
 	   * MAIN *
 	   ********/
 	autoUpgradeManager = setInterval(function() {
-		if(debug)
+		if(enableDebugOutput)
 			console.log('Checking for worthwhile upgrades');
 		scene = g_Minigame.CurrentScene();
 		if (scene.m_bUpgradesBusy) return;
@@ -366,13 +366,13 @@ function startAutoRespawner() {
 	
 	autoRespawner = setInterval( function(){
 		
-		if(debug)
+		if(enableDebugOutput)
 			console.log('Checking if the player is dead.');
 
 		
 		// Credit to /u/kolodz for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39joz2/javascript_auto_respawn/
 		if(g_Minigame.m_CurrentScene.m_bIsDead) {
-			if(debug)
+			if(enableDebugOutput)
 				console.log('Player is dead. Respawning.');
 
 			RespawnPlayer();
@@ -402,7 +402,7 @@ function startAutoTargetSwapper() {
 		//Switch to that target
 		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
 		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
-			if(debug && swapReason != null) {
+			if(enableDebugOutput && swapReason != null) {
 				console.log(swapReason);
 				swapReason = null;
 			}
@@ -429,7 +429,7 @@ function startAutoAbilityUser() {
 
 	autoAbilityUser = setInterval(function() {
 		
-		if(debug)
+		if(enableDebugOutput)
 			console.log("Checking if it's useful to use an ability.");
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
@@ -481,7 +481,7 @@ function startAutoAbilityUser() {
 							  ) {
 								if(hasAbility(9) && !currentLaneHasAbility(9)) {
 									// Other abilities won't benifit if used at the same time
-									if(debug)
+									if(enableDebugOutput)
 										console.log('Triggering Decrease Cooldown!');
 									castAbility(9);
 								}
@@ -490,18 +490,18 @@ function startAutoAbilityUser() {
 									
 									//Use crit if one's available
 									if(critReady) {
-										if(debug)
+										if(enableDebugOutput)
 											console.log("Using Crit!");
 										castAbility(18);
 									}
 									else if (moraleBoosterReady) {
-										if(debug)
+										if(enableDebugOutput)
 											console.log("Casting Morale Booster!");
 										castAbility(5);
 									}
 									
 									if(goodLuckCharmReady) {
-										if(debug)
+										if(enableDebugOutput)
 											console.log("Casting Good Luck Charm!");
 										castAbility(6);
 									}
@@ -514,7 +514,7 @@ function startAutoAbilityUser() {
 				// Metal Detector
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
 					if(hasAbility(8)) {
-						if(debug)
+						if(enableDebugOutput)
 							console.log('Using Metal Detector.');
 						
 						castAbility(8);
@@ -523,7 +523,7 @@ function startAutoAbilityUser() {
 
 				// Tactical Nuke
 				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-					if(debug)
+					if(enableDebugOutput)
 						console.log('Nuclear launch detected.');
 					
 					castAbility(10);
@@ -533,7 +533,7 @@ function startAutoAbilityUser() {
 				// Napalm
 				else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
-					if(debug)
+					if(enableDebugOutput)
 						console.log('Triggering napalm!');
 					
 					castAbility(12);
@@ -542,7 +542,7 @@ function startAutoAbilityUser() {
 				// Cluster Bomb
 				else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
 					
-					if(debug)
+					if(enableDebugOutput)
 						console.log('Triggering cluster bomb!');
 					
 					castAbility(11);
@@ -565,7 +565,7 @@ function startAutoAbilityUser() {
 		
 		// Medics
 		if((percentHPRemaining <= useMedicsAtPercent || (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) && !g_Minigame.m_CurrentScene.m_bIsDead) {
-			if(debug) {
+			if(enableDebugOutput) {
 				if(percentHPRemaining <= useMedicsAtPercent)
 					console.log("Health below threshold. Need medics!");
 				if(avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)
@@ -574,11 +574,11 @@ function startAutoAbilityUser() {
 			
 			// Only use if there isn't already a Medics active?
 			if(hasAbility(7) && !currentLaneHasAbility(7)) {
-				if(debug)
+				if(enableDebugOutput)
 					console.log("Unleash the medics!");
 				castAbility(7);
 			}
-			else if(debug)
+			else if(enableDebugOutput)
 				console.log("No medics to unleash!");
 		}
 		
@@ -595,7 +595,7 @@ function startAutoItemUser() {
 
 	autoItemUser = setInterval(function() {
 		
-		if(debug)
+		if(enableDebugOutput)
 			console.log("Checking if it's useful to use an item.");
 		
 		// Steal Health
@@ -604,7 +604,7 @@ function startAutoItemUser() {
 			
 			//Can  cast and no other heals
 			if(hasAbility(23) && !currentLaneHasAbility(7)) {
-				if(debug)
+				if(enableDebugOutput)
 					console.log("Stealing Health!");
 				castAbility(23);
 			}
@@ -621,7 +621,7 @@ function startAutoItemUser() {
 				//Raining Gold
 				if(hasAbility(17) && targetPercentHPRemaining > useRainingGoldAbovePercent) {
 					
-					if(debug)
+					if(enableDebugOutput)
 						console.log('Raining Gold!');
 					
 					castAbility(17);
