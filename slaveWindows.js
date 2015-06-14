@@ -62,7 +62,7 @@ function runMaster()
 	};
 	
 	var spacerStyle = {
-		'margin-left': '100px'
+		'margin-left': '150px'
 	};
 	
 	var tgt = $J('.game_options .toggle_music_btn:first');
