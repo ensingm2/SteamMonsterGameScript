@@ -65,8 +65,8 @@ function startAutoClicker() {
 		
 		// Update Gold Counter
 		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
-        var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
-        if( enemy !== undefined && enemy.m_data !== undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
+		var enemy = getTarget();
+		if(enemy && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
 			var nClickGold = enemy.m_data.gold * nClickGoldPct * g_Minigame.m_CurrentScene.m_nClicks;
 			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
 			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
@@ -400,8 +400,8 @@ function startAutoTargetSwapper() {
 		});
 			
 		//Switch to that target
-		var oldTarget = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
-		if(currentTarget != null && (oldTarget == undefined || currentTarget.m_data.id != oldTarget.m_data.id)) {
+		var oldTarget = getTarget();
+		if(currentTarget != null && (!oldTarget || currentTarget.m_data.id != oldTarget.m_data.id)) {
 			if(debug && swapReason != null) {
 				console.log(swapReason);
 				swapReason = null;
@@ -413,7 +413,7 @@ function startAutoTargetSwapper() {
 
 		}
 		//Move back to lane if still targetting
-		else if(currentTarget != null && oldTarget == undefined && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+		else if(currentTarget != null && !oldTarget && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
 	}, targetSwapperFreq);
@@ -433,7 +433,7 @@ function startAutoAbilityUser() {
 			console.log("Checking if it's useful to use an ability.");
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var target = getTarget();
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
 		// Abilities only used on targets
@@ -611,7 +611,7 @@ function startAutoItemUser() {
 		}
 		
 		//target based items
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var target = getTarget();
 		if(target) {
 			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
 			
@@ -908,6 +908,13 @@ function addPointer() {
 
 	g_Minigame.m_CurrentScene.m_containerParticles.addChild( g_Minigame.m_CurrentScene.m_spriteFinger );
 }
+
+function getTarget() {
+	return g_Minigame.m_CurrentScene.GetEnemy(
+		g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane,
+		g_Minigame.m_CurrentScene.m_rgPlayerData.target
+	);
+}
 		
 
 //Expose functions if running in userscript
@@ -1067,9 +1074,7 @@ function spamNoClick() {
 		{
 			data: {
 				getLocalPosition: function() {
-					var enemy = g_Minigame.m_CurrentScene.GetEnemy(
-					g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane,
-					g_Minigame.m_CurrentScene.m_rgPlayerData.target),
+					var enemy = getTarget(),
 					laneOffset = enemy.m_nLane * 440;
 
 					return {
