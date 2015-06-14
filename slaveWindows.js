@@ -49,20 +49,6 @@ function runMaster()
 		$J('.slaveWindowCount').text(slavesList.length);
 	}
 	
-	if(slaveWindowPeriodicRestart)
-	{
-		setInterval(function(){
-			
-			var cnt = slavesList.length;
-			
-			if(cnt == 0)
-				return;
-			
-			killAllSlaves();
-			spawnSlaves(cnt);
-		},slaveWindowPeriodicRestartInterval);
-	}
-	
 	var cont = $J('<div>').addClass('slaveManager');
 	cont.css({
 		position: 'absolute',
@@ -102,5 +88,11 @@ function runSlave()
 				g_Minigame.Renderer.render = function(){} // Disable rendering. Completely.
 			}
 		},1000)
-	}	
+	}
+	
+	if(slaveWindowPeriodicRestart) {
+		setTimeout(function () {
+			window.location.href = "./?slave"; 
+		}, slaveWindowPeriodicRestartInterval);
+	}
 }
