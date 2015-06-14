@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.37
+// @version 1.38
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -127,7 +127,7 @@ function startAutoUpgradeManager() {
 	  // How many elements do you want to upgrade? If we decide to upgrade an
 	  // element, we'll try to always keep this many as close in levels as we
 	  // can, and ignore the rest.
-	  var elementalSpecializations = 2;
+	  var elementalSpecializations = 1;
 
 	  // To include passive DPS upgrades (Auto-fire, etc.) we have to scale
 	  // down their DPS boosts for an accurate comparison to clicking. This
