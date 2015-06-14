@@ -30,6 +30,11 @@ function runMaster()
 		
 		console.log("spawning " + cnt + " slave windows.");
 		
+		//Mute Sounds
+		WebStorage.SetLocal('minigame_mute', true);
+		WebStorage.SetLocal('minigame_mutemusic', true);
+		g_AudioManager.m_eleMusic.pause();
+	
 		for(var i=0;i<cnt;i++)
 			spawnSlave();
 	}
@@ -79,6 +84,7 @@ function runMaster()
 }
 function runSlave()
 {
+	
 	if(slaveWindowUICleanup){
 		var cleanupPageInter = setInterval(function(){
 			if(window.CUI || g_Minigame.m_CurrentScene.m_bRunning)
@@ -96,10 +102,5 @@ function runSlave()
 				g_Minigame.Renderer.render = function(){} // Disable rendering. Completely.
 			}
 		},1000)
-	}
-	
-	//Mute Sounds
-	WebStorage.SetLocal('minigame_mute', true);
-	g_AudioManager.m_eleMusic.pause();
-	
+	}	
 }
