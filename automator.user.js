@@ -1226,8 +1226,8 @@ function addCustomButtons() {
 	$J(".toggle_sfx_btn").click(toggleSFX).attr('id', 'toggleSFXBtn');
 	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
 
-	$J("#toggleMusicBtn").after('<span id="toggleSoundBtn" class="toggle_music_btn" style="display:inline-block;"><span>' + (bIsMuted() ? 'Enable' : 'Disable') + ' All Sound' + '</span></span>');
-	$J("#toggleSoundBtn").click (toggleAllSound);
+	$J("#toggleMusicBtn").after('<span id="toggleAllSoundBtn" class="toggle_music_btn" style="display:inline-block;"><span>' + (bIsMuted() ? 'Enable' : 'Disable') + ' All Sound' + '</span></span>');
+	$J("#toggleAllSoundBtn").click (toggleAllSound);
     
 	//Automator buttons
 	$J(".game_options").after('<div class="game_options" id="auto_options"></div>'); // background
@@ -1309,7 +1309,7 @@ function toggleAllSound() {
 function updateSoundBtnText() {
 	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
 	$J('#toggleMusicBtn').html('<span>' + (WebStorage.GetLocal('minigame_mutemusic') ? 'Enable' : 'Disable') + ' Music</span>');
-	$J("#toggleSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" All Sound</span>");
+	$J("#toggleAllSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" All Sound</span>");
 }
 
 function toggleAutoClicker() {
