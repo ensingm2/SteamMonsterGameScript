@@ -59,7 +59,8 @@ Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoe
 - Finish automating use of abilities & items
 - Bug Fixes?
 
-##Contributors (Listed alphabetically):
+##Contributors:
+(Listed alphabetically)
 - [DannyDaemonic](https://github.com/DannyDaemonic)
 - [EnragedRabisu](https://github.com/joshho)
 - [ensingm2](https://github.com/)
