@@ -19,13 +19,13 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 		4. Press 'Import' and then on the next page, 'Install'
 	- **Greasemonkey:**
 	    1. Save the file 'https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js'
-		2. Open the Greasemonkey menu (click on the arrow next to the Greasemonkey icon in the toolbar, then click on 'Manage User Scripts...')
-		3. Click on the Gear in the top right of the page, and select 
+		2. Drag and Drop the file anywhere within the Firefox window.
+		3. Click 'Install'
 3. The script will now automatically load when you visit http://steamcommunity.com/minigame/towerattack/
+$. Enjoy!
 
-##Javascript Only
-To load the script, copy/paste the code from minified.js (or automator.user.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
-To stop, run "stopAllAutos()" in the console.
+##Javascript Only Version (No slave window support)
+To load the script, copy/paste the code from automator.user.js or minified.js or into your browser console or userscript plugin, and hit return to run it.
 
 ##Parts:
 Any of the additions can be started or stopped individually:
