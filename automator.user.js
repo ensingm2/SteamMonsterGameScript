@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.50
+// @version 1.51
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -973,7 +973,8 @@ if(typeof unsafeWindow != 'undefined') {
 	
 	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
 	var varSetter = setInterval(function() {
-		console.log('updating options');
+		if(debug)
+			console.log('updating options');
 		
 		debug = unsafeWindow.debug;
 		clicksPerSecond = unsafeWindow.clicksPerSecond;
