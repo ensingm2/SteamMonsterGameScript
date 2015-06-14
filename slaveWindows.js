@@ -57,18 +57,23 @@ function runMaster()
 		'position': 'relative',
 		'font-weight': 'bold',
 		'top': '25px',
-		'margin-left': '10px',
+		'float': 'right',
+		'margin-right': '10px',
 		'color': '#FF8585'
 	};
 	
 	var spacerStyle = {
-		'margin-left': '150px'
+		'float': 'right'
+	};
+	var mainSpacerStyle = {
+		'float': 'right',
+		'margin-right': '6px'
 	};
 	
 	var tgt = $J('.game_options .toggle_music_btn:first');
-	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(spawnSlaves).text('Spawn Slaves').css(spacerStyle);
-	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).text('Kill Slaves');
-	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
+	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(killAllSlaves).text('Kill Slaves').css(mainSpacerStyle);
+	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(killSlavesBtn).click(spawnSlaves).text('Spawn Slaves').css(spacerStyle);
+	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(spawnSlavesBtn).css(counterStyle);
 
 	$J('#slaveCounter').css(counterStyle);
 }
