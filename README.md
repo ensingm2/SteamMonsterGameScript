@@ -35,7 +35,7 @@ Any of the additions can be started or stopped individually:
 - In-UI management of slaves from master window
 - Automatic refresh of slave windows to avoid any memleaks
 - ***Known issue with Slave Window Manager & UserScript:***
-    - The Slave Window Manager code seems to get cached by the userscript. You can force a refresh by uninstalling and reinstalling the base userscript.
+    - The Slave Window Manager code seems to get cached by the userscript. You can force a refresh by uninstalling and reinstalling the base userscript. NOTE: Issue being tracked [here](https://github.com/ensingm2/SteamMonsterGameScript/issues/59), if you have any ideas on how to fix it, I'd appreciate a comment.
 
 
 *There are buttons that get added to the bottom of the game page that toggle these functions for your convenience*
