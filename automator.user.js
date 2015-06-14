@@ -475,7 +475,7 @@ function startAutoUpgradeManager() {
 			.success(function() {
 			  // wait as short a delay as possible
 			  // then we re-run to figure out the next item to queue
-			  window.setTimeout(upgradeManager, 0);
+			  window.setTimeout(autoUpgradeManager, 0);
 			})
 			.fail(function() {
 			  // we're desynced. wait til data refresh
