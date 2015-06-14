@@ -4,6 +4,10 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 
 ###ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme.###
 
+##Links:
+[Reddit Thread](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
+[/r/SteamMonsterGame/](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
+
 ##Basic Use:
 Just load the script after the game fully loads in, and all automated processes will start immediately.
 To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
@@ -49,7 +53,7 @@ If you would like to test the script, you have a few options
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
 ##Using code from this in your own script?##
-Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though, instead of direct copy-pasting into your project under your own name (hi [wchill](https://github.com/wchill/steamSummerMinigame)).
+Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though.
 
 ##TODO:
 - Finish automating use of abilities & items
