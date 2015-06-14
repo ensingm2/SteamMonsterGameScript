@@ -22,7 +22,7 @@ function runMaster()
 	}
 	
 	function spawnSlaves(){
-		var cnt = parseInt(prompt("How many slave windows would you like to open?", "0"));
+		var cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "0"));
 		
 		if(cnt == 0)
 			return;

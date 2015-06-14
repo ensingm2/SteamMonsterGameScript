@@ -6,7 +6,7 @@
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
-// @include https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/175f69e9f8cd965003a96ca49bf796f4d032a300/slaveWindows.js
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
