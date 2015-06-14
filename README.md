@@ -51,6 +51,7 @@ Feel free to edit any variables to suit your needs
 - **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
 - **upgradeManagerFreq (default: 30000):** Duration (in milliseconds) between checks to see if it is beneficial to purchase an upgrade
+- **autoBuyAbilities (default: false):** if true, autoUpgrader will prioritize buying new abilities for use over upgrades.
 
 ###Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability

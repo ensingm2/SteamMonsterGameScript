@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.59
+// @version 1.60
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -24,6 +24,7 @@ var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
 var upgradeManagerFreq = 5000;
+var autoBuyAbilities = false;
 
 //item use variables
 var useMedicsAtPercent = 30;
@@ -304,7 +305,7 @@ function startAutoUpgradeManager() {
 
 	  var nextAbilityUpgrade = function() {
 		var best = { id: -1, cost: 0 };
-		if (buyAbilities) {
+		if (autoBuyAbilities) {
 		  gAbilities.some(function(id) {
 			if (canUpgrade(id) && getUpgrade(id).level < 1) {
 			  best = { id: id, cost: scene.m_rgTuningData.upgrades[id].cost };
@@ -1100,6 +1101,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.itemUseCheckFreq = itemUseCheckFreq;
 	unsafeWindow.seekHealingPercent = seekHealingPercent;
 	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
+	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
 
 	//item use variables
 	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
@@ -1156,6 +1158,7 @@ if(typeof unsafeWindow != 'undefined') {
 		itemUseCheckFreq = unsafeWindow.itemUseCheckFreq;
 		seekHealingPercent = unsafeWindow.seekHealingPercent;
 		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
+		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
 
 		//item use variables
 		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
