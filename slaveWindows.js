@@ -21,8 +21,9 @@ function runMaster()
 		$J('.slaveWindowCount').text(slavesList.length);
 	}
 	
-	function spawnSlaves(){
-		var cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
+	function spawnSlaves(cnt){
+		if(cnt !== 'undefined')
+			cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
 		
 		if(cnt == 0)
 			return;
