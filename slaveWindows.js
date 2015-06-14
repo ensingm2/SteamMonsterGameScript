@@ -54,19 +54,29 @@ function runMaster()
 		position: 'absolute',
 		'z-index': 12,
 		bottom: '20px',
-		left: '30px'
+		left: '60px',
+		height: '50px'
 	});
 	
 	var btnStyle = {
 		border: 'none',
 		padding: '5px',
+		margin: '5px',
 		'border-radius': '10px'
+	};
+	
+	var counterStyle = {
+		'position': 'absolute',
+		'top': '35px',
+		'left': '30px',
+		'color': '#FF8585',
 	};
 	
 	$J('<button>').css(btnStyle).appendTo(cont).click(spawnSlaves).text('Spawn Slaves');
 	$J('<button>').css(btnStyle).appendTo(cont).click(killAllSlaves).text('Kill All Slaves');
-	cont.append('<span>Slaves: <span class="slaveWindowCount">0</span></span>');
+	cont.append('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>');
 	cont.appendTo($J('#uicontainer'));
+	$J('#slaveCounter').css(counterStyle);
 }
 function runSlave()
 {
