@@ -1172,6 +1172,10 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.setDebug = function(state) { debug = state; };
 }
 
+function updatePlayersInRoom() {
+	$J("#players_in_room").html((g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players));
+}
+
 //Keep trying to start every second till success
 var startAll = setInterval(function() { 
 		if(!gameRunning())
@@ -1181,8 +1185,12 @@ var startAll = setInterval(function() {
 		
 		startAllAutos();
 		addPointer();
-		addCustomButtons();
-		
+		addExtraUI();
+
+		//Update current players in room count
+		updatePlayersInRoom();
+		setInterval(function() { updatePlayersInRoom(); }, 10000);
+
 		//Hide the stupid "Leave game" tooltip
 		$J('.leave_game_btn').mouseover(function(){
 				$J('.leave_game_helper').show();
@@ -1211,7 +1219,14 @@ var startAll = setInterval(function() {
 
 	}, 1000);
 
-	
+function addExtraUI() {
+	addCustomButtons();
+
+	//Add in player count for current room
+	var old = $J(".title_activity").html();
+	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
+}
+
 function addCustomButtons() {
 	//Smack the TV Easter Egg
 	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
