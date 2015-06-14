@@ -8,9 +8,23 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 - [Reddit Thread](https://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
 - [/r/SteamMonsterGame/](https://www.reddit.com/r/SteamMonsterGame/)
 
-##Basic Use:
-Just load the script after the game fully loads in, and all automated processes will start immediately.
-To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
+#How To Use:
+###UserScript via Greasemonkey or Tampermonkey (Preferred Method, allows slave windows):
+1. Download the relevent addon if you don't already have it ([Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) for Chrome or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) for  Firefox)
+2. Install the script 'https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js' in that addon
+    - **Tampermonkey:**
+	    1. Open the Tampermonkey dashboard(click the Tampermonkey icon in the toolbar, then click on 'Dashboard')
+		2. Click on the 'Utilities' tab
+		3. Paste 'https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js' in the 'URL' field
+		4. Press 'Import' and then on the next page, 'Install'
+	- **Greasemonkey:**
+	    1. Save the file 'https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js'
+		2. Open the Greasemonkey menu (click on the arrow next to the Greasemonkey icon in the toolbar, then click on 'Manage User Scripts...')
+		3. Click on the Gear in the top right of the page, and select 
+3. The script will now automatically load when you visit http://steamcommunity.com/minigame/towerattack/
+
+##Javascript Only
+To load the script, copy/paste the code from minified.js (or automator.user.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
 To stop, run "stopAllAutos()" in the console.
 
 ##Parts:

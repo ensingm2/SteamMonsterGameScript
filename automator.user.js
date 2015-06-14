@@ -5,7 +5,7 @@
 // @version 1.42
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
-// @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
+// @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/slaveWindows.js
 // ==/UserScript==
 
