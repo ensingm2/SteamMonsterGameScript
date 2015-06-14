@@ -1215,34 +1215,36 @@ function addCustomButtons() {
 	//Smack the TV Easter Egg
 	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
 	
-	
-  //Reformat current buttons
-  $J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px", "position": "absolute", "bottom": "144px", "z-index": "12", "left": "340px"});
-  $J(".leave_game_helper").css({"left": "150px", "top": "-75px", "z-index": "12"});
-  $J(".leave_game_btn").html('<span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span>');
-  $J(".toggle_sfx_btn").remove();
-  $J(".toggle_music_btn").html((bIsMuted() ? "Enable" : "Disable")+" Sound");
-  $J(".toggle_music_btn").removeAttr("onclick");
-  $J(".toggle_music_btn").attr("id", "toggleSoundBtn");
+	//Reformat current buttons
+	$J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px", "position": "absolute", "bottom": "144px", "z-index": "12", "left": "340px"});
+	$J(".leave_game_helper").css({"left": "150px", "top": "-75px", "z-index": "12"});
+	$J(".leave_game_btn").html('<span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span>');
+	$J(".toggle_sfx_btn").remove();
+	$J(".toggle_music_btn").html((bIsMuted() ? "Enable" : "Disable")+" Sound");
+	$J(".toggle_music_btn").removeAttr("onclick");
+	$J(".toggle_music_btn").css({"margin-left": "6px"});
+	$J(".toggle_music_btn").attr("id", "toggleSoundBtn");
 	$J("#toggleSoundBtn").click (toggleAllSound);
     
 	//Automator buttons
-	$J('<span id="toggleAutoClickerBtn" class="toggle_sfx_btn"><span>Disable AutoClicker</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J(".game_options").append('<div class="game_options" id="auto_options" style="margin: 0 auto;text-align:center;"></div>'); // background
+
+	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable AutoClicker</span></span>');
 	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
 	
-	$J('<span id="toggleAutoTargetSwapperBtn" class="toggle_sfx_btn"><span>Disable Target Swap</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Target Swap</span></span>');
 	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
-	$J('<span id="toggleAutoAbilityUserBtn" class="toggle_sfx_btn"><span>Disable Ability Use</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Ability Use</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
-	$J('<span id="toggleAutoItemUserBtn" class="toggle_sfx_btn"><span>Disable Item Use</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Item Use</span></span>');
 	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
 	
-	$J('<span id="toggleAutoUpgradeBtn" class="toggle_sfx_btn"><span>Disable Upgrader</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Upgrader</span></span>');
 	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
 	
-	$J('<span id="toggleSpammerBtn" class="toggle_sfx_btn"><span>Enable Particle Spam</span></span>').insertBefore(".game_options .leave_game_btn");
+	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Enable Particle Spam</span></span>');
 	$J("#toggleSpammerBtn").click (toggleSpammer);
 
 	// Append gameid to breadcrumbs
