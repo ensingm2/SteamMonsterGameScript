@@ -65,7 +65,7 @@ function runMaster()
 		'margin-left': '150px'
 	};
 	
-	var tgt = $J('.game_options .toggle_music_btn:first');
+	var tgt = $J('#toggleAllSoundBtn');
 	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(spawnSlaves).text('Spawn Slaves').css(spacerStyle);
 	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).text('Kill Slaves');
 	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
