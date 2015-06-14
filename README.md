@@ -42,6 +42,7 @@ Feel free to edit any variables to suit your needs
 - **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
 - **upgradeManagerFreq (default: 30000):** Duration (in milliseconds) between checks to see if it is beneficial to purchase an upgrade
+
 ###Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useMedicsAtLanePercent (default: 50):** If average lane health dips below this %, Medics will be used.
@@ -51,7 +52,8 @@ Feel free to edit any variables to suit your needs
 - **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
 - **useStealHealthAtPercent (default: 15):** % max hp at which to use the Steal Health Item
 - **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
-###Slave Window Settings
+
+###Slave Window Settings (NOT CURRENTLY ACCESSABLE)
 - **slaveWindowUICleanup (default: true):** Whether or not slave windows will have all graphics removed in order to reduce load.
 - **slaveWindowPeriodicRestart (default: true):** If enabled, slave windows will periodically close and reopen in an attempt to cut down on any memory leaks
 - **slaveWindowPeriodicRestartInterval (default: 300000 [5 minutes]):** Duration (in milliseconds) between slave window reloads, if slaveWindowPeriodicRestart is set
