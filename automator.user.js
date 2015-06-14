@@ -982,7 +982,7 @@ function addCustomButtons() {
 	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
 	
 	$J(".game_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn"><span>Disable AutoTargetSwapper</span></span>');
-	$J("#toggleAutoTargetSwapper").click (toggleAutoTargetSwapper);
+	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
 	$J(".game_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn"><span>Disable AutoAbilityUser</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
