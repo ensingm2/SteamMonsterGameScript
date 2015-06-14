@@ -738,11 +738,20 @@ function laneHasAbility(lane, abilityID) {
 
 function abilityIsUnlocked(abilityID) {
 		if(abilityID <= 12)
-			return document.getElementById('ability_' + abilityID) != null;
-		else if(document.getElementById('abilityitem_' + abilityID) != null)
-			return document.getElementById('abilityitem_' + abilityID) != null;
+			return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
 		else
-			return false;
+			return getAbilityItemQuantity(abilityID) > 0;
+}
+
+function getAbilityItemQuantity(abilityID) {
+	for ( var i = 0; i < g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items.length; ++i ) {
+		var abilityItem = g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items[i];
+
+		if(abilityItem.ability == abilityID)
+			return abilityItem.quantity;
+	}
+
+	return 0;
 }
 
 // Ability cooldown time remaining (in seconds)
@@ -755,7 +764,7 @@ function hasAbility(abilityID) {
 	// each bit in unlocked_abilities_bitfield corresponds to an ability.
 	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
 	// the player has purchased the specified ability.
-	return (abilityIsUnlocked(abilityID) || abilityID > 12) && abilityCooldown(abilityID) <= 0;
+	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
 }
 
 function updateUserElementMultipliers() {
