@@ -1233,7 +1233,7 @@ function addCustomButtons() {
 	//Automator buttons
 	$J(".game_options").after('<div class="game_options" id="auto_options"></div>'); // background
 
-	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable AutoClicker</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;margin-left:6px"><span>Disable AutoClicker</span></span>');
 	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
 	
 	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Target Swap</span></span>');
