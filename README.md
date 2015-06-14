@@ -75,6 +75,7 @@ Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoe
 
 ##Contributors:
 (Listed alphabetically)
+- [ags131](https://github.com/ags131)
 - [DannyDaemonic](https://github.com/DannyDaemonic)
 - [EnragedRabisu](https://github.com/joshho)
 - [ensingm2](https://github.com/ensingm2)
