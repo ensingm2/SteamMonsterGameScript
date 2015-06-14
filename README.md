@@ -31,6 +31,7 @@ Feel free to edit any variables to suit your needs
 - **useMetalDetectorOnBossBelowPercent (default: 30):** Below this % percentage threshold, a Metal Detector will be used on a targeted boss
 - **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
 - **useStealHealthAtPercent (default: 15):** % max hp at which to use the Steal Health Item
+- **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
 
 ##Testing:
 If you would like to test the script, you have a few options

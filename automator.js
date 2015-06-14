@@ -28,6 +28,7 @@ var useMedicsAtPercent = 30;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 var useStealHealthAtPercent = 15;
+var useRainingGoldAbovePercent = 75;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -467,14 +468,14 @@ function startAutoAbilityUser() {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
-				var critReady = hasAbility(18) && autoItemUser;
+				var critReady = (hasAbility(18) && autoItemUser != null);
 				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
 					var moraleBoosterUnlocked = abilityIsUnlocked(5);
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady )&& goodLuckCharmReady)) {
+					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
 						// Only use on targets that are spawners and have nearly full health
 						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
@@ -488,17 +489,30 @@ function startAutoAbilityUser() {
 							  ) {
 									if(hasAbility(9) && !currentLaneHasAbility(9)) {
 											// Other abilities won't benifit if used at the same time
+											if(debug)
+												console.log('Triggering Decrease Cooldown!');
 											castAbility(9);
-									} else {
+									}
+									else {
 											// Use these abilities next pass
 											
 											//Use crit if one's available
-											if(critReady)
+											if(critReady) {
+												if(debug)
+													console.log("Using Crit!");
 												castAbility(18);
-											else
+											}
+											else if (moraleBoosterReady) {
+												if(debug)
+													console.log("Casting Morale Booster!");
 												castAbility(5);
+											}
 											
-											castAbility(6);
+											if(goodLuckCharmReady) {
+												if(debug)
+													console.log("Casting Good Luck Charm!");
+												castAbility(6);
+											}
 									}
 							}
 						}
@@ -516,13 +530,21 @@ function startAutoAbilityUser() {
 
 		
 				// Cluster Bomb
-				if(hasAbility(11) && targetPercentHPRemaining >= 25) { 
+				if(hasAbility(11) && targetPercentHPRemaining >= 25) {
+					
+					if(debug)
+						console.log('Triggering cluster bomb!');
+					
 					castAbility(11);
 				}
 
 		
 				// Napalm
 				if(hasAbility(12) && !currentLaneHasAbility(12) && targetPercentHPRemaining >= 50) { 
+				
+					if(debug)
+						console.log('Triggering napalm!');
+					
 					castAbility(12);
 				}
 
@@ -554,6 +576,26 @@ function startAutoItemUser() {
 				if(debug)
 					console.log("Stealing Health!");
 				castAbility(23);
+			}
+		}
+		
+		//target based items
+		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		if(target) {
+			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+			
+			// Abilitys only used when targeting Bosses
+			if(target.m_data.type == 2) {
+				
+				//Raining Gold
+				if(hasAbility(17) && targetPercentHPRemaining > useRainingGoldAbovePercent) {
+					
+					if(debug)
+						console.log('Raining Gold!');
+					
+					castAbility(17);
+				}
+				
 			}
 		}
 		
@@ -645,9 +687,9 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID)) {
-		if(abilityID <= 12)
+		if(abilityID <= 12 && document.getElementById('ability_' + abilityID) != null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
-		else 
+		else if(document.getElementById('abilityitem_' + abilityID) != null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
 	}
 }
@@ -664,7 +706,12 @@ function laneHasAbility(lane, abilityID) {
 }
 
 function abilityIsUnlocked(abilityID) {
-	return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
+		if(abilityID <= 12)
+			return document.getElementById('ability_' + abilityID) != null;
+		else if(document.getElementById('abilityitem_' + abilityID) != null)
+			return document.getElementById('abilityitem_' + abilityID) != null;
+		else
+			return false;
 }
 
 // Ability cooldown time remaining (in seconds)
@@ -866,8 +913,8 @@ var startAll = setInterval(function() {
 		
 		//Hide the stupid "Leave game" tooltip
 		$J('.leave_game_btn').mouseover(function(){$J('.leave_game_helper').show();})
-			.mouseout(function(){$J('.leave_game_helper').hide();})
-			.mouseout();
+			.mouseout(function(){$J('.leave_game_helper').hide();});
+		$J('.leave_game_helper').hide();
 		
 		// Overwrite this function so it doesn't delete our sexy pointer
 		CSceneGame.prototype.ClearNewPlayer = function() {
@@ -996,6 +1043,3 @@ function toggleSpammer() {
 	}
 		
 }
-
-
-
