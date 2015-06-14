@@ -6,10 +6,11 @@
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
+// @include https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js
 // ==/UserScript==
 
-// Compiled and customized by reddit user /u/therusher
-// Credit to reddit users /u/leandr0c, /u/nbadal and /u/kolodz for additional code
+// Compiled and customized by https://github.com/ensingm2
+// See a (hopefully) full list of contributors over at https://github.com/ensingm2/SteamMonsterGameScript#contributors
 
 // Custom variables
 var debug = false;
@@ -946,6 +947,13 @@ var startAll = setInterval(function() {
 			.mouseout(function(){$J('.leave_game_helper').hide();});
 		$J('.leave_game_helper').hide();
 		
+		
+		//Setup for slave windows
+		if(location.search.match(/slave/))
+			runSlave();
+		else
+			runMaster();
+
 		// Overwrite this function so it doesn't delete our sexy pointer
 		CSceneGame.prototype.ClearNewPlayer = function() {
 			if( this.m_spriteFinger )  {
