@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.52
+// @version 1.53
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -185,9 +185,10 @@ function startAutoUpgradeManager() {
 		0,  // Light Armor
 		8,  // Heavy Armor
 		20, // Energy Shields
+		23, // Personal Training
 	  ];
 
-	  var gAutoUpgrades = [1, 9, 21]; // nobody cares
+	  var gAutoUpgrades = [1, 9, 21, 24]; // nobody cares
 
 	  var gLuckyShot = 7;
 
@@ -195,6 +196,7 @@ function startAutoUpgradeManager() {
 		2,  // Armor Piercing Round
 		10, // Explosive Rouds
 		22, // Railgun
+		25, // New Mouse Button
 	  ];
 
 	  var gElementalUpgrades = [3, 4, 5, 6]; // Fire, Water, Earth, Air
