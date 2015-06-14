@@ -28,6 +28,7 @@ Any of the additions can be started or stopped individually:
 - **autoAbilityUser:** run "startAutoAbilityUser()" or "stopAutoAbilityUser()" in the console.
 - **autoItemUser:** run "startAutoItemUser()" or "stopAutoItemUser()" in the console.
 - **autoUpgradeManager:** run "startAutoUpgradeManager()" or "stopAutoUpgradeManager()" in the console.
+
 *There are buttons that get added to the bottom of the game page that toggle these functions for your convenience*
 
 ##Variables:
