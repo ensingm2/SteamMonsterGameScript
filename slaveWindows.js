@@ -49,7 +49,12 @@ function runMaster()
 	if(slaveWindowPeriodicRestart)
 	{
 		setInterval(function(){
+			
 			var cnt = slavesList.length;
+			
+			if(cnt == 0)
+				return;
+			
 			killAllSlaves();
 			spawnSlaves(cnt);
 		},slaveWindowPeriodicRestartInterval);
