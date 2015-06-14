@@ -8,7 +8,7 @@ var slaveWindowPeriodicRestartInterval = 5 * 60 * 1000;  // Period to restart sl
 
 function runMaster()
 {
-	window.unload = function(){ killAllSlaves() }
+	window.unload = function(){ killAllSlaves(); }
 	
 	var slavesList = window.slaves = [];
 	
@@ -22,7 +22,7 @@ function runMaster()
 	}
 	
 	function spawnSlaves(cnt){
-		if(typeof cnt === 'object')
+		if(typeof cnt == 'object')
 			cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
 		
 		if(cnt == 0 || typeof cnt === 'object')
