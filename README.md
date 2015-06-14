@@ -34,7 +34,7 @@ Any of the additions can be started or stopped individually:
 - Disables rendering on slave windows in order to reduce memory/cpu use
 - In-UI management of slaves from master window
 - Automatic refresh of slave windows to avoid any memleaks
-- ####Known issue with Slave Window Manager & UserScript:
+- ***Known issue with Slave Window Manager & UserScript:***
     - The Slave Window Manager code seems to get cached by the userscript. You can force a refresh by uninstalling and reinstalling the base userscript.
 
 
