@@ -1,13 +1,15 @@
 # SteamMonsterGameScript
 A Javascript automator for the 2015 Summer Steam Monster Minigame
-###DISCLAIMER: I take no responsibility for the use of this program. See http://www.reddit.com/r/SteamMonsterGame/comments/39lszy/steam_is_banning_for_autoclickers_apparently/ for risks!###
+###DISCLAIMER: I take no responsibility for the use of this program, or any negative effects that may result in using it!###
+
+###ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme.###
 
 ##Basic Use:
 Just load the script after the game fully loads in, and all automated processes will start immediately.
 To load the script, copy/paste the code from minified.js (or automator.js if you're security-conscious) into your browser console or userscript plugin, and hit return to run it. 
 To stop, run "stopAllAutos()" in the console.
 
-##Specifics:
+##Parts:
 Any of the additions can be started or stopped individually:
 - **autoClicker:** run "startAutoClicker()" or "stopAutoClicker()" in the console.
 - **autoRespawner:** run "startAutoRespawner()" or "stopAutoRespawner()" in the console.
@@ -15,6 +17,7 @@ Any of the additions can be started or stopped individually:
 - **autoAbilityUser:** run "startAutoAbilityUser()" or "stopAutoAbilityUser()" in the console.
 - **autoItemUser:** run "startAutoItemUser()" or "stopAutoItemUser()" in the console.
 - **autoUpgradeManager:** run "startAutoUpgradeManager()" or "stopAutoUpgradeManager()" in the console.
+*There are buttons that get added to the bottom of the game page that toggle these functions for your convenience*
 
 ##Variables:
 Feel free to edit any variables to suit your needs
@@ -35,16 +38,16 @@ Feel free to edit any variables to suit your needs
 - **useStealHealthAtPercent (default: 15):** % max hp at which to use the Steal Health Item
 - **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
 
+##Notes:
+This script does not output particles for clicks, so you will not see damage output from the autoclicker. This is intended, as it reduces lag and removes a fairly large memory leak in the base game.
+You will however see the output from the attacks made by any auto-fire cannons or your own manual clicks, as we haven't altered that code.
+See the [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) section of this readme if you want to make sure things are working.
+
 ##Testing:
 If you would like to test the script, you have a few options
 - Use a browser add-on such as Firebug for Firefox and view the POST data being sent to the server. This is the best testing method as you can see exactly what's being sent to the server.
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
 ##TODO:
-- Finish automating use of abilities
-- Automate upgrades? Not sure.
+- Finish automating use of abilities & items
 - Bug Fixes?
-- Find CPS limit
-
-###Other Notes:
-None
