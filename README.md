@@ -48,6 +48,9 @@ If you would like to test the script, you have a few options
 - Use a browser add-on such as Firebug for Firefox and view the POST data being sent to the server. This is the best testing method as you can see exactly what's being sent to the server.
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
+##Using code from this in your own script?##
+Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though, instead of direct copy-pasting into your project under your own name (hi [wchill](https://github.com/wchill/steamSummerMinigame)).
+
 ##TODO:
 - Finish automating use of abilities & items
 - Bug Fixes?
