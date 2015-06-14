@@ -1058,6 +1058,21 @@ function addCustomButtons() {
 	
 	$J(".game_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn"><span>Enable Particle Spam</span></span>');
 	$J("#toggleSpammerBtn").click (toggleSpammer);
+
+	// Append gameid to breadcrumbs
+	var breadcrumbs = document.querySelector('.breadcrumbs');
+
+	if(breadcrumbs) {
+		var element = document.createElement('span');
+		element.textContent = ' > ';
+		breadcrumbs.appendChild(element);
+
+		element = document.createElement('span');
+		element.style.color = '#D4E157';
+		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
+		element.textContent = 'Room ' + g_GameID;
+		breadcrumbs.appendChild(element);
+	}
 }
 
 function toggleAutoClicker() {
