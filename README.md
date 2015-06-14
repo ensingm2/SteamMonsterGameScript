@@ -5,8 +5,8 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 ###ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme.###
 
 ##Links:
-[Reddit Thread](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
-[/r/SteamMonsterGame/](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
+- [Reddit Thread](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
+- [/r/SteamMonsterGame/](http://www.reddit.com/r/SteamMonsterGame/)
 
 ##Basic Use:
 Just load the script after the game fully loads in, and all automated processes will start immediately.
