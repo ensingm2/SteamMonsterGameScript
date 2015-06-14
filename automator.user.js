@@ -745,10 +745,19 @@ function startAutoAbilityUser() {
 			}
 			
 			// Only use if there isn't already a Medics active?
-			if(hasAbility(7) && !currentLaneHasAbility(7)) {
-				if(debug)
-					console.log("Unleash the medics!");
-				castAbility(7);
+			var pumpedUpReady = hasAbility(19) && autoItemUser != null;
+			if((hasAbility(7) || pumpedUpReady) && !currentLaneHasAbility(7)) {
+				
+				if(pumpedUpReady){
+					if(debug)
+						console.log("Using Medics via Pumped Up!");
+					castAbility(19);
+				}
+				else {
+					if(debug)
+						console.log("Using Medics!");
+					castAbility(7);
+				}
 			}
 			else if(debug)
 				console.log("No medics to unleash!");
