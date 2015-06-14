@@ -2,6 +2,7 @@
 var slaveWindowUICleanup = true; // Hide all UI and disable rendering for slaves. This will help on CPU and possibly RAM usage
 var slaveWindowPeriodicRestart = true; // Periodically restarts slaves in attempts to free memory
 var slaveWindowPeriodicRestartInterval = 5 * 60 * 1000;  // Period to restart slaves (In milliseconds)
+var slaveDelayBetweenSpawns = 1000; // Delay (in milliseconds) between when each slave will spawn.
 
 //================= Adding slave windows =============================
 // See: https://github.com/ags131/steamMinigameSlaveScript
@@ -12,7 +13,7 @@ function runMaster()
 	
 	var slavesList = window.slaves = [];
 	
-	function spawnSlave(){
+	function spawnSlave(num){
 		var num = slavesList.length;
 		var slaveheight = screen.height / 10;
 		var params = 'left=0, top='+(num*100)+', width=220, height=100';
@@ -36,7 +37,7 @@ function runMaster()
 		g_AudioManager.m_eleMusic.pause();
 	
 		for(var i=0;i<cnt;i++)
-			spawnSlave();
+			setTimeout(spawnSlave, i * slaveDelayBetweenSpawns);
 	}
 	
 	function killAllSlaves(){
@@ -50,32 +51,25 @@ function runMaster()
 	}
 	
 	var cont = $J('<div>').addClass('slaveManager');
-	cont.css({
-		position: 'absolute',
-		'z-index': 12,
-		bottom: '20px',
-		left: '60px',
-		height: '50px'
-	});
-	
-	var btnStyle = {
-		border: 'none',
-		padding: '5px',
-		margin: '5px',
-		'border-radius': '10px'
-	};
+
 	
 	var counterStyle = {
-		'position': 'absolute',
-		'top': '35px',
-		'left': '30px',
-		'color': '#FF8585',
+		'position': 'relative',
+		'font-weight': 'bold',
+		'top': '25px',
+		'margin-left': '10px',
+		'color': '#FF8585'
 	};
 	
-	$J('<button>').css(btnStyle).appendTo(cont).click(spawnSlaves).text('Spawn Slaves');
-	$J('<button>').css(btnStyle).appendTo(cont).click(killAllSlaves).text('Kill All Slaves');
-	cont.append('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>');
-	cont.appendTo($J('#uicontainer'));
+	var spacerStyle = {
+		'margin-left': '100px'
+	};
+	
+	var tgt = $J('.game_options .toggle_music_btn:first');
+	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(spawnSlaves).text('Spawn Slaves').css(spacerStyle);
+	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).text('Kill Slaves');
+	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
+
 	$J('#slaveCounter').css(counterStyle);
 }
 function runSlave()
