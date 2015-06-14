@@ -5,8 +5,8 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 ###ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme.###
 
 ##Links:
-- [Reddit Thread](http://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
-- [/r/SteamMonsterGame/](http://www.reddit.com/r/SteamMonsterGame/)
+- [Reddit Thread](https://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
+- [/r/SteamMonsterGame/](https://www.reddit.com/r/SteamMonsterGame/)
 
 ##Basic Use:
 Just load the script after the game fully loads in, and all automated processes will start immediately.
@@ -53,8 +53,27 @@ If you would like to test the script, you have a few options
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
 ##Using code from this in your own script?##
-Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though.
+Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though. Don't worry about it if you're forking from this, in that case there's a trail leading back so people can see the original committers.
 
 ##TODO:
 - Finish automating use of abilities & items
 - Bug Fixes?
+
+##Contributors (Listed alphabetically):
+- [DannyDaemonic](https://github.com/DannyDaemonic)
+- [EnragedRabisu](https://github.com/joshho)
+- [ensingm2](https://github.com/)
+- [iareHuuman](https://github.com/iareHuuman)
+- [iskandar](https://github.com/iskandar)
+- [joshho](https://github.com/joshho)
+- [leandroclem](https://github.com/leandroclem)
+- [meishuu](https://github.com/meishuu)
+- [nbadal](https://github.com/nbadal)
+- [Zazcallabah](https://github.com/Zazcallabah)
+- [/u/kolodz](https://reddit.com/user/kolodz)
+- [/u/Landriff](https://reddit.com/user/Landriff)
+- [/u/lllillillilll](https://reddit.com/user/lllillillilll)
+- [/u/Meishuu](https://reddit.com/user/Meishuu)
+- [/u/minusra](https://reddit.com/user/minusra)
+- [/u/Scyntrus](https://reddit.com/user/Scyntrus)
+- [/u/TheDollarDes](https://reddit.com/user/TheDollarDes)
