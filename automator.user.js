@@ -1217,7 +1217,8 @@ function addCustomButtons() {
 	
 	
   //Reformat current buttons
-  $J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px"});
+  $J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px", "position": "absolute", "bottom": "144px", "z-index": "12", "left": "340px"});
+  $J(".leave_game_helper").css({"left": "150px", "top": "-75px", "z-index": "12"});
   $J(".leave_game_btn").html('<span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span>');
   $J(".toggle_sfx_btn").remove();
   $J(".toggle_music_btn").html((bIsMuted() ? "Enable" : "Disable")+" Sound");
