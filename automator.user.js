@@ -1216,32 +1216,35 @@ function addCustomButtons() {
 	$J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px", "position": "absolute", "bottom": "144px", "z-index": "12", "left": "340px"});
 	$J(".leave_game_helper").css({"left": "150px", "top": "-75px", "z-index": "12"});
 	$J(".leave_game_btn").html('<span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span>');
-	$J(".toggle_sfx_btn").remove();
-	$J(".toggle_music_btn").html((bIsMuted() ? "Enable" : "Disable")+" Sound");
-	$J(".toggle_music_btn").removeAttr("onclick");
-	$J(".toggle_music_btn").css({"margin-left": "6px"});
-	$J(".toggle_music_btn").attr("id", "toggleSoundBtn");
+	
+	//Overwrite their functions
+	$J(".toggle_music_btn").click(toggleMusic).attr('id', 'toggleMusicBtn');
+	$J('#toggleMusicBtn').html('<span>' + (WebStorage.GetLocal('minigame_mutemusic') ? 'Enable' : 'Disable') + ' Music</span>');
+	$J(".toggle_sfx_btn").click(toggleSFX).attr('id', 'toggleSFXBtn');
+	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
+
+	$J("#toggleMusicBtn").after('<span id="toggleSoundBtn" class="toggle_music_btn" style="display:inline-block;"><span>' + (bIsMuted() ? 'Enable' : 'Disable') + ' All Sound' + '</span></span>');
 	$J("#toggleSoundBtn").click (toggleAllSound);
     
 	//Automator buttons
-	$J(".game_options").append('<div class="game_options" id="auto_options" style="margin: 0 auto;text-align:center;"></div>'); // background
+	$J(".game_options").after('<div class="game_options" id="auto_options"></div>'); // background
 
-	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable AutoClicker</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable AutoClicker</span></span>');
 	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
 	
-	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Target Swap</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Target Swap</span></span>');
 	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
-	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Ability Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability Use</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Item Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Item Use</span></span>');
 	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Disable Upgrader</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Upgrader</span></span>');
 	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
 	
-	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn" style="display:inline-block;float:none;"><span>Enable Particle Spam</span></span>');
+	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn" style="display:inline-block;"><span>Enable Particle Spam</span></span>');
 	$J("#toggleSpammerBtn").click (toggleSpammer);
 
 	// Append gameid to breadcrumbs
@@ -1260,11 +1263,52 @@ function addCustomButtons() {
 	}
 }
 
-function toggleAllSound() {
-  ToggleSound();
-  g_AudioManager.ToggleMusic();
-  $J("#toggleSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" Sound</span>");
+function toggleSFX() {
+	var disable = WebStorage.GetLocal('minigame_mute');
+	if(disable)
+		WebStorage.SetLocal('minigame_mute', true);
+	else
+		WebStorage.SetLocal('minigame_mute', false);
+		
+	updateSoundBtnText();
 }
+function toggleMusic() {
+	var disable = WebStorage.GetLocal('minigame_mutemusic');
+	if(disable){
+		WebStorage.SetLocal('minigame_mutemusic', true);
+		g_AudioManager.m_eleMusic.pause();
+	}
+	else {
+		WebStorage.SetLocal('minigame_mutemusic', false);
+		g_AudioManager.m_eleMusic.play();
+	}
+	
+	updateSoundBtnText();
+}
+
+function toggleAllSound() {
+	// Enable
+	if(bIsMuted()){
+		WebStorage.SetLocal('minigame_mute', false);
+		WebStorage.SetLocal('minigame_mutemusic', false);
+		g_AudioManager.m_eleMusic.play();
+	}
+	// Disable
+	else {
+		WebStorage.SetLocal('minigame_mute', true);
+		WebStorage.SetLocal('minigame_mutemusic', true);
+		g_AudioManager.m_eleMusic.pause();
+	}
+	
+	updateSoundBtnText();
+}
+
+function updateSoundBtnText() {
+	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
+	$J('#toggleMusicBtn').html('<span>' + (WebStorage.GetLocal('minigame_mutemusic') ? 'Enable' : 'Disable') + ' Music</span>');
+	$J("#toggleSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" All Sound</span>");
+}
+
 function toggleAutoClicker() {
 	if(autoClicker) {
 		stopAutoClicker();
