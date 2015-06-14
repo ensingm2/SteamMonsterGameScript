@@ -71,7 +71,7 @@ function runMaster()
 	
 	$J('<button>').css(btnStyle).appendTo(cont).click(spawnSlaves).text('Spawn Slaves');
 	$J('<button>').css(btnStyle).appendTo(cont).click(killAllSlaves).text('Kill All Slaves');
-	cont.append('<span>Slaves: 0<span class="slaveWindowCount"></span></span>');
+	cont.append('<span>Slaves: <span class="slaveWindowCount">0</span></span>');
 	cont.appendTo($J('#uicontainer'));
 }
 function runSlave()
