@@ -106,7 +106,9 @@ if (!upgradeManagerPrefilter) {
 	// add prefilter on first run
 	$J.ajaxPrefilter(function() {
 		// this will be defined by the end of the script
-		upgradeManagerPrefilter.apply(this, arguments);
+		if(upgradeManagerPrefilter !== undefined) {
+			upgradeManagerPrefilter.apply(this, arguments);
+		}
 	});
 }
 
