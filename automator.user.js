@@ -66,7 +66,7 @@ function startAutoClicker() {
 		// Update Gold Counter
 		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
         var enemy = g_Minigame.m_CurrentScene.GetEnemy( g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target  );
-        if( enemy !== undefined && enemy.m_data !== undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
+        if( enemy != undefined && enemy.m_data != undefined && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
 			var nClickGold = enemy.m_data.gold * nClickGoldPct * g_Minigame.m_CurrentScene.m_nClicks;
 			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
 			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
@@ -759,7 +759,7 @@ function hasAbility(abilityID) {
 }
 
 function updateUserElementMultipliers() {
-	if(!gameRunning() || !g_Minigame.m_CurrentScene.m_rgPlayerTechTree) return;
+	if(!gameRunning() || g_Minigame.m_CurrentScene.m_rgPlayerTechTree == 'undefined') return;
 	
 	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
 	userElementMultipliers[4] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
