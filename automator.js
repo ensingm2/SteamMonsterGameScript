@@ -432,6 +432,94 @@ function startAutoAbilityUser() {
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
 		
+		// Abilitys only used when targeting Spawners
+		// First priority since it can use Decrease Cooldowns
+		if(target.m_data.type == 0) {
+
+			// Morale Booster, Good Luck Charm, and Decrease Cooldowns
+			var moraleBoosterReady = hasAbility(5);
+			var goodLuckCharmReady = hasAbility(6);
+			var critReady = (hasAbility(18) && autoItemUser != null);
+			if(moraleBoosterReady || critReady || goodLuckCharmReady) {
+				// If we have both we want to combo them
+				var moraleBoosterUnlocked = abilityIsUnlocked(5);
+				var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+
+				// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+				if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
+					var currentLaneHasCooldown = currentLaneHasAbility(9);
+					// Only use on targets that are spawners and have nearly full health
+					if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+						// Combo these with Decrease Cooldowns ability
+
+						// If Decreased Cooldowns will be available soon, wait
+						if(
+						   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
+						   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
+						   !(abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 60
+						  ) {
+								if(hasAbility(9) && !currentLaneHasAbility(9)) {
+										// Other abilities won't benifit if used at the same time
+										if(debug)
+											console.log('Triggering Decrease Cooldown!');
+										castAbility(9);
+								}
+								else {
+										// Use these abilities next pass
+										
+										//Use crit if one's available
+										if(critReady) {
+											if(debug)
+												console.log("Using Crit!");
+											castAbility(18);
+										}
+										else if (moraleBoosterReady) {
+											if(debug)
+												console.log("Casting Morale Booster!");
+											castAbility(5);
+										}
+										
+										if(goodLuckCharmReady) {
+											if(debug)
+												console.log("Casting Good Luck Charm!");
+											castAbility(6);
+										}
+								}
+						}
+					}
+				}
+			}
+
+
+			// Tactical Nuke
+			if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+				if(debug)
+					console.log('Nuclear launch detected.');
+				
+				castAbility(10);
+			}
+
+	
+			// Napalm
+			else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
+			
+				if(debug)
+					console.log('Triggering napalm!');
+				
+				castAbility(12);
+			}
+			
+			// Cluster Bomb
+			else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+				
+				if(debug)
+					console.log('Triggering cluster bomb!');
+				
+				castAbility(11);
+			}
+
+		}
+			
 		//TODO: Also trigger if overall lane health is low?
 		// Medics
 		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
@@ -463,93 +551,6 @@ function startAutoAbilityUser() {
 					
 					castAbility(8);
 				}
-			}
-			
-			// Abilitys only used when targeting Spawners
-			if(target.m_data.type == 0) {
-
-				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
-				var moraleBoosterReady = hasAbility(5);
-				var goodLuckCharmReady = hasAbility(6);
-				var critReady = (hasAbility(18) && autoItemUser != null);
-				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
-					// If we have both we want to combo them
-					var moraleBoosterUnlocked = abilityIsUnlocked(5);
-					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
-
-					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
-						var currentLaneHasCooldown = currentLaneHasAbility(9);
-						// Only use on targets that are spawners and have nearly full health
-						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
-							// Combo these with Decrease Cooldowns ability
-
-							// If Decreased Cooldowns will be available soon, wait
-							if(
-							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
-							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
-							   !(abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 60
-							  ) {
-									if(hasAbility(9) && !currentLaneHasAbility(9)) {
-											// Other abilities won't benifit if used at the same time
-											if(debug)
-												console.log('Triggering Decrease Cooldown!');
-											castAbility(9);
-									}
-									else {
-											// Use these abilities next pass
-											
-											//Use crit if one's available
-											if(critReady) {
-												if(debug)
-													console.log("Using Crit!");
-												castAbility(18);
-											}
-											else if (moraleBoosterReady) {
-												if(debug)
-													console.log("Casting Morale Booster!");
-												castAbility(5);
-											}
-											
-											if(goodLuckCharmReady) {
-												if(debug)
-													console.log("Casting Good Luck Charm!");
-												castAbility(6);
-											}
-									}
-							}
-						}
-					}
-				}
-
-
-				// Tactical Nuke
-				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-					if(debug)
-						console.log('Nuclear launch detected.');
-					
-					castAbility(10);
-				}
-
-		
-				// Napalm
-				else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
-				
-					if(debug)
-						console.log('Triggering napalm!');
-					
-					castAbility(12);
-				}
-				
-				// Cluster Bomb
-				else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
-					
-					if(debug)
-						console.log('Triggering cluster bomb!');
-					
-					castAbility(11);
-				}
-
 			}
 		}
 		
