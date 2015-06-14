@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.40
+// @version 1.39
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -264,7 +264,7 @@ function startAutoUpgradeManager() {
 		if (canUpgrade(7)) {
 		  data = scene.m_rgTuningData.upgrades[7];
 		  cost = data.cost * Math.pow(data.cost_exponential_base, getUpgrade(7).level);
-		  dpg = (scene.m_rgPlayerTechTree.crit_percentage * dpc) * data.multiplier / cost;
+		  dpg = (scene.m_rgPlayerTechTree.crit_percentage / 100 * dpc) * data.multiplier / cost;
 		  if (dpg > best.dpg) {
 			best = { id: 7, cost: cost, dpg: dpg };
 		  }
