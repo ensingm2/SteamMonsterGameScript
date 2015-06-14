@@ -919,6 +919,32 @@ function getTarget() {
 
 //Expose functions if running in userscript
 if(typeof unsafeWindow != 'undefined') {
+	// Variables
+	unsafeWindow.debug = debug;
+	unsafeWindow.clicksPerSecond = clicksPerSecond;
+	unsafeWindow.autoClickerVariance = autoClickerVariance;
+	unsafeWindow.respawnCheckFreq = respawnCheckFreq;
+	unsafeWindow.targetSwapperFreq = targetSwapperFreq;
+	unsafeWindow.abilityUseCheckFreq = abilityUseCheckFreq;
+	unsafeWindow.itemUseCheckFreq = itemUseCheckFreq;
+	unsafeWindow.seekHealingPercent = seekHealingPercent;
+	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
+
+	//item use variables
+	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
+	unsafeWindow.useMedicsAtLanePercent = useMedicsAtLanePercent;
+	unsafeWindow.useMedicsAtLanePercentAliveReq = useMedicsAtLanePercentAliveReq;
+	unsafeWindow.useNukeOnSpawnerAbovePercent = useNukeOnSpawnerAbovePercent;
+	unsafeWindow.useMetalDetectorOnBossBelowPercent = useMetalDetectorOnBossBelowPercent;
+	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
+	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
+	
+	//Slave window variables
+	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
+	unsafeWindow.slaveWindowPeriodicRestart = slaveWindowPeriodicRestart;
+	unsafeWindow.slaveWindowPeriodicRestartInterval = slaveWindowPeriodicRestartInterval;
+	
+	// Functions
 	unsafeWindow.startAutoClicker = startAutoClicker;
 	unsafeWindow.startAutoRespawner = startAutoRespawner;
 	unsafeWindow.startAutoTargetSwapper = startAutoTargetSwapper;
@@ -944,13 +970,32 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.spamNoClick = spamNoClick;
 	unsafeWindow.toggleSpammer = toggleSpammer;
 	
-	//Add closure 'debug' getter and setter
-	unsafeWindow.debug = debug;
-	var debugChecker = setInterval(function() { 
-		if(unsafeWindow.debug != unsafeWindow.getDebug())
-			setDebug(unsafeWindow.debug);
-	}, 1000)
 	
+	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
+	var varSetter = setInterval(function() {
+		console.log('updating options');
+		
+		debug = unsafeWindow.debug;
+		clicksPerSecond = unsafeWindow.clicksPerSecond;
+		autoClickerVariance = unsafeWindow.autoClickerVariance;
+		respawnCheckFreq = unsafeWindow.respawnCheckFreq;
+		targetSwapperFreq = unsafeWindow.targetSwapperFreq;
+		abilityUseCheckFreq = unsafeWindow.abilityUseCheckFreq;
+		itemUseCheckFreq = unsafeWindow.itemUseCheckFreq;
+		seekHealingPercent = unsafeWindow.seekHealingPercent;
+		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
+
+		//item use variables
+		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
+		useMedicsAtLanePercent = unsafeWindow.useMedicsAtLanePercent;
+		useMedicsAtLanePercentAliveReq = unsafeWindow.useMedicsAtLanePercentAliveReq;
+		useNukeOnSpawnerAbovePercent = unsafeWindow.useNukeOnSpawnerAbovePercent;
+		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
+		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
+		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
+	}, 5000)
+	
+	//Add closure 'debug' getter and setter
 	unsafeWindow.getDebug = function() { return debug; };
 	unsafeWindow.setDebug = function(state) { debug = state; };
 }

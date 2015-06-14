@@ -33,6 +33,7 @@ Any of the additions can be started or stopped individually:
 
 ##Variables:
 Feel free to edit any variables to suit your needs
+###Main
 - **debug (default: false):** if true, logs all actions to the console.
 - **clicksPerSecond (default: g_TuningData.abilities[1].max_num_clicks):** Number of clicks to be sent to the server each second.
 - **autoClickerVariance (default: 10% of clicksPerSecond):** amount that the clicks per second can be randomized by (range is clicksPersecond +/- autoClickerVariance)
@@ -41,6 +42,7 @@ Feel free to edit any variables to suit your needs
 - **abilityUseCheckFreq (default: 2000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use an active ability
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
 - **upgradeManagerFreq (default: 30000):** Duration (in milliseconds) between checks to see if it is beneficial to purchase an upgrade
+###Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useMedicsAtLanePercent (default: 50):** If average lane health dips below this %, Medics will be used.
 - **useMedicsAtLanePercentAliveReq (default: 40):** % of lane allies that must be alive in order to use Medics selflessly
@@ -49,6 +51,10 @@ Feel free to edit any variables to suit your needs
 - **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
 - **useStealHealthAtPercent (default: 15):** % max hp at which to use the Steal Health Item
 - **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
+###Slave Window Settings
+- **slaveWindowUICleanup (default: true):** Whether or not slave windows will have all graphics removed in order to reduce load.
+- **slaveWindowPeriodicRestart (default: true):** If enabled, slave windows will periodically close and reopen in an attempt to cut down on any memory leaks
+- **slaveWindowPeriodicRestartInterval (default: 300000 [5 minutes]):** Duration (in milliseconds) between slave window reloads, if slaveWindowPeriodicRestart is set
 
 ##Notes:
 This script does not output particles for clicks, so you will not see damage output from the autoclicker. This is intended, as it reduces lag and removes a fairly large memory leak in the base game.
