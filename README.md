@@ -63,7 +63,7 @@ Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoe
 (Listed alphabetically)
 - [DannyDaemonic](https://github.com/DannyDaemonic)
 - [EnragedRabisu](https://github.com/joshho)
-- [ensingm2](https://github.com/)
+- [ensingm2](https://github.com/ensingm2)
 - [iareHuuman](https://github.com/iareHuuman)
 - [iskandar](https://github.com/iskandar)
 - [joshho](https://github.com/joshho)
