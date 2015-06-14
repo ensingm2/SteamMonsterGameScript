@@ -451,6 +451,7 @@ function startAutoAbilityUser() {
 		// Abilities only used on targets
 		if(target) {
 			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+			var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
 			// Metal Detector
 			if(target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
@@ -529,23 +530,22 @@ function startAutoAbilityUser() {
 				}
 
 		
-				// Cluster Bomb
-				if(hasAbility(11) && targetPercentHPRemaining >= 25) {
-					
-					if(debug)
-						console.log('Triggering cluster bomb!');
-					
-					castAbility(11);
-				}
-
-		
 				// Napalm
-				if(hasAbility(12) && !currentLaneHasAbility(12) && targetPercentHPRemaining >= 50) { 
+				else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
 					if(debug)
 						console.log('Triggering napalm!');
 					
 					castAbility(12);
+				}
+				
+				// Cluster Bomb
+				else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+					
+					if(debug)
+						console.log('Triggering cluster bomb!');
+					
+					castAbility(11);
 				}
 
 			}
