@@ -4,7 +4,7 @@
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
 // @version 1.43
 // @match http://steamcommunity.com/minigame/towerattack*
-// @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
+// @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js
 // ==/UserScript==
