@@ -98,6 +98,7 @@ Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoe
 - [meishuu](https://github.com/meishuu)
 - [waterfoul] (https://github.com/waterfoul)
 - [nbadal](https://github.com/nbadal)
+- [vanZeben](https://github.com/vanZeben)
 - [Zazcallabah](https://github.com/Zazcallabah)
 - [/u/kolodz](https://reddit.com/user/kolodz)
 - [/u/Landriff](https://reddit.com/user/Landriff)
