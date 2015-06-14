@@ -454,7 +454,9 @@ function startAutoAbilityUser() {
 			var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
 			// Metal Detector
-			if(target.m_data.type == 2 && targetPercentHPRemaining <= useMetalDetectorOnBossBelowPercent) {
+			var laneDPS = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].friendly_dps;
+			var timeToDeath = target.m_data.hp / laneDPS;
+			if(target.m_data.type == 2 && timeToDeath < 10) {
 				if(hasAbility(8)) {
 					if(debug)
 						console.log('Using Metal Detector.');
