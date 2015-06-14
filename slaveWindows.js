@@ -12,13 +12,12 @@ function runMaster()
 	
 	var slavesList = window.slaves = [];
 	
-	function spawnSlave(){
-		var num = slavesList.length;
-		var slaveheight = screen.height / 10;
+	function spawnSlave(num){
 		var params = 'left=0, top='+(num*100)+', width=220, height=100';
 		var slave = window.open("http://steamcommunity.com/minigame/towerattack/?slave",'slave'+num, params);
-		slavesList.push(slave);
-		$J('.slaveWindowCount').text(slavesList.length);
+		if(num >= slaves.length)
+			slaves.push(slave);
+		$J('.slaveWindowCount').text(slaves.length);
 	}
 	
 	function spawnSlaves(cnt){
@@ -36,7 +35,7 @@ function runMaster()
 		g_AudioManager.m_eleMusic.pause();
 	
 		for(var i=0;i<cnt;i++)
-			spawnSlave();
+			setTimeout(spawnSlave.bind(window,i),i * 3000);
 	}
 	
 	function killAllSlaves(){
@@ -49,34 +48,9 @@ function runMaster()
 		$J('.slaveWindowCount').text(slavesList.length);
 	}
 	
-	var cont = $J('<div>').addClass('slaveManager');
-	cont.css({
-		position: 'absolute',
-		'z-index': 12,
-		bottom: '20px',
-		left: '60px',
-		height: '50px'
-	});
-	
-	var btnStyle = {
-		border: 'none',
-		padding: '5px',
-		margin: '5px',
-		'border-radius': '10px'
-	};
-	
-	var counterStyle = {
-		'position': 'absolute',
-		'top': '35px',
-		'left': '30px',
-		'color': '#FF8585',
-	};
-	
-	$J('<button>').css(btnStyle).appendTo(cont).click(spawnSlaves).text('Spawn Slaves');
-	$J('<button>').css(btnStyle).appendTo(cont).click(killAllSlaves).text('Kill All Slaves');
-	cont.append('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>');
-	cont.appendTo($J('#uicontainer'));
-	$J('#slaveCounter').css(counterStyle);
+	var tgt = $J('.game_options .toggle_music_btn:first')
+	$J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(killAllSlaves).text('Kill Slaves')
+	$J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(spawnSlaves).text('Spawn Slaves')
 }
 function runSlave()
 {
