@@ -25,10 +25,8 @@ function runMaster()
 		if(cnt == 'undefined')
 			cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
 		
-		if(cnt == 0)
+		if(cnt == 0 || typeof cnt === 'object')
 			return;
-		else if(typeof cnt === 'object')
-			cnt = slaveWindowCount;
 		
 		console.log("spawning " + cnt + " slave windows.");
 		
