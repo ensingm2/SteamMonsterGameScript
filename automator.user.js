@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.54
+// @version 1.56
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -865,8 +865,6 @@ function stopAutoUpgradeManager() {
 	if(autoUpgradeManager){
 		clearInterval(autoUpgradeManager);
 		autoUpgradeManager = null;
-		CSceneGame.TryUpgrade = TryUpgrade_upgradeManager;
-		CSceneGame.ChangeLevel = ChangeLevel_upgradeManager;
 		console.log("autoUpgradeManager has been stopped.");
 	}
 	else
@@ -1178,14 +1176,19 @@ var startAll = setInterval(function() {
 		if(!gameRunning())
 			return;
 		
+		clearInterval(startAll);
+		
 		startAllAutos();
 		addPointer();
-		clearInterval(startAll);
 		addCustomButtons();
 		
 		//Hide the stupid "Leave game" tooltip
-		$J('.leave_game_btn').mouseover(function(){$J('.leave_game_helper').show();})
-			.mouseout(function(){$J('.leave_game_helper').hide();});
+		$J('.leave_game_btn').mouseover(function(){
+				$J('.leave_game_helper').show();
+			})
+			.mouseout(function(){
+				$J('.leave_game_helper').hide();
+			});
 		$J('.leave_game_helper').hide();
 		
 		

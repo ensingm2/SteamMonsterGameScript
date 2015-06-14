@@ -29,6 +29,15 @@ Any of the additions can be started or stopped individually:
 - **autoItemUser:** run "startAutoItemUser()" or "stopAutoItemUser()" in the console.
 - **autoUpgradeManager:** run "startAutoUpgradeManager()" or "stopAutoUpgradeManager()" in the console.
 
+###Slave Window Manager (created by [ags131](https://github.com/ags131/steamMinigameSlaveScript)):
+- Allows opening of multiple slave windows to work around the clicks per second limit
+- Disables rendering on slave windows in order to reduce memory/cpu use
+- In-UI management of slaves from master window
+- Automatic refresh of slave windows to avoid any memleaks
+- ***Known issue with Slave Window Manager & UserScript:***
+    - The Slave Window Manager code seems to get cached by the userscript. You can force a refresh by uninstalling and reinstalling the base userscript. NOTE: Issue being tracked [here](https://github.com/ensingm2/SteamMonsterGameScript/issues/59), if you have any ideas on how to fix it, I'd appreciate a comment.
+
+
 *There are buttons that get added to the bottom of the game page that toggle these functions for your convenience*
 
 ##Variables:
