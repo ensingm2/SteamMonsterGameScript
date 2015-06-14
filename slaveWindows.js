@@ -62,7 +62,7 @@ function runMaster()
 	};
 	
 	var spacerStyle = {
-		'margin-left': '150px'
+		'margin-left': '153px'
 	};
 	
 	var tgt = $J('#toggleAllSoundBtn');
