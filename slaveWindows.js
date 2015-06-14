@@ -91,8 +91,14 @@ function runSlave()
 	}
 	
 	if(slaveWindowPeriodicRestart) {
-		setTimeout(function () {
-			window.location.href = "./?slave"; 
+		var resetInterval = setInterval(function () {
+			// Only refresh if we're not on a boss / Treasure mob
+			var target = getTarget();
+			if(target && target.m_data.type != 2 && target.m_data.type != 4 ){
+				clearInterval(resetInterval); // Shouldn't need this but meh.
+				window.location.href = "./?slave";
+			}
+			
 		}, slaveWindowPeriodicRestartInterval);
 	}
 }
