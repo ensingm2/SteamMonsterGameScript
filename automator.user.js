@@ -684,12 +684,19 @@ function startAutoAbilityUser() {
 				}
 
 				// Metal Detector
+				var  treasureReady = hasAbility(22) && autoItemUser != null;
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
-					if(hasAbility(8)) {
-						if(debug)
-							console.log('Using Metal Detector.');
-						
-						castAbility(8);
+					if(hasAbility(8) || treasureReady) {
+						if(treasureReady){
+							if(debug)
+								console.log('Using Metal Detector via Treasure.');
+							castAbility(22);
+						}
+						else {
+							if(debug)
+								console.log('Using Metal Detector.');
+							castAbility(8);
+						}
 					}
 				}
 
