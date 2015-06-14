@@ -22,7 +22,7 @@ function runMaster()
 	}
 	
 	function spawnSlaves(cnt){
-		if(cnt == 'undefined')
+		if(typeof cnt === 'object')
 			cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
 		
 		if(cnt == 0 || typeof cnt === 'object')
