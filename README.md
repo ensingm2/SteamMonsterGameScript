@@ -70,6 +70,7 @@ Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoe
 - [meishuu](https://github.com/meishuu)
 - [nbadal](https://github.com/nbadal)
 - [Zazcallabah](https://github.com/Zazcallabah)
+
 - [/u/kolodz](https://reddit.com/user/kolodz)
 - [/u/Landriff](https://reddit.com/user/Landriff)
 - [/u/lllillillilll](https://reddit.com/user/lllillillilll)
