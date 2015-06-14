@@ -445,12 +445,21 @@ function startAutoAbilityUser() {
 			// First priority since it can use Decrease Cooldowns
 			// Abilities only used when targeting Spawners
 			if(target.m_data.type == 0) {
-
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
 				var critReady = (hasAbility(18) && autoItemUser != null);
-				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
+				
+				// Only use items on targets that are spawners and have nearly full health
+				if(targetPercentHPRemaining >= 90) {
+					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
+					if(hasAbility(14)){
+						castAbility(14);
+					}else if(hasAbility(15)){
+						castAbility(15);
+					}
+				}
+				else if(moraleBoosterReady || critReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
 					var moraleBoosterUnlocked = abilityIsUnlocked(5);
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
@@ -458,17 +467,8 @@ function startAutoAbilityUser() {
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
 					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
-						// Only use items on targets that are spawners and have nearly full health
-						if(targetPercentHPRemaining >= 90) {
-							// Check to see if Cripple Spawner and Cripple Monster items are ready to use
-							if(hasAbility(14)){
-								castAbility(14);
-							}else if(hasAbility(15)){
-								castAbility(15);
-							}
-						}
 						// Only use on targets that are spawners and have nearly full health
-						else if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
 							// Combo these with Decrease Cooldowns ability
 
 							// If Decreased Cooldowns will be available soon, wait
