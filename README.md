@@ -11,7 +11,7 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 #How To Use:
 ###UserScript via Greasemonkey or Tampermonkey (Preferred Method, allows slave windows):
 1. Download the relevent addon if you don't already have it ([Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) for Chrome or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) for  Firefox)
-2. Install the script 'https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js' in that addon
+2. Install the script:
     - **Tampermonkey:**
 	    1. Open the Tampermonkey dashboard(click the Tampermonkey icon in the toolbar, then click on 'Dashboard')
 		2. Click on the 'Utilities' tab
@@ -22,7 +22,7 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 		2. Drag and Drop the file anywhere within the Firefox window.
 		3. Click 'Install'
 3. The script will now automatically load when you visit http://steamcommunity.com/minigame/towerattack/
-$. Enjoy!
+4. Enjoy!
 
 ##Javascript Only Version (No slave window support)
 To load the script, copy/paste the code from automator.user.js or minified.js or into your browser console or userscript plugin, and hit return to run it.
