@@ -13,7 +13,7 @@ function runMaster()
 	
 	var slavesList = window.slaves = [];
 	
-	function spawnSlave(num){
+	function spawnSlave(){
 		var num = slavesList.length;
 		var slaveheight = screen.height / 10;
 		var params = 'left=0, top='+(num*100)+', width=220, height=100';
