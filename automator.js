@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.36
+// @version 1.37
 // @match http://steamcommunity.com/minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.js
@@ -25,6 +25,8 @@ var upgradeManagerFreq = 5000;
 
 //item use variables
 var useMedicsAtPercent = 30;
+var useMedicsAtLanePercent = 50;
+var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 var useStealHealthAtPercent = 15;
@@ -431,100 +433,134 @@ function startAutoAbilityUser() {
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
-		// Abilitys only used when targeting Spawners
-		// First priority since it can use Decrease Cooldowns
-		if(target.m_data.type == 0) {
+		// Abilities only used on targets
+		if(target) {
+			
+			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+			var laneDPS = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].friendly_dps;
+			var timeToTargetDeath = target.m_data.hp / laneDPS;
+				
+			// First priority since it can use Decrease Cooldowns
+			// Abilities only used when targeting Spawners
+			if(target.m_data.type == 0) {
 
-			// Morale Booster, Good Luck Charm, and Decrease Cooldowns
-			var moraleBoosterReady = hasAbility(5);
-			var goodLuckCharmReady = hasAbility(6);
-			var critReady = (hasAbility(18) && autoItemUser != null);
-			if(moraleBoosterReady || critReady || goodLuckCharmReady) {
-				// If we have both we want to combo them
-				var moraleBoosterUnlocked = abilityIsUnlocked(5);
-				var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
+				var moraleBoosterReady = hasAbility(5);
+				var goodLuckCharmReady = hasAbility(6);
+				var critReady = (hasAbility(18) && autoItemUser != null);
+				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
+					// If we have both we want to combo them
+					var moraleBoosterUnlocked = abilityIsUnlocked(5);
+					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
-				// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-				if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
-					var currentLaneHasCooldown = currentLaneHasAbility(9);
-					// Only use on targets that are spawners and have nearly full health
-					if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
-						// Combo these with Decrease Cooldowns ability
+					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
+						var currentLaneHasCooldown = currentLaneHasAbility(9);
+						// Only use on targets that are spawners and have nearly full health
+						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+							// Combo these with Decrease Cooldowns ability
 
-						// If Decreased Cooldowns will be available soon, wait
-						if(
-						   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
-						   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
-						   !(abilityCooldown(9) > 0 && abilityCooldown(9) < 60) // if cooldown > 60
-						  ) {
+							// If Decreased Cooldowns will be available soon, wait
+							if(
+							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
+							   hasAbility(9) ||			 // If we have the ability ready
+							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
+							   (abilityCooldown(9) > 60) // if cooldown > 60
+							  ) {
 								if(hasAbility(9) && !currentLaneHasAbility(9)) {
-										// Other abilities won't benifit if used at the same time
-										if(debug)
-											console.log('Triggering Decrease Cooldown!');
-										castAbility(9);
+									// Other abilities won't benifit if used at the same time
+									if(debug)
+										console.log('Triggering Decrease Cooldown!');
+									castAbility(9);
 								}
 								else {
-										// Use these abilities next pass
-										
-										//Use crit if one's available
-										if(critReady) {
-											if(debug)
-												console.log("Using Crit!");
-											castAbility(18);
-										}
-										else if (moraleBoosterReady) {
-											if(debug)
-												console.log("Casting Morale Booster!");
-											castAbility(5);
-										}
-										
-										if(goodLuckCharmReady) {
-											if(debug)
-												console.log("Casting Good Luck Charm!");
-											castAbility(6);
-										}
+									// Use these abilities next pass
+									
+									//Use crit if one's available
+									if(critReady) {
+										if(debug)
+											console.log("Using Crit!");
+										castAbility(18);
+									}
+									else if (moraleBoosterReady) {
+										if(debug)
+											console.log("Casting Morale Booster!");
+										castAbility(5);
+									}
+									
+									if(goodLuckCharmReady) {
+										if(debug)
+											console.log("Casting Good Luck Charm!");
+										castAbility(6);
+									}
 								}
+							}
 						}
 					}
 				}
-			}
 
+				// Metal Detector
+				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
+					if(hasAbility(8)) {
+						if(debug)
+							console.log('Using Metal Detector.');
+						
+						castAbility(8);
+					}
+				}
 
-			// Tactical Nuke
-			if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
-				if(debug)
-					console.log('Nuclear launch detected.');
+				// Tactical Nuke
+				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+					if(debug)
+						console.log('Nuclear launch detected.');
+					
+					castAbility(10);
+				}
+
+		
+				// Napalm
+				else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
-				castAbility(10);
-			}
+					if(debug)
+						console.log('Triggering napalm!');
+					
+					castAbility(12);
+				}
+				
+				// Cluster Bomb
+				else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+					
+					if(debug)
+						console.log('Triggering cluster bomb!');
+					
+					castAbility(11);
+				}
 
-	
-			// Napalm
-			else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
+			}
 			
-				if(debug)
-					console.log('Triggering napalm!');
-				
-				castAbility(12);
-			}
-			
-			// Cluster Bomb
-			else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
-				
-				if(debug)
-					console.log('Triggering cluster bomb!');
-				
-				castAbility(11);
-			}
-
 		}
-			
-		//TODO: Also trigger if overall lane health is low?
+		
+		//Estimate average player HP Percent in lane
+		var laneTotalPctHP = 0;
+		var laneTotalCount = 0;
+		for(var i=1; i<10; i++) {
+			var HPGuess = ((i-1)*10 + 5);
+			laneTotalPctHP += HPGuess * currentLane.player_hp_buckets[i];
+			laneTotalCount += currentLane.player_hp_buckets[i];
+		}
+		var avgLanePercentHP = laneTotalPctHP / laneTotalCount * 100;
+		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
+		
 		// Medics
-		if(percentHPRemaining <= useMedicsAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
-			if(debug)
-				console.log("Health below threshold. Need medics!");
+		if((percentHPRemaining <= useMedicsAtPercent || (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) && !g_Minigame.m_CurrentScene.m_bIsDead) {
+			if(debug) {
+				if(percentHPRemaining <= useMedicsAtPercent)
+					console.log("Health below threshold. Need medics!");
+				if(avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)
+					console.log("Average lane below threshold. Need medics!");
+			}
 			
 			// Only use if there isn't already a Medics active?
 			if(hasAbility(7) && !currentLaneHasAbility(7)) {
@@ -534,24 +570,6 @@ function startAutoAbilityUser() {
 			}
 			else if(debug)
 				console.log("No medics to unleash!");
-		}
-
-		// Abilities only used on targets
-		if(target) {
-			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
-			var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
-		
-			// Metal Detector
-			var laneDPS = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].friendly_dps;
-			var timeToDeath = target.m_data.hp / laneDPS;
-			if((target.m_data.type == 2 || target.m_data.type == 4) && timeToDeath < 10) {
-				if(hasAbility(8)) {
-					if(debug)
-						console.log('Using Metal Detector.');
-					
-					castAbility(8);
-				}
-			}
 		}
 		
 	}, abilityUseCheckFreq);
