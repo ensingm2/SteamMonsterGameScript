@@ -111,4 +111,9 @@ function runSlave()
 			
 		}, slaveWindowPeriodicRestartInterval);
 	}
+	
+	//Don't allow slaves to purchase upgrades or use abilities/items
+	stopAutoAbilityUser();
+	stopAutoItemUser();
+	stopAutoUpgradeManager();
 }
