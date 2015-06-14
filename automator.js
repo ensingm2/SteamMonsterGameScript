@@ -445,12 +445,21 @@ function startAutoAbilityUser() {
 			// First priority since it can use Decrease Cooldowns
 			// Abilities only used when targeting Spawners
 			if(target.m_data.type == 0) {
-
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
 				var critReady = (hasAbility(18) && autoItemUser != null);
-				if(moraleBoosterReady || critReady || goodLuckCharmReady) {
+				
+				// Only use items on targets that are spawners and have nearly full health
+				if(targetPercentHPRemaining >= 90) {
+					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
+					if(hasAbility(14)){
+						castAbility(14);
+					}else if(hasAbility(15)){
+						castAbility(15);
+					}
+				}
+				else if(moraleBoosterReady || critReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
 					var moraleBoosterUnlocked = abilityIsUnlocked(5);
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
