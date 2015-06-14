@@ -97,4 +97,9 @@ function runSlave()
 			}
 		},1000)
 	}
+	
+	//Mute Sounds
+	WebStorage.SetLocal('minigame_mute', true);
+	g_AudioManager.m_eleMusic.pause();
+	
 }
