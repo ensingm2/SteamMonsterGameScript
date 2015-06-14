@@ -1287,7 +1287,7 @@ function toggleAutoItemUser(){
 	}
 	else {
 		startAutoItemUser();
-		$J("#toggleAutoUpgradeBtn").html("<span>Disable AutoItemUser</span>");
+		$J("#toggleAutoItemUserBtn").html("<span>Disable AutoItemUser</span>");
 	}
 }
 function toggleAutoUpgradeManager(){
