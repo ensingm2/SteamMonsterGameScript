@@ -29,8 +29,7 @@ function runMaster()
 		else if(typeof cnt === 'object')
 			cnt = slaveWindowCount;
 		
-		if(debug)
-			console.log("spawning " + cnt + " slave windows.");
+		console.log("spawning " + cnt + " slave windows.");
 		
 		for(var i=0;i<cnt;i++)
 			spawnSlave();
