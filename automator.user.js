@@ -687,23 +687,6 @@ function startAutoAbilityUser() {
 					}
 				}
 
-				// Metal Detector
-				var  treasureReady = hasAbility(22) && autoUseConsumables;
-				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
-					if(hasAbility(8) || treasureReady) {
-						if(treasureReady){
-							if(debug)
-								console.log('Using Metal Detector via Treasure.');
-							castAbility(22);
-						}
-						else {
-							if(debug)
-								console.log('Using Metal Detector.');
-							castAbility(8);
-						}
-					}
-				}
-
 				// Tactical Nuke
 				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
 					if(debug)
@@ -742,6 +725,24 @@ function startAutoAbilityUser() {
 						console.log('Using Raining Gold on boss.');
 					
 					castAbility(17);
+				}
+			}
+			
+			
+			// Metal Detector
+			var  treasureReady = hasAbility(22) && autoUseConsumables;
+			if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
+				if(hasAbility(8) || treasureReady) {
+					if(treasureReady){
+						if(debug)
+							console.log('Using Metal Detector via Treasure.');
+						castAbility(22);
+					}
+					else {
+						if(debug)
+							console.log('Using Metal Detector.');
+						castAbility(8);
+					}
 				}
 			}
 		}
