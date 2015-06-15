@@ -53,6 +53,8 @@ var autoUseConsumables = true;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
 var swapReason;
+var lastLootLevel = 0;
+var lastLootCache = [];
 
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
@@ -1300,6 +1302,26 @@ var startAll = setInterval(function() {
 			if( this.m_spriteFinger )  {
 				var bPlayedBefore = WebStorage.SetLocal('mg_how2click', 1);
 				$J('#newplayer').hide();
+			}
+		}
+
+		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
+		CUI.prototype.UpdateLootNotification = function() {
+			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length != 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length == 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
+				$J("#loot_notification").show();
+
+				var abilities = this.m_Game.m_rgTuningData.abilities;
+				var strLootNames = "";
+				for (var i = 0; i < this.m_Game.m_rgPlayerData.loot.length; ++i) {
+					var loot = this.m_Game.m_rgPlayerData.loot[i];
+					if (i != 0) { strLootNames += ", "; }
+					strLootNames += abilities[loot.ability].name;
+				}
+				$J("#loot_name").text( strLootNames );
+				setTimeout(function() { $J("#loot_notification").fadeOut(1000); }, 5000);
+				lastLootLevel = this.m_Game.m_rgGameData.level;
+				lastLootCache = this.m_Game.m_rgPlayerData.loot;
+				this.m_Game.m_rgPlayerData.loot = [];
 			}
 		}
 
