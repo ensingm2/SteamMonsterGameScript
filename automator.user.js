@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.60
+// @version 1.61
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -28,19 +28,23 @@ var autoBuyAbilities = false;
 
 //item use variables
 var useMedicsAtPercent = 30;
-var useMedicsAtLanePercent = 50;
+var useMedicsAtLanePercent = 40;
 var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
+
 var useStealHealthAtPercent = 15;
 var useRainingGoldAbovePercent = 75;
+var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
+var useResurrectToSaveCount = 150; // Use revive to save 150 people
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
-var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser, autoUpgradeManager;
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager;
 var elementUpdateRate = 60000;
+var autoUseConsumables = true;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
 var swapReason;
@@ -621,7 +625,7 @@ function startAutoAbilityUser() {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
-				var critReady = (hasAbility(18) && autoItemUser != null);
+				var critReady = (hasAbility(18) && autoUseConsumables);
 				
 				// Only use items on targets that are spawners and have nearly full health
 				if(targetPercentHPRemaining >= 90) {
@@ -684,7 +688,7 @@ function startAutoAbilityUser() {
 				}
 
 				// Metal Detector
-				var  treasureReady = hasAbility(22) && autoItemUser != null;
+				var  treasureReady = hasAbility(22) && autoUseConsumables;
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
 					if(hasAbility(8) || treasureReady) {
 						if(treasureReady){
@@ -729,6 +733,17 @@ function startAutoAbilityUser() {
 
 			}
 			
+			//Use cases for bosses
+			else if(target.m_data.type == 2) {
+				//Raining Gold
+				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent) {
+					
+					if(debug)
+						console.log('Using Raining Gold on boss.');
+					
+					castAbility(17);
+				}
+			}
 		}
 		
 		//Estimate average player HP Percent in lane
@@ -739,7 +754,7 @@ function startAutoAbilityUser() {
 			laneTotalPctHP += HPGuess * currentLane.player_hp_buckets[i];
 			laneTotalCount += currentLane.player_hp_buckets[i];
 		}
-		var avgLanePercentHP = laneTotalPctHP / laneTotalCount * 100;
+		var avgLanePercentHP = laneTotalPctHP / laneTotalCount;
 		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
 		
 		// Medics
@@ -752,7 +767,8 @@ function startAutoAbilityUser() {
 			}
 			
 			// Only use if there isn't already a Medics active?
-			var pumpedUpReady = hasAbility(19) && autoItemUser != null;
+			var pumpedUpReady = hasAbility(19) && autoUseConsumables;
+			var stealHealthReady = hasAbility(23) && autoUseConsumables;
 			if((hasAbility(7) || pumpedUpReady) && !currentLaneHasAbility(7)) {
 				
 				if(pumpedUpReady){
@@ -766,9 +782,38 @@ function startAutoAbilityUser() {
 					castAbility(7);
 				}
 			}
+			else if(stealHealthReady && percentHPRemaining <= useMedicsAtPercent) {
+					if(debug)
+						console.log("Using Steal Health in place of Medics!");
+					castAbility(23);
+			}
 			else if(debug)
 				console.log("No medics to unleash!");
 		}
+		
+		// Resurrect
+		if(hasAbility(13) && autoUseConsumables) {
+			if(currentLane.player_hp_buckets[0] <= useResurrectBelowLaneAlive) {
+				if(debug)
+					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
+				castAbility(13);
+			}
+		}
+		
+		// Like New
+		if(hasAbility(27) && autoUseConsumables) {
+			var totalCD = 0;
+			for(var i=5; i <= 12; i++)
+				if(abilityIsUnlocked(i))
+					totalCD += abilityCooldown(i);
+				
+			if(totalCD * 1000 >= useLikeNewAboveCooldown) {
+				if(debug)
+					console.log('Using resurrection to save a total of ' + totalCD + ' seconds of cooldown.');
+				castAbility(27);
+			}
+		}
+			
 		
 	}, abilityUseCheckFreq);
 	
@@ -776,51 +821,8 @@ function startAutoAbilityUser() {
 }
 
 function startAutoItemUser() {
-	if(autoItemUser) {
-		console.log("autoItemUser is already running!");
-		return;
-	}
-
-	autoItemUser = setInterval(function() {
-		
-		if(debug)
-			console.log("Checking if it's useful to use an item.");
-		
-		// Steal Health
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-		if(percentHPRemaining <= useStealHealthAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
-			
-			//Can  cast and no other heals
-			if(hasAbility(23) && !currentLaneHasAbility(7)) {
-				if(debug)
-					console.log("Stealing Health!");
-				castAbility(23);
-			}
-		}
-		
-		//target based items
-		var target = getTarget();
-		if(target) {
-			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
-			
-			// Abilitys only used when targeting Bosses
-			if(target.m_data.type == 2) {
-				
-				//Raining Gold
-				if(hasAbility(17) && targetPercentHPRemaining > useRainingGoldAbovePercent) {
-					
-					if(debug)
-						console.log('Raining Gold!');
-					
-					castAbility(17);
-				}
-				
-			}
-		}
-		
-	}, itemUseCheckFreq);
-	
-	console.log("autoItemUser has been started.");
+	autoUseConsumables = true;
+	console.log("Automatic use of consumables has been enabled.");
 }
 
 function startAllAutos() {
@@ -828,7 +830,6 @@ function startAllAutos() {
 	startAutoRespawner();
 	startAutoTargetSwapper();
 	startAutoAbilityUser();
-	startAutoItemUser();
 	startAutoUpgradeManager();
 }
 
@@ -870,15 +871,12 @@ function stopAutoAbilityUser() {
 	else
 		console.log("No autoAbilityUser is running to stop.");
 }
+
 function stopAutoItemUser() {
-	if(autoItemUser){
-		clearInterval(autoItemUser);
-		autoItemUser = null;
-		console.log("autoItemUser has been stopped.");
-	}
-	else
-		console.log("No autoItemUser is running to stop.");
+	autoUseConsumables = false;
+	console.log("Automatic use of consumables has been disabled.");
 }
+
 function stopAutoUpgradeManager() {
 	if(autoUpgradeManager){
 		clearInterval(autoUpgradeManager);
@@ -926,7 +924,7 @@ function laneHasAbility(lane, abilityID) {
 
 function abilityIsUnlocked(abilityID) {
 		if(abilityID <= 12)
-			return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
+			return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
 		else
 			return getAbilityItemQuantity(abilityID) > 0;
 }
@@ -1261,7 +1259,7 @@ function addCustomButtons() {
 	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability Use</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Item Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Auto Consumable Use</span></span>');
 	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
 	
 	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Upgrader</span></span>');
@@ -1363,13 +1361,13 @@ function toggleAutoAbilityUser(){
 	}
 }
 function toggleAutoItemUser(){
-	if(autoItemUser) {
+	if(autoUseConsumables) {
 		stopAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Enable Item Use</span>");
+		$J("#toggleAutoItemUserBtn").html("<span>Enable Auto Consumable Use</span>");
 	}
 	else {
 		startAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Disable Item Use</span>");
+		$J("#toggleAutoItemUserBtn").html("<span>Disable Auto Consumable Use</span>");
 	}
 }
 function toggleAutoUpgradeManager(){

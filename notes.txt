@@ -13,7 +13,7 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 10 - Nuke - {"ability":10}
 11 - Cluster Bomb - {"ability":11}
 12 - Napalm - {"ability":12}
-13 - Resurrect - {"ability":13} (!NOT TESTED, CARE!) 
+13 - Resurrect - {"ability":13}
 14 - Cripple Spawner - {"ability":14}
 15 - Cripple Monster - {"ability":15}
 16 - Max Elemental Damage - {"ability":16}
@@ -22,6 +22,9 @@ Ability IDs (id - action - data added to requested_abilities array in POST data)
 19 - Pumped Up -  {"ability":19}
 20 - Throw Money at Screen - {"ability":20}
 21 - God Mode - {"ability":21}
-22 - Treasure - {"ability":22} (!NOT TESTED, CARE!) 
+22 - Treasure - {"ability":22}
 23 - Steal Health - {"ability":23}
 24 - Reflect Damage - {"ability":24}
+25 - Feeling Lucky
+26 - Wormhole
+27 - Like New
