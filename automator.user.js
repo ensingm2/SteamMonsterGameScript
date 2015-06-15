@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.68
+// @version 1.69
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1060,16 +1060,6 @@ function compareMobPriority(mobA, mobB) {
 		swapReason = "Swapping off a destroyed mob.";
 		return true;
 	}
-	
-	//Run to a medic lane if needed
-	else if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
-		if(aHasHealing != bHasHealing) {
-			if(aHasHealing) {
-				swapReason = "Swapping to lane with active healing.";
-				return true;
-			}
-		}
-	}
 
 	else if(aIsGold != bIsGold) {
 		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
@@ -1083,6 +1073,17 @@ function compareMobPriority(mobA, mobB) {
 			return true;
 		}
 	}
+	
+	//Run to a medic lane if needed
+	else if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
+		if(aHasHealing != bHasHealing) {
+			if(aHasHealing) {
+				swapReason = "Swapping to lane with active healing.";
+				return true;
+			}
+		}
+	}
+	
 	else if(aElemMult != bElemMult) {
 		if(aElemMult > bElemMult) {
 			swapReason = "Switching to elementally weaker target.";
