@@ -1527,12 +1527,12 @@ function toggleSpammer() {
 	if(spammer) {
 		clearInterval(spammer);
 		spammer = null;
-		$J("#toggleSpammerBtn").html("<span>Enable Particle Spam</span>");
+		toggleAutoClass('#toggleSpammerBtn', false);
 	}
 	else {
 		if(confirm("Are you SURE you want to do this? This leads to massive memory leaks farly quickly.")) {
 			spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
-			$J("#toggleSpammerBtn").html("<span>Disable Particle Spam</span>");
+			toggleAutoClass('#toggleSpammerBtn', true);
 		}
 	}
 		
