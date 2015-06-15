@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.62
+// @version 1.63
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1227,22 +1227,19 @@ if(typeof unsafeWindow != 'undefined') {
 
 function updatePlayersInLane() {
 	// update players in lane
-	var players;
+	var players = "???";
 	if(g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane])
 		players = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].players;
-	else
-		players = "???";
 	
 	$J("#players_in_lane").html(players);
 }
 
 function updatePlayersInRoom() {
 	//Update players in room
+	var players = "???";
 	if(g_Minigame.m_CurrentScene.m_rgLaneData[0])
 		players = (g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players);
-	else
-		players = "???";
-	$J("#players_in_room").html();
+	$J("#players_in_room").html(players);
 }
 
 //Keep trying to start every second till success
