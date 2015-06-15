@@ -1256,7 +1256,7 @@ function addCustomButtons() {
 	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Target Swap</span></span>');
 	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
-	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability/Item Use</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
 	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Auto Consumable Use</span></span>');
@@ -1353,11 +1353,11 @@ function toggleAutoTargetSwapper() {
 function toggleAutoAbilityUser(){
 	if(autoAbilityUser) {
 		stopAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Enable Ability Use</span>");
+		$J("#toggleAutoAbilityUserBtn").html("<span>Enable Ability/Item</span>");
 	}
 	else {
 		startAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Disable Ability Use</span>");
+		$J("#toggleAutoAbilityUserBtn").html("<span>Disable Ability/Item</span>");
 	}
 }
 function toggleAutoItemUser(){

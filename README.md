@@ -62,8 +62,6 @@ Feel free to edit any variables to suit your needs
 - **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active
 - **useStealHealthAtPercent (default: 15):** % max hp at which to use the Steal Health Item
 - **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
-- ** (default: ):** 
-- ** (default: ):** 
 - **useLikeNewAboveCooldown (default: 14220000):** If total non-item ability cooldown passes this threshold (in milliseconds) and one is available, a Like New will be used.
 - **useResurrectToSaveCount (default: 150):** Will use resurrect if over this number of players is dead in your lane.
 
