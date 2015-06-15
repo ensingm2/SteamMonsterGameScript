@@ -316,10 +316,12 @@ function startAutoUpgradeManager() {
 		var result, hpg;
 		gHealthUpgrades.forEach(function(id) {
 			result = calculateUpgradeTree(id);
-			hpg = scene.m_rgTuningData.player.hp * result.boost / result.cost;
-			if (hpg >= best.hpg) {
-				if (result.required !== undefined) id = result.required;
-				best = { id: id, cost: scene.GetUpgradeCost(id), hpg: hpg };
+			if (result.cost <= scene.m_rgPlayerData.gold || (cost === 0 || result.cost < cost)) { // TODO
+				hpg = scene.m_rgTuningData.player.hp * result.boost / result.cost;
+				if (hpg >= best.hpg) {
+					if (result.required !== undefined) id = result.required;
+					best = { id: id, cost: scene.GetUpgradeCost(id), hpg: hpg };
+				}
 			}
 		});
 		return best;
