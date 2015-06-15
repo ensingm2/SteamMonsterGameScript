@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.71
+// @version 1.72
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -39,7 +39,7 @@ var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 
 var useStealHealthAtPercent = 15;
-var useRainingGoldAbovePercent = 75;
+var useRainingGoldAbovePercent = 50;
 var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
 var useResurrectToSaveCount = 150; // Use revive to save 150 people
 
@@ -634,6 +634,7 @@ function startAutoAbilityUser() {
 		
 		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 		var target = getTarget();
+		
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
 		// Abilities only used on targets
@@ -649,7 +650,7 @@ function startAutoAbilityUser() {
 			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff == 0);
 			
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
-			if((target.m_data.type == 0 && !nukeBosses) || (target.m_data.type = 2 && nukeBosses)) {
+			if((target.m_data.type == 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (target.m_data.type = 2 && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
@@ -1138,10 +1139,12 @@ function addPointer() {
 }
 
 function getTarget() {
-	return g_Minigame.m_CurrentScene.GetEnemy(
-		g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane,
-		g_Minigame.m_CurrentScene.m_rgPlayerData.target
-	);
+	try {
+		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		return target;
+	} catch(e) {
+		return null;
+	}
 }
 		
 
