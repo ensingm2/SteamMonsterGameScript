@@ -1399,7 +1399,7 @@ function addCustomButtons() {
 		element.textContent = 'Room ' + g_GameID;
 		breadcrumbs.appendChild(element);
       
-		if(GM_info) {
+		if(typeof GM_info != 'undefined') {
 			element = document.createElement('span');
 			element.style.float = 'right';
 			element.style.color = '#D4E157';
