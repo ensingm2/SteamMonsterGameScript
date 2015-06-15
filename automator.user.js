@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.69
+// @version 1.70
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -822,7 +822,7 @@ function startAutoAbilityUser() {
 		
 		// Resurrect
 		if(hasAbility(13) && autoUseConsumables) {
-			if(currentLane.player_hp_buckets[0] <= useResurrectToSaveCount) {
+			if(currentLane.player_hp_buckets[0] >= useResurrectToSaveCount) {
 				if(debug)
 					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
 				castAbility(13);
@@ -1167,6 +1167,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.useMetalDetectorOnBossBelowPercent = useMetalDetectorOnBossBelowPercent;
 	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
 	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
+	unsafeWindow.autoUseConsumables = autoUseConsumables;
 	
 	//Slave window variables
 	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
@@ -1276,7 +1277,7 @@ var startAll = setInterval(function() {
 		//Update current players in lane/room count
 		updatePlayersInLane();
 		updatePlayersInRoom();
-		setInterval(function() { updatePlayersInLane; updatePlayersInRoom(); }, 10000);
+		setInterval(function() { updatePlayersInLane(); updatePlayersInRoom(); }, 10000);
 
 		//Hide the stupid "Leave game" tooltip
 		$J('.leave_game_btn').mouseover(function(){
