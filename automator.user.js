@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.72
+// @version 1.73
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -83,7 +83,7 @@ function startAutoClicker() {
 			var nClickGold = enemy.m_data.gold * nClickGoldPct * g_Minigame.m_CurrentScene.m_nClicks;
 			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
 			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
-		};
+		}
 			
 		//Clear out the crits
 		var numCrits =  g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
@@ -570,11 +570,9 @@ function startAutoRespawner() {
 	}
 	
 	autoRespawner = setInterval( function(){
-		
 		if(debug)
 			console.log('Checking if the player is dead.');
 
-		
 		// Credit to /u/kolodz for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39joz2/javascript_auto_respawn/
 		if(g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
@@ -593,21 +591,27 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
+	
 	updateUserElementMultipliers();
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
 	
 	autoTargetSwapper = setInterval(function() {
 
-		var currentTarget = null;
+		if(debug)
+			console.log('Looking for a new target.');
+		
+		var currentTarget = getTarget();
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-				if(compareMobPriority(potentialTarget, currentTarget))
-					currentTarget = potentialTarget;
+			if(compareMobPriority(potentialTarget, currentTarget)) {
+				//console.log(currentTarget, getMobTypePriority(currentTarget), swapReason, getMobTypePriority(currentTarget), potentialTarget);
+				currentTarget = potentialTarget;
+			}
 		});
 			
 		//Switch to that target
 		var oldTarget = getTarget();
-		if(currentTarget != null && (!oldTarget || currentTarget.m_data.id != oldTarget.m_data.id)) {
-			if(debug && swapReason != null) {
+		if(currentTarget.m_data && oldTarget.m_data && currentTarget.m_data.id != oldTarget.m_data.id) {
+			if(debug && swapReason !== null) {
 				console.log(swapReason);
 				swapReason = null;
 			}
@@ -618,9 +622,10 @@ function startAutoTargetSwapper() {
 
 		}
 		//Move back to lane if still targetting
-		else if(currentTarget != null && !oldTarget && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+		else if(currentTarget.m_data && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
+		
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
@@ -652,10 +657,10 @@ function startAutoAbilityUser() {
 			// First priority since it can use Decrease Cooldowns
 			
 			//Nuke bosses after the 1000th level and not every 200th level thereafter
-			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff == 0);
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff === 0);
 			
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
-			if((target.m_data.type == 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (target.m_data.type = 2 && nukeBosses)) {
+			if((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (target.m_data.type = 2 && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
@@ -731,7 +736,7 @@ function startAutoAbilityUser() {
 
 		
 				// Napalm
-				else if(target.m_data.type == 0 && hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
+				else if(target.m_data.type === 0 && hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
 					if(debug)
 						console.log('Triggering napalm!');
@@ -740,7 +745,7 @@ function startAutoAbilityUser() {
 				}
 				
 				// Cluster Bomb
-				else if(target.m_data.type == 0 && hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+				else if(target.m_data.type === 0 && hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
 					
 					if(debug)
 						console.log('Triggering cluster bomb!');
@@ -838,9 +843,10 @@ function startAutoAbilityUser() {
 		// Like New
 		if(hasAbility(27) && autoUseConsumables) {
 			var totalCD = 0;
-			for(var i=5; i <= 12; i++)
+			for(var i=5; i <= 12; i++){
 				if(abilityIsUnlocked(i))
 					totalCD += abilityCooldown(i);
+			}
 				
 			if(totalCD * 1000 >= useLikeNewAboveCooldown) {
 				if(debug)
@@ -849,7 +855,6 @@ function startAutoAbilityUser() {
 			}
 		}
 			
-		
 	}, abilityUseCheckFreq);
 	
 	console.log("autoAbilityUser has been started.");
@@ -918,7 +923,7 @@ function stopAutoUpgradeManager() {
 		autoUpgradeManager = null;
 
 		//Remove hooks
-		function removeHook(base, method) {
+		var removeHook = function removeHook(base, method) {
 			base.prototype[method] = base.prototype[method + '_upgradeManager'] || base.prototype[method];
 		}
 		removeHook(CSceneGame, 'TryUpgrade');
@@ -951,9 +956,9 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID)) {
-		if(abilityID <= 12 && document.getElementById('ability_' + abilityID) != null)
+		if(abilityID <= 12 && document.getElementById('ability_' + abilityID) !== null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
-		else if(document.getElementById('abilityitem_' + abilityID) != null)
+		else if(document.getElementById('abilityitem_' + abilityID) !== null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
 	}
 }
@@ -963,10 +968,12 @@ function currentLaneHasAbility(abilityID) {
 }
 
 function laneHasAbility(lane, abilityID) {
-	if(typeof(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID]) == 'undefined')
+	try {
+		return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+	}
+	catch(e){
 		return 0;
-	return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
-	
+	}	
 }
 
 function abilityIsUnlocked(abilityID) {
@@ -1014,25 +1021,40 @@ function updateUserElementMultipliers() {
 // Return a value to compare mobs' priority (lower value = less important)
 //  (treasure > boss > miniboss > spawner > creep)
 function getMobTypePriority(potentialTarget) {
-	mobType = potentialTarget.m_data.type;
-	switch(mobType) {
-		case 0: // Spawner
-			return 0;
-		case 3: // Miniboss
-			return 1;
-		case 2: // Boss
-			return 2;
-		case 4: // Treasure
-			return 3;
+	//console.log('test', potentialTarget.m_data)
+	
+	//Just assume 'false' is a flag for highest priority
+	if(potentialTarget.m_data === false) {
+		console.log('test', potentialTarget)
+		return 4;
 	}
-	return -Number.MAX_VALUE;
+	
+	if(!potentialTarget || !potentialTarget.m_data)
+		return -1;
+	
+	mobType = potentialTarget.m_data.type;
+	
+	switch(mobType) {
+		case 1: // Creep
+			return 0;
+		case 0: // Spawner
+			return 1;
+		case 3: // Miniboss
+			return 2;
+		case 2: // Boss
+			return 3;
+		case 4: // Treasure
+			return 4;
+		default:
+			return -1;
+	}
 }
 
 // Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
 function compareMobPriority(mobA, mobB) {
-	if(mobA == null)
+	if(!mobA)
 		return false;
-	if(mobB == null) {
+	if(!mobB) {
 		swapReason = "Swapping off a non-existent mob.";
 		return true;
 	}
@@ -1067,12 +1089,23 @@ function compareMobPriority(mobA, mobB) {
 		return true;
 	}
 
+	//ignore in the weird case that mob priority isn't set to any type (usually set to 'false') (I've seen it sometimes)
+	/*if(aTypePriority !== -1) {
+		//if(debug)
+		//	console.log('wtf, unknown mobType.', [mobA.m_nLane, mobA.m_nID, aTypePriority], [mobB.m_nLane, mobB.m_nID, bTypePriority]);
+		return false;
+	}
+	else if(bTypePriority !== -1)
+		return true;
+	*/
+	
 	else if(aIsGold != bIsGold) {
 		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
 			swapReason = "Switching to target with Raining Gold.";
 			return true;
 		}
 	}
+	
 	else if(aTypePriority != bTypePriority) {		
 		if(aTypePriority > bTypePriority) {
 			swapReason = "Switching to higher priority target.";
@@ -1145,7 +1178,7 @@ function addPointer() {
 
 function getTarget() {
 	try {
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var target = g_Minigame.m_CurrentScene.GetEnemy(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target);
 		return target;
 	} catch(e) {
 		return null;
@@ -1217,6 +1250,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.toggleSpammer = toggleSpammer;
 	unsafeWindow.getTarget = getTarget;
 	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
+	unsafeWindow.getMobTypePriority = getMobTypePriority;
 	
 	
 	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
