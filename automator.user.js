@@ -1392,6 +1392,26 @@ var startAll = setInterval(function() {
 
 	}, 1000);
 
+var endDate = initEndDate();
+function initEndDate() {
+	var endDate = new Date();
+	endDate.setUTCDate(endDate.getDate()+1);
+	endDate.setUTCHours(16, 0, 0, 0);
+	return endDate;
+}
+
+function updateStats() {
+	var getSecondsUntilEnd = function() {
+	    return (endDate.getTime()/1000) - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start;
+	}
+
+	var getSecondsPerLevel = function() {
+		return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
+	}
+	$J('#avg_completion_rate').html(parseFloat(getSecondsPerLevel()).toFixed(2));
+	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd()/getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
+}
+
 function addExtraUI() {
 	addCustomButtons();
 
@@ -1400,6 +1420,13 @@ function addExtraUI() {
 	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
 
 	customCSS();
+
+	//Add stats about your room
+	$J('<span id="room_stats" style="float: right; text-align: right;margin: 10px 12px 0px 0px;color: #fff;"></span>').insertAfter("#toggleAllSoundBtn");
+	$J("#room_stats").append('Seconds per level: <span id="avg_completion_rate">0</span></span><br />');
+	$J("#room_stats").append('Estimated end level: <span id="estimated_end_level">0</span></span>');
+	updateStats();
+	setTimeout(function() { updateStats(); }, 10000);
 }
 
 function addCustomButtons() {
