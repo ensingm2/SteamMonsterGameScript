@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.65
+// @version 1.66
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -26,12 +26,16 @@ var seekHealingPercent = 20;
 var upgradeManagerFreq = 5000;
 var autoBuyAbilities = false;
 
+// Boss Nuke Variables
+var nukeBossesAfterLevel = 1000;
+var farmGoldOnBossesLevelDiff = 200;
+var useNukeOnBossAbovePercent = 25;
+
 //item use variables
 var useMedicsAtPercent = 30;
 var useMedicsAtLanePercent = 40;
 var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
-var useNukeOnBossAbovePercent = 25;
 var useMetalDetectorOnBossBelowPercent = 30;
 
 var useStealHealthAtPercent = 15;
@@ -644,10 +648,9 @@ function startAutoAbilityUser() {
 			var timeToTargetDeath = target.m_data.hp / laneDPS;
 				
 			// First priority since it can use Decrease Cooldowns
-			var nukeBossesAfterLevel = 1000;
 			
 			//Nuke bosses after the 1000th level and not every 200th level thereafter
-			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 > nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % 200 == 0);
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff == 0);
 			
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
 			if((target.m_data.type == 0 && !nukeBosses) || (target.m_data.type = 2 && nukeBosses)) {
@@ -1171,6 +1174,11 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.slaveWindowPeriodicRestart = slaveWindowPeriodicRestart;
 	unsafeWindow.slaveWindowPeriodicRestartInterval = slaveWindowPeriodicRestartInterval;
 	
+	//Boss nuke vars
+	unsafeWindow.nukeBossesAfterLevel = nukeBossesAfterLevel;
+	unsafeWindow.farmGoldOnBossesLevelDiff = farmGoldOnBossesLevelDiff;
+	unsafeWindow.useNukeOnBossAbovePercent = useNukeOnBossAbovePercent;
+	
 	// Functions
 	unsafeWindow.startAutoClicker = startAutoClicker;
 	unsafeWindow.startAutoRespawner = startAutoRespawner;
@@ -1205,6 +1213,7 @@ if(typeof unsafeWindow != 'undefined') {
 		if(debug)
 			console.log('updating options');
 		
+		// Main vars
 		debug = unsafeWindow.debug;
 		clicksPerSecond = unsafeWindow.clicksPerSecond;
 		autoClickerVariance = unsafeWindow.autoClickerVariance;
@@ -1224,6 +1233,12 @@ if(typeof unsafeWindow != 'undefined') {
 		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
 		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
 		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
+		
+		//Boss nuke vars
+		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
+		farmGoldOnBossesLevelDiff = unsafeWindow.farmGoldOnBossesLevelDiff;
+		useNukeOnBossAbovePercent = unsafeWindow.useNukeOnBossAbovePercent;
+		
 	}, 5000)
 	
 	//Add closure 'debug' getter and setter

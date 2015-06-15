@@ -52,6 +52,9 @@ Feel free to edit any variables to suit your needs
 - **itemUseCheckFreq (default: 5000ms):** Duration (in milliseconds) between checks to see if it is beneficial to use a consumable item
 - **upgradeManagerFreq (default: 30000):** Duration (in milliseconds) between checks to see if it is beneficial to purchase an upgrade
 - **autoBuyAbilities (default: false):** if true, autoUpgrader will prioritize buying new abilities for use over upgrades.
+- **nukeBossesAfterLevel (default: 1000):** Including and Past this point, Nukes will be used on bosses, not spawners.
+- **farmGoldOnBossesLevelDiff (default: 200):** Farms gold on bosses every nth level.
+- **useNukeOnBossAbovePercent (default: 25):** If boss nuke is active, will use a nuke on any targetted boss with above this % health remaining.
 
 ###Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
