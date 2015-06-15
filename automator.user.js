@@ -34,6 +34,8 @@ var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 var useStealHealthAtPercent = 15;
 var useRainingGoldAbovePercent = 75;
+var useTreasureBelowLevel = 100; // anything above this and treasure will prioritize metal detector over the money bonus
+var useTreasureBelowLevelMoneyCap = 1000000; // anything above this and treasure will prioritize metal detector over the money bonus
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -683,13 +685,30 @@ function startAutoAbilityUser() {
 					}
 				}
 
-				// Metal Detector
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
-					if(hasAbility(8)) {
+					// Metal Detector
+ 					if(hasAbility(8)) {
+ 						if(debug)
+ 							console.log('Using Metal Detector.');
+ 						
+ 						castAbility(8);
+ 					}
+					// Treasure
+					if(hasAbility(22)) {
 						if(debug)
-							console.log('Using Metal Detector.');
+							console.log('Using Treasure.');
 						
-						castAbility(8);
+						castAbility(22);
+					}
+				}
+				
+				// Treasure alternate (player is deemed as broke and needs some money)
+				if(((g_Minigame.m_CurrentScene.m_rgGameData.level + 1) < useTreasureBelowLevel && g_Minigame.m_CurrentScene.m_rgPlayerData.gold < useTreasureBelowLevelMoneyCap)) {
+					if(hasAbility(22)) {
+						if(debug)
+							console.log('Using Treasure.');
+						
+						castAbility(22);
 					}
 				}
 
@@ -1111,6 +1130,8 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.useMetalDetectorOnBossBelowPercent = useMetalDetectorOnBossBelowPercent;
 	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
 	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
+	unsafeWindow.useTreasureBelowLevel = useTreasureBelowLevel;
+	unsafeWindow.useTreasureBelowLevelMoneyCap = useTreasureBelowLevelMoneyCap;
 	
 	//Slave window variables
 	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
@@ -1168,6 +1189,8 @@ if(typeof unsafeWindow != 'undefined') {
 		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
 		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
 		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
+		useTreasureBelowLevel = unsafeWindow.useTreasureBelowLevel;
+		useTreasureBelowLevelMoneyCap = unsafeWindow.useTreasureBelowLevelMoneyCap;
 	}, 5000)
 	
 	//Add closure 'debug' getter and setter
