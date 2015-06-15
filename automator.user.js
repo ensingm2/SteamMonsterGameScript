@@ -1402,12 +1402,13 @@ function initEndDate() {
 
 function updateStats() {
 	var getSecondsUntilEnd = function() {
-	    return (endDate.getTime()/1000) - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start;
+	    return (endDate.getTime()/1000) - g_Minigame.m_CurrentScene.m_nTime;
 	}
 
 	var getSecondsPerLevel = function() {
 		return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
 	}
+
 	$J('#avg_completion_rate').html(parseFloat(getSecondsPerLevel()).toFixed(2));
 	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd()/getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
 }
