@@ -319,7 +319,10 @@ function startAutoUpgradeManager() {
 			hpg = scene.m_rgTuningData.player.hp * result.boost / result.cost;
 			if (hpg >= best.hpg) {
 				if (result.required !== undefined) id = result.required;
-				best = { id: id, cost: scene.GetUpgradeCost(id), hpg: hpg };
+				cost = scene.GetUpgradeCost(id);
+				if (cost <= scene.m_rgPlayerData.gold || (best.cost === 0 || cost < best.cost)) { // TODO
+					best = { id: id, cost: cost, hpg: hpg };
+				}
 			}
 		});
 		return best;
