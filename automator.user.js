@@ -655,7 +655,7 @@ function startAutoAbilityUser() {
 			// First priority since it can use Decrease Cooldowns
 			
 			//Nuke bosses after the 1000th level and not every 200th level thereafter
-			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff === 0);
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff !== 0);
 			
 			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
 			
@@ -978,7 +978,10 @@ function currentLaneHasAbility(abilityID) {
 
 function laneHasAbility(lane, abilityID) {
 	try {
-		return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+		if(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID])
+			return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+		else
+			return 0;
 	}
 	catch(e){
 		return 0;
@@ -1254,6 +1257,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.toggleSpammer = toggleSpammer;
 	unsafeWindow.getTarget = getTarget;
 	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
+	unsafeWindow.laneHasAbility = laneHasAbility;
 	unsafeWindow.getMobTypePriority = getMobTypePriority;
 	
 	
