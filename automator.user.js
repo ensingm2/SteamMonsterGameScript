@@ -659,8 +659,10 @@ function startAutoAbilityUser() {
 			//Nuke bosses after the 1000th level and not every 200th level thereafter
 			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff === 0);
 			
+			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
+			
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
-			if((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (target.m_data.type = 2 && nukeBosses)) {
+			if((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (isBoss && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
@@ -756,7 +758,7 @@ function startAutoAbilityUser() {
 			}
 			
 			//Use cases for bosses
-			else if(!nukeBosses && target.m_data.type == 2) {
+			else if(!nukeBosses && isBoss) {
 				//Raining Gold
 				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent) {
 					
@@ -770,7 +772,7 @@ function startAutoAbilityUser() {
 			
 			// Metal Detector
 			var  treasureReady = hasAbility(22) && autoUseConsumables;
-			if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
+			if((isBoss || target.m_data.type == 4) && timeToTargetDeath < 10) {
 				if(hasAbility(8) || treasureReady) {
 					if(treasureReady){
 						if(debug)
