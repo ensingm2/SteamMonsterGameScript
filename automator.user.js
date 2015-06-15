@@ -1398,6 +1398,15 @@ function addCustomButtons() {
 		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
 		element.textContent = 'Room ' + g_GameID;
 		breadcrumbs.appendChild(element);
+      
+		if(GM_info) {
+			element = document.createElement('span');
+			element.style.float = 'right';
+			element.style.color = '#D4E157';
+			element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
+			element.textContent = GM_info.script.name + ' v' + GM_info.script.version;
+			breadcrumbs.appendChild(element);
+		}
 	}
 }
 
