@@ -9,7 +9,7 @@ var slaveDelayBetweenSpawns = 1000; // Delay (in milliseconds) between when each
 
 function runMaster()
 {
-	window.unload = function(){ killAllSlaves(); };
+	window.unload = function(){ killAllSlaves(); }
 	
 	var slavesList = window.slaves = [];
 	
@@ -26,7 +26,7 @@ function runMaster()
 		if(typeof cnt == 'object')
 			cnt = parseInt(prompt("How many slave windows would you like to open?\n(REMEMBER TO ALLOW POPUPS)", "2"));
 		
-		if(cnt === 0 || typeof cnt === 'object')
+		if(cnt == 0 || typeof cnt === 'object')
 			return;
 		
 		console.log("spawning " + cnt + " slave windows.");
@@ -80,7 +80,7 @@ function runSlave()
 			if(window.CUI || g_Minigame.m_CurrentScene.m_bRunning)
 			{
 				clearInterval(cleanupPageInter);
-				$J('body > *').hide();
+				$J('body > *').hide()
 				var cont = $J('body');
 				$J('<div>').css({
 					'padding-top': '20px',
@@ -89,9 +89,9 @@ function runSlave()
 				})
 				.text('Slave')
 				.appendTo(cont);
-				g_Minigame.Renderer.render = function(){}; // Disable rendering. Completely.
+				g_Minigame.Renderer.render = function(){} // Disable rendering. Completely.
 			}
-		},1000);
+		},1000)
 	}
 	
 	if(slaveWindowPeriodicRestart) {
