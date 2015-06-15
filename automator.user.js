@@ -32,7 +32,7 @@ var farmGoldOnBossesLevelDiff = 200;
 var useNukeOnBossAbovePercent = 25;
 
 //item use variables
-var useMedicsAtPercent = 30;
+var useMedicsAtPercent = 40;
 var useMedicsAtLanePercent = 40;
 var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
@@ -798,7 +798,7 @@ function startAutoAbilityUser() {
 			// Only use if there isn't already a Medics active?
 			var pumpedUpReady = hasAbility(19) && autoUseConsumables;
 			var stealHealthReady = hasAbility(23) && autoUseConsumables;
-			if((hasAbility(7) || pumpedUpReady) && !currentLaneHasAbility(7)) {
+			if((hasAbility(7) || pumpedUpReady) && currentLaneHasAbility(7) < 2) {
 				
 				if(pumpedUpReady){
 					if(debug)
@@ -1168,6 +1168,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
 	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
 	unsafeWindow.autoUseConsumables = autoUseConsumables;
+	unsafeWindow.useResurrectToSaveCount = useResurrectToSaveCount;
 	
 	//Slave window variables
 	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
@@ -1206,6 +1207,8 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.toggleAutoUpgradeManager = toggleAutoUpgradeManager;
 	unsafeWindow.spamNoClick = spamNoClick;
 	unsafeWindow.toggleSpammer = toggleSpammer;
+	unsafeWindow.getTarget = getTarget;
+	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
 	
 	
 	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
@@ -1233,6 +1236,7 @@ if(typeof unsafeWindow != 'undefined') {
 		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
 		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
 		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
+		useResurrectToSaveCount = unsafeWindow.useResurrectToSaveCount;
 		
 		//Boss nuke vars
 		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
