@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.77
+// @version 1.78
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -753,13 +753,24 @@ function startAutoAbilityUser() {
 					castAbility(11);
 				}
 
-				// Max Elemental Damage on Boss Nuke Rounds
-				if( isBoss && hasAbility(16) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent) {
+				// Boss Nuke Rounds
+				if( isBoss ) {
 					
-					if(debug)
-						console.log('Using Max Elemental Damage on boss.');
+					// Max Elemental Damage
+					if(hasAbility(16) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
+						if(debug)
+							console.log('Using Max Elemental Damage on boss.');
+						
+						castAbility(16);
+					}
 					
-					castAbility(16);
+					// Reflect Damage
+					if(hasAbility(24) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
+						if(debug)
+							console.log('Using Reflect Damage on boss.');
+						
+						castAbility(24);
+					}
 				}
 			}
 			
