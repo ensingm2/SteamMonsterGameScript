@@ -1150,6 +1150,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.disableAutoNukes = disableAutoNukes;
 	unsafeWindow.castAbility = castAbility;
 	unsafeWindow.hasAbility = hasAbility;
+	unsafeWindow.abilityIsUnlocked = abilityIsUnlocked;
 	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
 	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
 	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
