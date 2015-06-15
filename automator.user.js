@@ -598,7 +598,7 @@ function startAutoTargetSwapper() {
 		var currentTarget = getTarget();
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
 			if(compareMobPriority(potentialTarget, currentTarget)) {
-				console.log(currentTarget, getMobTypePriority(currentTarget), swapReason, getMobTypePriority(currentTarget), potentialTarget);
+				//console.log(currentTarget, getMobTypePriority(currentTarget), swapReason, getMobTypePriority(currentTarget), potentialTarget);
 				currentTarget = potentialTarget;
 			}
 		});
