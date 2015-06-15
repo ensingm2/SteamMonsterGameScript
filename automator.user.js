@@ -628,7 +628,7 @@ function startAutoAbilityUser() {
 				var critReady = (hasAbility(18) && autoUseConsumables);
 				
 				// Only use items on targets that are spawners and have nearly full health
-				if(targetPercentHPRemaining >= 90) {
+				if(targetPercentHPRemaining >= 90  && autoUseConsumables) {
 					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
 					if(hasAbility(14)){
 						castAbility(14);
