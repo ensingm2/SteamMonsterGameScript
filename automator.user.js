@@ -167,6 +167,8 @@ function startAutoUpgradeManager() {
 	// consistently doing. If you have an autoclicker, this is easy to set.
 	var clickFrequency = clicksPerSecond + Math.ceil(autoClickerVariance / 2);
 
+	var elementalFavourite = Math.abs(hashCode(g_steamID) % 4);
+
 	/***********
 	 * GLOBALS *
 	 ***********/
@@ -217,6 +219,19 @@ function startAutoUpgradeManager() {
 	/***********
 	 * HELPERS *
 	 ***********/
+	function hashCode(str) { // Taken from https://github.com/SteamDatabase/steamSummerMinigame/ to sync up stratigies
+		var t=0, i, char;
+		if (0 === str.length) { return t; }
+
+		for (i=0; i<str.length; i++) {
+			char=str.charCodeAt(i);
+			t=(t<<5)-t+char;
+			t&=t;
+		}
+
+		return t;
+	};
+
 	var getElementals = (function() {
 		var cache = false;
 		return function(refresh) {
@@ -394,8 +409,14 @@ function startAutoUpgradeManager() {
 		boost = dpc * (1 - critrate) * (getElementalCoefficient(testElementals) - elementalCoefficient);
 		dpg = boost / cost;
 		if (dpg > best.dpg) { // give base damage boosters priority
-			// find all elements at upgradeLevel and randomly pick one
+			// find all elements at upgradeLevel and randomly pick one unless we match steam id
 			var match = elementals.filter(function(elemental) { return elemental.level == upgradeLevel; });
+			match.some(function(elemental) {
+				if (elemental.id == elementalFavourite) {
+					match = [elemental];
+					return true;
+				}
+			});
 			match = match[Math.floor(Math.random() * match.length)].id;
 			best = { id: match, cost: cost, dpg: dpg };
 		}
