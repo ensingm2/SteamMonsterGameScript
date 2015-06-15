@@ -58,8 +58,8 @@ Feel free to edit any variables to suit your needs
 
 ###Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
-- **useMedicsAtLanePercent (default: 50):** If average lane health dips below this %, Medics will be used.
-- **useMedicsAtLanePercentAliveReq (default: 40):** % of lane allies that must be alive in order to use Medics selflessly
+- **useMedicsAtLanePercent (default: 70):** If average lane health dips below this %, Medics will be used.
+- **useMedicsAtLanePercentAliveReq (default: 30):** % of lane allies that must be alive in order to use Medics selflessly
 - **useNukeOnSpawnerAbovePercent (default: 75):** Above this % percentage threshold, a nuke will be used on a targeted spawner
 - **useMetalDetectorOnBossBelowPercent (default: 30):** Below this % percentage threshold, a Metal Detector will be used on a targeted boss
 - **seekHealingPercent (default: 20)** Below this % percentage threshold, script will swap to any lane that has a Healing powerup active

@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.76
+// @version 1.77
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -34,7 +34,7 @@ var useNukeOnBossAbovePercent = 25;
 //item use variables
 var useMedicsAtPercent = 40;
 var useMedicsAtLanePercent = 70;
-var useMedicsAtLanePercentAliveReq = 25;
+var useMedicsAtLanePercentAliveReq = 30;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 
@@ -667,7 +667,7 @@ function startAutoAbilityUser() {
 				var critReady = (hasAbility(18) && autoUseConsumables);
 				
 				// Only use items on targets that are spawners and have nearly full health
-				if(targetPercentHPRemaining >= 90  && autoUseConsumables) {
+				if(targetPercentHPRemaining >= 90  && autoUseConsumables && (hasAbility(14) || hasAbility(15))) {
 					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
 					if(hasAbility(14)){
 						castAbility(14);
@@ -681,7 +681,7 @@ function startAutoAbilityUser() {
 					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
 
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && goodLuckCharmReady)) {
+					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && (goodLuckCharmReady || !goodLuckCharmUnlocked))) {
 						var currentLaneHasCooldown = currentLaneHasAbility(9);
 						// Only use on targets that are spawners and have nearly full health
 						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
