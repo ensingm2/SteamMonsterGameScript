@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.63
+// @version 1.64
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -817,7 +817,7 @@ function startAutoAbilityUser() {
 		
 		// Resurrect
 		if(hasAbility(13) && autoUseConsumables) {
-			if(currentLane.player_hp_buckets[0] <= useResurrectBelowLaneAlive) {
+			if(currentLane.player_hp_buckets[0] <= useResurrectToSaveCount) {
 				if(debug)
 					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
 				castAbility(13);
