@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.64
+// @version 1.65
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -31,6 +31,7 @@ var useMedicsAtPercent = 30;
 var useMedicsAtLanePercent = 40;
 var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
+var useNukeOnBossAbovePercent = 25;
 var useMetalDetectorOnBossBelowPercent = 30;
 
 var useStealHealthAtPercent = 15;
@@ -643,8 +644,13 @@ function startAutoAbilityUser() {
 			var timeToTargetDeath = target.m_data.hp / laneDPS;
 				
 			// First priority since it can use Decrease Cooldowns
-			// Abilities only used when targeting Spawners
-			if(target.m_data.type == 0) {
+			var nukeBossesAfterLevel = 1000;
+			
+			//Nuke bosses after the 1000th level and not every 200th level thereafter
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 > nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % 200 == 0);
+			
+			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
+			if((target.m_data.type == 0 && !nukeBosses) || (target.m_data.type = 2 && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
@@ -711,7 +717,7 @@ function startAutoAbilityUser() {
 				}
 
 				// Tactical Nuke
-				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
+				if(hasAbility(10) && (targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent || (target.m_data.type == 2 && targetPercentHPRemaining >= useNukeOnBossAbovePercent))) {
 					if(debug)
 						console.log('Nuclear launch detected.');
 					
@@ -720,7 +726,7 @@ function startAutoAbilityUser() {
 
 		
 				// Napalm
-				else if(hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
+				else if(target.m_data.type == 0 && hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
 					if(debug)
 						console.log('Triggering napalm!');
@@ -729,7 +735,7 @@ function startAutoAbilityUser() {
 				}
 				
 				// Cluster Bomb
-				else if(hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+				else if(target.m_data.type == 0 && hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
 					
 					if(debug)
 						console.log('Triggering cluster bomb!');
@@ -740,7 +746,7 @@ function startAutoAbilityUser() {
 			}
 			
 			//Use cases for bosses
-			else if(target.m_data.type == 2) {
+			else if(!nukeBosses && target.m_data.type == 2) {
 				//Raining Gold
 				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent) {
 					
