@@ -33,8 +33,8 @@ var useNukeOnBossAbovePercent = 25;
 
 //item use variables
 var useMedicsAtPercent = 40;
-var useMedicsAtLanePercent = 40;
-var useMedicsAtLanePercentAliveReq = 40;
+var useMedicsAtLanePercent = 70;
+var useMedicsAtLanePercentAliveReq = 25;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
 
