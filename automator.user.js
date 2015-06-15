@@ -1225,7 +1225,13 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.setDebug = function(state) { debug = state; };
 }
 
+function updatePlayersInLane() {
+	// update players in lane
+	$J("#players_in_lane").html(g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].players);
+}
+
 function updatePlayersInRoom() {
+	//Update players in room
 	$J("#players_in_room").html((g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players));
 }
 
@@ -1240,9 +1246,10 @@ var startAll = setInterval(function() {
 		addPointer();
 		addExtraUI();
 
-		//Update current players in room count
+		//Update current players in lane/room count
+		updatePlayersInLane();
 		updatePlayersInRoom();
-		setInterval(function() { updatePlayersInRoom(); }, 10000);
+		setInterval(function() { updatePlayersInLane; updatePlayersInRoom(); }, 10000);
 
 		//Hide the stupid "Leave game" tooltip
 		$J('.leave_game_btn').mouseover(function(){
