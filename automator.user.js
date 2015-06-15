@@ -461,7 +461,7 @@ function startAutoUpgradeManager() {
 			scene.m_rgPlayerUpgrades.some(function(upgrade) {
 				if (upgrade.upgrade == id) {
 					if ($J('#upgr_'+upgrade.upgrade).length) {
-						$J('#upgr_'+upgrade.upgrade+' .upgrade a').css({
+						$J('#upgr_'+upgrade.upgrade+' a').css({
 							"-webkit-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
 							"-moz-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
 							"box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)"
@@ -469,7 +469,7 @@ function startAutoUpgradeManager() {
 					}
 				} else {
 					if ($J('#upgr_'+upgrade.upgrade).length) {
-						$J('#upgr_'+upgrade.upgrade+' .upgrade a').removeAttr('style');
+						$J('#upgr_'+upgrade.upgrade+' a').removeAttr('style');
 					}
 				}
 			});
@@ -1227,12 +1227,22 @@ if(typeof unsafeWindow != 'undefined') {
 
 function updatePlayersInLane() {
 	// update players in lane
-	$J("#players_in_lane").html(g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].players);
+	var players;
+	if(g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane])
+		players = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].players;
+	else
+		players = "???";
+	
+	$J("#players_in_lane").html(players);
 }
 
 function updatePlayersInRoom() {
 	//Update players in room
-	$J("#players_in_room").html((g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players));
+	if(g_Minigame.m_CurrentScene.m_rgLaneData[0])
+		players = (g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players);
+	else
+		players = "???";
+	$J("#players_in_room").html();
 }
 
 //Keep trying to start every second till success
