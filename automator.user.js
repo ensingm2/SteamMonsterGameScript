@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.72
+// @version 1.73
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -593,15 +593,15 @@ function startAutoTargetSwapper() {
 	
 	autoTargetSwapper = setInterval(function() {
 
-		var currentTarget = null;
+		var currentTarget = getTarget();
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-				if(compareMobPriority(potentialTarget, currentTarget))
-					currentTarget = potentialTarget;
+			if(compareMobPriority(potentialTarget, currentTarget))
+				currentTarget = potentialTarget;
 		});
 			
 		//Switch to that target
 		var oldTarget = getTarget();
-		if(currentTarget != null && (!oldTarget || currentTarget.m_data.id != oldTarget.m_data.id)) {
+		if(currentTarget.m_data && oldTarget.m_data && currentTarget.m_data.id != oldTarget.m_data.id) {
 			if(debug && swapReason != null) {
 				console.log(swapReason);
 				swapReason = null;
@@ -613,7 +613,7 @@ function startAutoTargetSwapper() {
 
 		}
 		//Move back to lane if still targetting
-		else if(currentTarget != null && !oldTarget && currentTarget.m_data.id != oldTarget.m_data.id && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+		else if(currentTarget.m_data && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
 	}, targetSwapperFreq);
@@ -1010,17 +1010,21 @@ function updateUserElementMultipliers() {
 //  (treasure > boss > miniboss > spawner > creep)
 function getMobTypePriority(potentialTarget) {
 	mobType = potentialTarget.m_data.type;
+	
 	switch(mobType) {
-		case 0: // Spawner
+		case 1: // Spawner
 			return 0;
-		case 3: // Miniboss
+		case 0: // Spawner
 			return 1;
-		case 2: // Boss
+		case 3: // Miniboss
 			return 2;
-		case 4: // Treasure
+		case 2: // Boss
 			return 3;
+		case 4: // Treasure
+			return 4;
+		default:
+			return -1;
 	}
-	return -Number.MAX_VALUE;
 }
 
 // Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
@@ -1062,12 +1066,20 @@ function compareMobPriority(mobA, mobB) {
 		return true;
 	}
 
+	//ignore in the weird case that mob priority isn't set to any type (usually set to 'false') (I've seen it sometimes)
+	if(aTypePriority !== -1 || bTypePriority !== -1) {
+		if(debug)
+			console.log('wtf, unknown mobType.', {mobA.m_nLane, mobA.m_nID, aTypePriority} ,{mobB.m_nLane, mobB.m_nID, bTypePriority});
+		return false;
+	}
+	
 	else if(aIsGold != bIsGold) {
 		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
 			swapReason = "Switching to target with Raining Gold.";
 			return true;
 		}
 	}
+	
 	else if(aTypePriority != bTypePriority) {		
 		if(aTypePriority > bTypePriority) {
 			swapReason = "Switching to higher priority target.";
@@ -1140,7 +1152,7 @@ function addPointer() {
 
 function getTarget() {
 	try {
-		var target = g_Minigame.m_CurrentScene.m_rgEnemies[g_Minigame.m_CurrentScene.m_rgPlayerData.target];
+		var target = g_Minigame.m_CurrentScene.GetEnemy(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target);
 		return target;
 	} catch(e) {
 		return null;
