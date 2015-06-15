@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.60
+// @version 1.61
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -28,19 +28,23 @@ var autoBuyAbilities = false;
 
 //item use variables
 var useMedicsAtPercent = 30;
-var useMedicsAtLanePercent = 50;
+var useMedicsAtLanePercent = 40;
 var useMedicsAtLanePercentAliveReq = 40;
 var useNukeOnSpawnerAbovePercent = 75;
 var useMetalDetectorOnBossBelowPercent = 30;
+
 var useStealHealthAtPercent = 15;
 var useRainingGoldAbovePercent = 75;
+var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
+var useResurrectToSaveCount = 150; // Use revive to save 150 people
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
-var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoItemUser, autoUpgradeManager;
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager;
 var elementUpdateRate = 60000;
+var autoUseConsumables = true;
 var userElementMultipliers = [1, 1, 1, 1];
 var userMaxElementMultiiplier = 1;
 var swapReason;
@@ -440,14 +444,37 @@ function startAutoUpgradeManager() {
 			next = (damage.cost < ability.cost || ability.id === -1) ? damage : ability;
 		  }
 		}
-		if (debug && next.id !== -1) {
-		  console.log(
-			'next buy:',
-			scene.m_rgTuningData.upgrades[next.id].name,
-			'(' + FormatNumberForDisplay(next.cost) + ')'
-		  );
+		if (next.id !== -1) {
+			if (debug) {
+				console.log(
+					'next buy:',
+					scene.m_rgTuningData.upgrades[next.id].name,
+					'(' + FormatNumberForDisplay(next.cost) + ')'
+			  	);
+			}
+			updateVisualNext(next.id);
 		}
 	  };
+
+	var updateVisualNext = function(id) {
+	  	if (scene.m_rgPlayerUpgrades) {
+			scene.m_rgPlayerUpgrades.some(function(upgrade) {
+				if (upgrade.upgrade == id) {
+					if ($J('#upgr_'+upgrade.upgrade).length) {
+						$J('#upgr_'+upgrade.upgrade+' .upgrade a').css({
+							"-webkit-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
+							"-moz-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
+							"box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)"
+						});
+					}
+				} else {
+					if ($J('#upgr_'+upgrade.upgrade).length) {
+						$J('#upgr_'+upgrade.upgrade+' .upgrade a').removeAttr('style');
+					}
+				}
+			});
+		}
+	};
 
 	  var hook = function(base, method, func) {
 		var original = method + '_upgradeManager';
@@ -621,10 +648,10 @@ function startAutoAbilityUser() {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(5);
 				var goodLuckCharmReady = hasAbility(6);
-				var critReady = (hasAbility(18) && autoItemUser != null);
+				var critReady = (hasAbility(18) && autoUseConsumables);
 				
 				// Only use items on targets that are spawners and have nearly full health
-				if(targetPercentHPRemaining >= 90) {
+				if(targetPercentHPRemaining >= 90  && autoUseConsumables) {
 					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
 					if(hasAbility(14)){
 						castAbility(14);
@@ -684,21 +711,12 @@ function startAutoAbilityUser() {
 				}
 
 				// Throw Money At Screen
-				if (!currentLaneHasAbility(17) && targetPercentHPRemaining >= target.m_data.max_hp * 0.1) {
+				if (!currentLaneHasAbility(17) && autoUseConsumables && targetPercentHPRemaining >= target.m_data.max_hp * 0.1) {
 					if(hasAbility(20)) {
 						if(debug)
 							console.log('Throwing some money at the screen.');
 						
 						castAbility(20);
-					}
-				}
-				// Metal Detector
-				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
-					if(hasAbility(8)) {
-						if(debug)
-							console.log('Using Metal Detector.');
-						
-						castAbility(8);
 					}
 				}
 
@@ -731,6 +749,35 @@ function startAutoAbilityUser() {
 
 			}
 			
+			//Use cases for bosses
+			else if(target.m_data.type == 2) {
+				//Raining Gold
+				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent) {
+					
+					if(debug)
+						console.log('Using Raining Gold on boss.');
+					
+					castAbility(17);
+				}
+			}
+			
+			
+			// Metal Detector
+			var  treasureReady = hasAbility(22) && autoUseConsumables;
+			if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
+				if(hasAbility(8) || treasureReady) {
+					if(treasureReady){
+						if(debug)
+							console.log('Using Metal Detector via Treasure.');
+						castAbility(22);
+					}
+					else {
+						if(debug)
+							console.log('Using Metal Detector.');
+						castAbility(8);
+					}
+				}
+			}
 		}
 		
 		//Estimate average player HP Percent in lane
@@ -741,7 +788,7 @@ function startAutoAbilityUser() {
 			laneTotalPctHP += HPGuess * currentLane.player_hp_buckets[i];
 			laneTotalCount += currentLane.player_hp_buckets[i];
 		}
-		var avgLanePercentHP = laneTotalPctHP / laneTotalCount * 100;
+		var avgLanePercentHP = laneTotalPctHP / laneTotalCount;
 		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
 		
 		// Medics
@@ -754,14 +801,53 @@ function startAutoAbilityUser() {
 			}
 			
 			// Only use if there isn't already a Medics active?
-			if(hasAbility(7) && !currentLaneHasAbility(7)) {
-				if(debug)
-					console.log("Unleash the medics!");
-				castAbility(7);
+			var pumpedUpReady = hasAbility(19) && autoUseConsumables;
+			var stealHealthReady = hasAbility(23) && autoUseConsumables;
+			if((hasAbility(7) || pumpedUpReady) && !currentLaneHasAbility(7)) {
+				
+				if(pumpedUpReady){
+					if(debug)
+						console.log("Using Medics via Pumped Up!");
+					castAbility(19);
+				}
+				else {
+					if(debug)
+						console.log("Using Medics!");
+					castAbility(7);
+				}
+			}
+			else if(stealHealthReady && percentHPRemaining <= useMedicsAtPercent) {
+					if(debug)
+						console.log("Using Steal Health in place of Medics!");
+					castAbility(23);
 			}
 			else if(debug)
 				console.log("No medics to unleash!");
 		}
+		
+		// Resurrect
+		if(hasAbility(13) && autoUseConsumables) {
+			if(currentLane.player_hp_buckets[0] <= useResurrectBelowLaneAlive) {
+				if(debug)
+					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
+				castAbility(13);
+			}
+		}
+		
+		// Like New
+		if(hasAbility(27) && autoUseConsumables) {
+			var totalCD = 0;
+			for(var i=5; i <= 12; i++)
+				if(abilityIsUnlocked(i))
+					totalCD += abilityCooldown(i);
+				
+			if(totalCD * 1000 >= useLikeNewAboveCooldown) {
+				if(debug)
+					console.log('Using resurrection to save a total of ' + totalCD + ' seconds of cooldown.');
+				castAbility(27);
+			}
+		}
+			
 		
 	}, abilityUseCheckFreq);
 	
@@ -769,51 +855,8 @@ function startAutoAbilityUser() {
 }
 
 function startAutoItemUser() {
-	if(autoItemUser) {
-		console.log("autoItemUser is already running!");
-		return;
-	}
-
-	autoItemUser = setInterval(function() {
-		
-		if(debug)
-			console.log("Checking if it's useful to use an item.");
-		
-		// Steal Health
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-		if(percentHPRemaining <= useStealHealthAtPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
-			
-			//Can  cast and no other heals
-			if(hasAbility(23) && !currentLaneHasAbility(7)) {
-				if(debug)
-					console.log("Stealing Health!");
-				castAbility(23);
-			}
-		}
-		
-		//target based items
-		var target = getTarget();
-		if(target) {
-			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
-			
-			// Abilitys only used when targeting Bosses
-			if(target.m_data.type == 2) {
-				
-				//Raining Gold
-				if(hasAbility(17) && targetPercentHPRemaining > useRainingGoldAbovePercent) {
-					
-					if(debug)
-						console.log('Raining Gold!');
-					
-					castAbility(17);
-				}
-				
-			}
-		}
-		
-	}, itemUseCheckFreq);
-	
-	console.log("autoItemUser has been started.");
+	autoUseConsumables = true;
+	console.log("Automatic use of consumables has been enabled.");
 }
 
 function startAllAutos() {
@@ -821,7 +864,6 @@ function startAllAutos() {
 	startAutoRespawner();
 	startAutoTargetSwapper();
 	startAutoAbilityUser();
-	startAutoItemUser();
 	startAutoUpgradeManager();
 }
 
@@ -863,19 +905,26 @@ function stopAutoAbilityUser() {
 	else
 		console.log("No autoAbilityUser is running to stop.");
 }
+
 function stopAutoItemUser() {
-	if(autoItemUser){
-		clearInterval(autoItemUser);
-		autoItemUser = null;
-		console.log("autoItemUser has been stopped.");
-	}
-	else
-		console.log("No autoItemUser is running to stop.");
+	autoUseConsumables = false;
+	console.log("Automatic use of consumables has been disabled.");
 }
+
 function stopAutoUpgradeManager() {
 	if(autoUpgradeManager){
 		clearInterval(autoUpgradeManager);
 		autoUpgradeManager = null;
+
+		//Clear the visual
+	  	if (g_Minigame.CurrentScene().m_rgPlayerUpgrades) {
+			g_Minigame.CurrentScene().m_rgPlayerUpgrades.some(function(upgrade) {
+				if ($J('#upgr_'+upgrade.upgrade).length) {
+					$J('#upgr_'+upgrade.upgrade+' .upgrade a').removeAttr('style');
+				}
+			});
+		}
+		
 		console.log("autoUpgradeManager has been stopped.");
 	}
 	else
@@ -919,7 +968,7 @@ function laneHasAbility(lane, abilityID) {
 
 function abilityIsUnlocked(abilityID) {
 		if(abilityID <= 12)
-			return (1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield;
+			return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
 		else
 			return getAbilityItemQuantity(abilityID) > 0;
 }
@@ -1144,6 +1193,8 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.disableAutoNukes = disableAutoNukes;
 	unsafeWindow.castAbility = castAbility;
 	unsafeWindow.hasAbility = hasAbility;
+	unsafeWindow.abilityIsUnlocked = abilityIsUnlocked;
+	unsafeWindow.abilityCooldown = abilityCooldown;
 	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
 	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
 	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
@@ -1184,6 +1235,10 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.setDebug = function(state) { debug = state; };
 }
 
+function updatePlayersInRoom() {
+	$J("#players_in_room").html((g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players));
+}
+
 //Keep trying to start every second till success
 var startAll = setInterval(function() { 
 		if(!gameRunning())
@@ -1193,8 +1248,12 @@ var startAll = setInterval(function() {
 		
 		startAllAutos();
 		addPointer();
-		addCustomButtons();
-		
+		addExtraUI();
+
+		//Update current players in room count
+		updatePlayersInRoom();
+		setInterval(function() { updatePlayersInRoom(); }, 10000);
+
 		//Hide the stupid "Leave game" tooltip
 		$J('.leave_game_btn').mouseover(function(){
 				$J('.leave_game_helper').show();
@@ -1223,7 +1282,14 @@ var startAll = setInterval(function() {
 
 	}, 1000);
 
-	
+function addExtraUI() {
+	addCustomButtons();
+
+	//Add in player count for current room
+	var old = $J(".title_activity").html();
+	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
+}
+
 function addCustomButtons() {
 	//Smack the TV Easter Egg
 	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
@@ -1251,10 +1317,10 @@ function addCustomButtons() {
 	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Target Swap</span></span>');
 	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
-	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability/Item Use</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Item Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Auto Consumable Use</span></span>');
 	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
 	
 	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Upgrader</span></span>');
@@ -1348,21 +1414,21 @@ function toggleAutoTargetSwapper() {
 function toggleAutoAbilityUser(){
 	if(autoAbilityUser) {
 		stopAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Enable Ability Use</span>");
+		$J("#toggleAutoAbilityUserBtn").html("<span>Enable Ability/Item</span>");
 	}
 	else {
 		startAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Disable Ability Use</span>");
+		$J("#toggleAutoAbilityUserBtn").html("<span>Disable Ability/Item</span>");
 	}
 }
 function toggleAutoItemUser(){
-	if(autoItemUser) {
+	if(autoUseConsumables) {
 		stopAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Enable Item Use</span>");
+		$J("#toggleAutoItemUserBtn").html("<span>Enable Auto Consumable Use</span>");
 	}
 	else {
 		startAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Disable Item Use</span>");
+		$J("#toggleAutoItemUserBtn").html("<span>Disable Auto Consumable Use</span>");
 	}
 }
 function toggleAutoUpgradeManager(){
