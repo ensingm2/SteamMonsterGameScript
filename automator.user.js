@@ -710,6 +710,16 @@ function startAutoAbilityUser() {
 					}
 				}
 
+				// Throw Money At Screen
+				if (!currentLaneHasAbility(17) && autoUseConsumables && targetPercentHPRemaining >= target.m_data.max_hp * 0.1) {
+					if(hasAbility(20)) {
+						if(debug)
+							console.log('Throwing some money at the screen.');
+						
+						castAbility(20);
+					}
+				}
+
 				// Tactical Nuke
 				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
 					if(debug)
