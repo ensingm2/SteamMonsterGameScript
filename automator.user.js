@@ -335,7 +335,7 @@ function startAutoUpgradeManager() {
 		var dpc = scene.m_rgPlayerTechTree.damage_per_click;
 		var base_dpc = scene.m_rgTuningData.player.damage_per_click;
 		var critmult = scene.m_rgPlayerTechTree.damage_multiplier_crit;
-		var critrate = scene.m_rgPlayerTechTree.crit_percentage;
+		var critrate = Math.min(scene.m_rgPlayerTechTree.crit_percentage, 1);
 		var elementals = getElementals();
 		var elementalCoefficient = getElementalCoefficient(elementals);
 
