@@ -693,8 +693,9 @@ function startAutoAbilityUser() {
  						
  						castAbility(8);
  					}
-					// Treasure
-					if(hasAbility(22)) {
+ 					// Treasure
+ 					else if(hasAbility(22)) {
+
 						if(debug)
 							console.log('Using Treasure.');
 						
