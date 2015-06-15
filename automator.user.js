@@ -683,6 +683,14 @@ function startAutoAbilityUser() {
 					}
 				}
 
+				// Max Elemental Damage
+				if (!(target.m_data.type == 2 || target.m_data.type == 4) && hasAbility(16) && !currentLaneHasAbility(16)) {
+					if(debug)
+						console.log('Using Max Elemental Damage on lane!');
+					
+					castAbility(16);
+				}
+
 				// Metal Detector
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
 					if(hasAbility(8)) {
