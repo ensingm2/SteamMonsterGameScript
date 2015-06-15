@@ -1151,6 +1151,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.castAbility = castAbility;
 	unsafeWindow.hasAbility = hasAbility;
 	unsafeWindow.abilityIsUnlocked = abilityIsUnlocked;
+	unsafeWindow.abilityCooldown = abilityCooldown;
 	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
 	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
 	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
