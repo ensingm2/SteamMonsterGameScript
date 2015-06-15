@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.67
+// @version 1.68
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1527,12 +1527,14 @@ function toggleSpammer() {
 	if(spammer) {
 		clearInterval(spammer);
 		spammer = null;
-		$J("#toggleSpammerBtn").html("<span>Enable Particle Spam</span>");
+		//$J("#toggleSpammerBtn").html('<span>Particle Spam</span><br /><span class="status">Disabled</span>');
+		toggleAutoClass('#toggleSpammerBtn', false);
 	}
 	else {
-		if(confirm("Are you SURE you want to do this? This leads to massive memory leaks farly quickly.")) {
+		if(confirm("Are you SURE you want to do this? This leads to massive memory leaks fairly quickly.")) {
 			spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
-			$J("#toggleSpammerBtn").html("<span>Disable Particle Spam</span>");
+			//$J("#toggleSpammerBtn").html('<span>Particle Spam</span><br /><span class="status">Disabled</span>');
+			toggleAutoClass('#toggleSpammerBtn', true);
 		}
 	}
 		
