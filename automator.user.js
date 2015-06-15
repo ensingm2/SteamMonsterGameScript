@@ -683,6 +683,15 @@ function startAutoAbilityUser() {
 					}
 				}
 
+				// Throw Money At Screen
+				if (!currentLaneHasAbility(17) && targetPercentHPRemaining >= target.m_data.max_hp * 0.1) {
+					if(hasAbility(20)) {
+						if(debug)
+							console.log('Throwing some money at the screen.');
+						
+						castAbility(20);
+					}
+				}
 				// Metal Detector
 				if((target.m_data.type == 2 || target.m_data.type == 4) && timeToTargetDeath < 10) {
 					if(hasAbility(8)) {
