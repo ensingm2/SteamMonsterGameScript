@@ -1355,17 +1355,16 @@ function addGlobalStyle(css) {
     $J('head').append('<style>'+css+'</style>');
 }
 
-
 function customCSS() {
-	addGlobalStyle(".toggle_btn { background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-position: 0px 0px;cursor: pointer;width: 150px;height: 56px;}");
-	addGlobalStyle(".toggle_btn.enabled {background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-position: 0px -56px;cursor: pointer;height: 56px; }");
-	addGlobalStyle(".toggle_btn.disabled {background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-position: 0px -112px;cursor: pointer;height: 56px; }");
+	addGlobalStyle(".game_options .toggle_btn { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px 0px;cursor: pointer;width: 150px;height: 21px;}");
+	addGlobalStyle(".game_options .toggle_btn.enabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -56px;cursor: pointer;height: 21px;}");
+	addGlobalStyle(".game_options .toggle_btn.disabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -112px;cursor: pointer;height: 21px; }");
 
-	addGlobalStyle(".toggle_btn:hover { background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-repeat: no-repeat;background-position: -150px 0px;color: #fff;}");
-	addGlobalStyle(".toggle_btn.enabled:hover { background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-position: -150px -56px;color: #fff;  }");
-	addGlobalStyle(".toggle_btn.disabled:hover { background: url('http://i.imgur.com/I4dqnlD.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
+	addGlobalStyle(".game_options .toggle_btn:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-repeat: no-repeat;background-position: -150px 0px;color: #fff;}");
+	addGlobalStyle(".game_options .toggle_btn.enabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -56px;color: #fff; }");
+	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
 
-	addGlobalStyle(".toggle_btn span { position: relative; top: -20px; }");
+	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
 }
 
 
