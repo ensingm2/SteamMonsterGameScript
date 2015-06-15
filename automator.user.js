@@ -736,7 +736,7 @@ function startAutoAbilityUser() {
 		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
 		
 		// Medics
-		if((percentHPRemaining <= useMedicsAtPercent || (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) && !g_Minigame.m_CurrentScene.m_bIsDead) {
+		if((percentHPRemaining <= useMedicsAtPercent || avgLanePercentHP <= useMedicsAtLanePercent || percentAlive > useMedicsAtLanePercentAliveReq) && !g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug) {
 				if(percentHPRemaining <= useMedicsAtPercent)
 					console.log("Health below threshold. Need medics!");
@@ -745,13 +745,47 @@ function startAutoAbilityUser() {
 			}
 			
 			// Only use if there isn't already a Medics active?
-			if(hasAbility(7) && !currentLaneHasAbility(7)) {
-				if(debug)
-					console.log("Unleash the medics!");
-				castAbility(7);
+			if(!currentLaneHasAbility(7)) {
+				// Medics
+				if(hasAbility(7) && (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) {
+					if(debug)
+						console.log("Unleash the medics!");
+					castAbility(7);
+				} 
+				// Pumped Up
+				else if(hasAbility(19) && (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) {
+					if(debug)
+						console.log("Im feeling pumped!");
+					castAbility(19);
+				} 
+				// Revive
+				else if (hasAbility(13) && percentAlive <= useMedicsAtLanePercentAliveReq) {
+					if(debug)
+						console.log("Unleash the revivals!");
+					castAbility(13);
+				}
+				// Use the other healing items in the reverse "rarity" of the item
+				// Steal Health 
+				else if (hasAbility(23)) {
+					if(debug)
+						console.log("Steal health!");
+					castAbility(23);
+				}
+				// Reflect Damage
+				else if (hasAbility(24)) {
+					if(debug)
+						console.log("Reflect Damage!");
+					castAbility(24);
+				}
+				// God Mode
+				else if (hasAbility(21)) {
+					if(debug)
+						console.log("God Mode!");
+					castAbility(21);
+				}
+				else if(debug)
+					console.log("No medics to unleash!");
 			}
-			else if(debug)
-				console.log("No medics to unleash!");
 		}
 		
 	}, abilityUseCheckFreq);
