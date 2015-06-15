@@ -444,14 +444,37 @@ function startAutoUpgradeManager() {
 			next = (damage.cost < ability.cost || ability.id === -1) ? damage : ability;
 		  }
 		}
-		if (debug && next.id !== -1) {
-		  console.log(
-			'next buy:',
-			scene.m_rgTuningData.upgrades[next.id].name,
-			'(' + FormatNumberForDisplay(next.cost) + ')'
-		  );
+		if (next.id !== -1) {
+			if (debug) {
+				console.log(
+					'next buy:',
+					scene.m_rgTuningData.upgrades[next.id].name,
+					'(' + FormatNumberForDisplay(next.cost) + ')'
+			  	);
+			}
+			updateVisualNext(next.id);
 		}
 	  };
+
+	var updateVisualNext = function(id) {
+	  	if (scene.m_rgPlayerUpgrades) {
+			scene.m_rgPlayerUpgrades.some(function(upgrade) {
+				if (upgrade.upgrade == id) {
+					if ($J('#upgr_'+upgrade.upgrade).length) {
+						$J('#upgr_'+upgrade.upgrade+' .upgrade a').css({
+							"-webkit-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
+							"-moz-box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)", 
+							"box-shadow": "0px 0px 16px 2px rgba(140,237,125,0.75)"
+						});
+					}
+				} else {
+					if ($J('#upgr_'+upgrade.upgrade).length) {
+						$J('#upgr_'+upgrade.upgrade+' .upgrade a').removeAttr('style');
+					}
+				}
+			});
+		}
+	};
 
 	  var hook = function(base, method, func) {
 		var original = method + '_upgradeManager';
@@ -882,6 +905,16 @@ function stopAutoUpgradeManager() {
 	if(autoUpgradeManager){
 		clearInterval(autoUpgradeManager);
 		autoUpgradeManager = null;
+
+		//Clear the visual
+	  	if (g_Minigame.CurrentScene().m_rgPlayerUpgrades) {
+			g_Minigame.CurrentScene().m_rgPlayerUpgrades.some(function(upgrade) {
+				if ($J('#upgr_'+upgrade.upgrade).length) {
+					$J('#upgr_'+upgrade.upgrade+' .upgrade a').removeAttr('style');
+				}
+			});
+		}
+		
 		console.log("autoUpgradeManager has been stopped.");
 	}
 	else
