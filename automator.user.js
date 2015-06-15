@@ -710,6 +710,14 @@ function startAutoAbilityUser() {
 					}
 				}
 
+				// Max Elemental Damage
+				if (!(target.m_data.type == 2 || target.m_data.type == 4) && hasAbility(16) && !currentLaneHasAbility(16) && autoUseConsumables) {
+					if(debug)
+						console.log('Using Max Elemental Damage on lane!');
+					
+					castAbility(16);
+				}
+
 				// Tactical Nuke
 				if(hasAbility(10) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent) {
 					if(debug)
