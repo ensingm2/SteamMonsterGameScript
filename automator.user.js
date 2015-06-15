@@ -565,11 +565,9 @@ function startAutoRespawner() {
 	}
 	
 	autoRespawner = setInterval( function(){
-		
 		if(debug)
 			console.log('Checking if the player is dead.');
 
-		
 		// Credit to /u/kolodz for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39joz2/javascript_auto_respawn/
 		if(g_Minigame.m_CurrentScene.m_bIsDead) {
 			if(debug)
@@ -588,15 +586,21 @@ function startAutoTargetSwapper() {
 		return;
 	}
 
+	
 	updateUserElementMultipliers();
 	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
 	
 	autoTargetSwapper = setInterval(function() {
 
+		if(debug)
+			console.log('Looking for a new target.');
+		
 		var currentTarget = getTarget();
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-			if(compareMobPriority(potentialTarget, currentTarget))
+			if(compareMobPriority(potentialTarget, currentTarget)) {
+				console.log(currentTarget, getMobTypePriority(currentTarget), swapReason, getMobTypePriority(currentTarget), potentialTarget);
 				currentTarget = potentialTarget;
+			}
 		});
 			
 		//Switch to that target
@@ -616,6 +620,7 @@ function startAutoTargetSwapper() {
 		else if(currentTarget.m_data && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
 			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
 		}
+		
 	}, targetSwapperFreq);
 	
 	console.log("autoTargetSwapper has been started.");
@@ -845,7 +850,6 @@ function startAutoAbilityUser() {
 			}
 		}
 			
-		
 	}, abilityUseCheckFreq);
 	
 	console.log("autoAbilityUser has been started.");
@@ -1012,10 +1016,21 @@ function updateUserElementMultipliers() {
 // Return a value to compare mobs' priority (lower value = less important)
 //  (treasure > boss > miniboss > spawner > creep)
 function getMobTypePriority(potentialTarget) {
+	//console.log('test', potentialTarget.m_data)
+	
+	//Just assume 'false' is a flag for highest priority
+	if(potentialTarget.m_data === false) {
+		console.log('test', potentialTarget)
+		return 4;
+	}
+	
+	if(!potentialTarget || !potentialTarget.m_data)
+		return -1;
+	
 	mobType = potentialTarget.m_data.type;
 	
 	switch(mobType) {
-		case 1: // Spawner
+		case 1: // Creep
 			return 0;
 		case 0: // Spawner
 			return 1;
@@ -1032,15 +1047,12 @@ function getMobTypePriority(potentialTarget) {
 
 // Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
 function compareMobPriority(mobA, mobB) {
-	if(mobA === null)
+	if(!mobA)
 		return false;
-	if(mobB === null) {
+	if(!mobB) {
 		swapReason = "Swapping off a non-existent mob.";
 		return true;
 	}
-	
-	if(debug)
-		console.log('comparing.', mobA, mobB);
 	
 	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
 	var aHasHealing = laneHasAbility(mobA.m_nLane, 7) || laneHasAbility(mobA.m_nLane, 23);
@@ -1073,13 +1085,14 @@ function compareMobPriority(mobA, mobB) {
 	}
 
 	//ignore in the weird case that mob priority isn't set to any type (usually set to 'false') (I've seen it sometimes)
-	if(aTypePriority !== -1) {
+	/*if(aTypePriority !== -1) {
 		//if(debug)
 		//	console.log('wtf, unknown mobType.', [mobA.m_nLane, mobA.m_nID, aTypePriority], [mobB.m_nLane, mobB.m_nID, bTypePriority]);
 		return false;
 	}
 	else if(bTypePriority !== -1)
 		return true;
+	*/
 	
 	else if(aIsGold != bIsGold) {
 		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
@@ -1232,6 +1245,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.toggleSpammer = toggleSpammer;
 	unsafeWindow.getTarget = getTarget;
 	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
+	unsafeWindow.getMobTypePriority = getMobTypePriority;
 	
 	
 	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
