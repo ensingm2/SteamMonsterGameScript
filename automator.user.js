@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.74
+// @version 1.75
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -602,10 +602,8 @@ function startAutoTargetSwapper() {
 		
 		var currentTarget = getTarget();
 		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-			if(compareMobPriority(potentialTarget, currentTarget)) {
-				//console.log(currentTarget, getMobTypePriority(currentTarget), swapReason, getMobTypePriority(currentTarget), potentialTarget);
+			if(compareMobPriority(potentialTarget, currentTarget))
 				currentTarget = potentialTarget;
-			}
 		});
 			
 		//Switch to that target
@@ -843,7 +841,7 @@ function startAutoAbilityUser() {
 		// Like New
 		if(hasAbility(27) && autoUseConsumables) {
 			var totalCD = 0;
-			for(var i=5; i <= 12; i++){
+			for(i=5; i <= 12; i++){
 				if(abilityIsUnlocked(i))
 					totalCD += abilityCooldown(i);
 			}
@@ -924,8 +922,9 @@ function stopAutoUpgradeManager() {
 
 		//Remove hooks
 		var removeHook = function removeHook(base, method) {
-			base.prototype[method] = base.prototype[method + '_upgradeManager'] || base.prototype[method];
-		}
+			base.prototype[method] = (base.prototype[method + '_upgradeManager'] || base.prototype[method]);
+		};
+		
 		removeHook(CSceneGame, 'TryUpgrade');
 		removeHook(CSceneGame, 'ChangeLevel');
 
@@ -1021,13 +1020,6 @@ function updateUserElementMultipliers() {
 // Return a value to compare mobs' priority (lower value = less important)
 //  (treasure > boss > miniboss > spawner > creep)
 function getMobTypePriority(potentialTarget) {
-	//console.log('test', potentialTarget.m_data)
-	
-	//Just assume 'false' is a flag for highest priority
-	if(potentialTarget.m_data === false) {
-		console.log('test', potentialTarget)
-		return 4;
-	}
 	
 	if(!potentialTarget || !potentialTarget.m_data)
 		return -1;
@@ -1044,6 +1036,8 @@ function getMobTypePriority(potentialTarget) {
 		case 2: // Boss
 			return 3;
 		case 4: // Treasure
+			return 4;
+		case false: // Let's just assume false is a flag for most important
 			return 4;
 		default:
 			return -1;
@@ -1285,7 +1279,7 @@ if(typeof unsafeWindow != 'undefined') {
 		farmGoldOnBossesLevelDiff = unsafeWindow.farmGoldOnBossesLevelDiff;
 		useNukeOnBossAbovePercent = unsafeWindow.useNukeOnBossAbovePercent;
 		
-	}, 5000)
+	}, 5000);
 	
 	//Add closure 'debug' getter and setter
 	unsafeWindow.getDebug = function() { return debug; };
@@ -1349,18 +1343,18 @@ var startAll = setInterval(function() {
 				var bPlayedBefore = WebStorage.SetLocal('mg_how2click', 1);
 				$J('#newplayer').hide();
 			}
-		}
+		};
 
 		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
 		CUI.prototype.UpdateLootNotification = function() {
-			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length != 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length == 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
+			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length !== 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length === 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
 				$J("#loot_notification").show();
 
 				var abilities = this.m_Game.m_rgTuningData.abilities;
 				var strLootNames = "";
 				for (var i = 0; i < this.m_Game.m_rgPlayerData.loot.length; ++i) {
 					var loot = this.m_Game.m_rgPlayerData.loot[i];
-					if (i != 0) { strLootNames += ", "; }
+					if (i !== 0) { strLootNames += ", "; }
 					strLootNames += abilities[loot.ability].name;
 				}
 				$J("#loot_name").text( strLootNames );
@@ -1369,7 +1363,7 @@ var startAll = setInterval(function() {
 				lastLootCache = this.m_Game.m_rgPlayerData.loot;
 				this.m_Game.m_rgPlayerData.loot = [];
 			}
-		}
+		};
 
 	}, 1000);
 
@@ -1589,7 +1583,7 @@ function spamNoClick() {
 					return {
 						x: enemy.m_Sprite.position.x - laneOffset,
 						y: enemy.m_Sprite.position.y - 52
-					}
+					};
 				}
 			}
 		}
