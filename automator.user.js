@@ -1409,8 +1409,31 @@ function updateStats() {
 		return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
 	}
 
+	var getFormattedRemainingTime = function() {
+		var secondsUntilEnd = getSecondsUntilEnd();
+	    var hrs   = Math.floor(secondsUntilEnd / 3600);
+	    var min = Math.floor((secondsUntilEnd - (hrs * 3600)) / 60);
+	    var sec = secondsUntilEnd - (hrs * 3600) - (min * 60);
+
+	    var time = '';
+	    if (hrs > 0) {
+	      if (hrs == 1) { time += "an hour"; }
+	      else { time += hrs + " hours"; }
+	      if (min > 1) { time += " and " + min + " minute"+(min == 1 ? '' : 's'); }
+	    } else if (min > 0) {
+	      if (min == 1) { time += "a minute"; }
+	      else { time += min + " minutes"; }
+	      if (sec > 1) {time += " and " + sec + " second"+(sec == 1 ? '' : 's'); }
+	    } else {
+	      if (sec <= 1) { time += "about a second"; }
+	      else { time += "about " + sec + " seconds"; }
+	    }
+	    return time;
+	}
+
 	$J('#avg_completion_rate').html(parseFloat(getSecondsPerLevel()).toFixed(2));
 	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd()/getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
+	$J("#remaining_time").html(getFormattedRemainingTime());
 }
 
 function addExtraUI() {
@@ -1421,13 +1444,6 @@ function addExtraUI() {
 	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
 
 	customCSS();
-
-	//Add stats about your room
-	$J('<span id="room_stats" style="float: right; text-align: right;margin: 10px 12px 0px 0px;color: #fff;"></span>').insertAfter("#toggleAllSoundBtn");
-	$J("#room_stats").append('Seconds per level: <span id="avg_completion_rate">0</span></span><br />');
-	$J("#room_stats").append('Estimated end level: <span id="estimated_end_level">0</span></span>');
-	updateStats();
-	setTimeout(function() { updateStats(); }, 10000);
 }
 
 function addCustomButtons() {
@@ -1483,15 +1499,39 @@ function addCustomButtons() {
 		element.textContent = 'Room ' + g_GameID;
 		breadcrumbs.appendChild(element);
       
+		element = document.createElement('span');
+		element.textContent = ' > ';
+		breadcrumbs.appendChild(element);
+
+		element = document.createElement('span');
+		element.style.color = '#F089B2';
+		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
+		element.innerHTML = 'Expected Level: <span id="estimated_end_level">0</span>, Seconds Per Level <span id="avg_completion_rate">0</span>';
+		breadcrumbs.appendChild(element);
+
+		element = document.createElement('span');
+		element.textContent = ' > ';
+		breadcrumbs.appendChild(element);
+
+		element = document.createElement('span');
+		element.style.color = '#ACA5F2';
+		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
+		element.innerHTML = 'Remaining Time: <span id="remaining_time">0 Seconds</span>.';
+		breadcrumbs.appendChild(element);
+
+		updateStats();
+		setTimeout(function() { updateStats(); }, 10000);
+
 		if(typeof GM_info != 'undefined') {
 			element = document.createElement('span');
 			element.style.float = 'right';
 			element.style.color = '#D4E157';
 			element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
-			element.textContent = GM_info.script.name + ' v' + GM_info.script.version;
+			element.innerHTML = '<a href="'+GM_info.namespace+'">'+GM_info.script.name + ' v' + GM_info.script.version+'</a>';
 			breadcrumbs.appendChild(element);
 		}
 	}
+
 }
 
 function addGlobalStyle(css) {
