@@ -1313,6 +1313,8 @@ function addExtraUI() {
 	//Add in player count for current room
 	var old = $J(".title_activity").html();
 	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
+
+	customCSS();
 }
 
 function addCustomButtons() {
@@ -1336,22 +1338,22 @@ function addCustomButtons() {
 	//Automator buttons
 	$J(".game_options").after('<div class="game_options" id="auto_options"></div>'); // background
 
-	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn" style="display:inline-block;margin-left:6px"><span>Disable AutoClicker</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;margin-left:6px"><span>AutoClicker</span><br /><span class="status">Enabled</span></span>');
 	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
 	
-	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Target Swap</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Target Swap</span><br /><span class="status">Enabled</span></span>');
 	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
 	
-	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Ability/Item Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Ability/Item Use</span><br /><span class="status">Enabled</span></span>');
 	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Auto Consumable Use</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Auto Consumable Use</span><br /><span class="status">Enabled</span></span>');
 	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
 	
-	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn" style="display:inline-block;"><span>Disable Upgrader</span></span>');
+	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Upgrader</span><br /><span class="status">Enabled</span></span>');
 	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
 	
-	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn" style="display:inline-block;"><span>Enable Particle Spam</span></span>');
+	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn toggle_btn disabled" style="display:inline-block;"><span>Particle Spam</span><br /><span class="status">Disabled</span></span>');
 	$J("#toggleSpammerBtn").click (toggleSpammer);
 
 	// Append gameid to breadcrumbs
@@ -1369,6 +1371,23 @@ function addCustomButtons() {
 		breadcrumbs.appendChild(element);
 	}
 }
+
+function addGlobalStyle(css) {
+    $J('head').append('<style>'+css+'</style>');
+}
+
+function customCSS() {
+	addGlobalStyle(".game_options .toggle_btn { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px 0px;cursor: pointer;width: 150px;height: 21px;}");
+	addGlobalStyle(".game_options .toggle_btn.enabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -56px;cursor: pointer;height: 21px;}");
+	addGlobalStyle(".game_options .toggle_btn.disabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -112px;cursor: pointer;height: 21px; }");
+
+	addGlobalStyle(".game_options .toggle_btn:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-repeat: no-repeat;background-position: -150px 0px;color: #fff;}");
+	addGlobalStyle(".game_options .toggle_btn.enabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -56px;color: #fff; }");
+	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
+
+	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
+}
+
 
 function toggleSFX() {
 	var disable = WebStorage.GetLocal('minigame_mute');
@@ -1416,54 +1435,66 @@ function updateSoundBtnText() {
 	$J("#toggleAllSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" All Sound</span>");
 }
 
+function toggleAutoClass(id, isOn) {
+	if (isOn) {
+		$J(id).addClass("enabled");
+		$J(id).removeClass("disabled");
+		$J(id+' .status').html('Enabled');
+	} else {
+		$J(id).removeClass("enabled");
+		$J(id).addClass("disabled");
+		$J(id+' .status').html('Disabled');
+	}
+}
+
 function toggleAutoClicker() {
 	if(autoClicker) {
 		stopAutoClicker();
-		$J("#toggleAutoClickerBtn").html("<span>Enable AutoClicker</span>");
+		toggleAutoClass('#toggleAutoClickerBtn', false);
 	}
 	else {
 		startAutoClicker();
-		$J("#toggleAutoClickerBtn").html("<span>Disable AutoClicker</span>");
+		toggleAutoClass('#toggleAutoClickerBtn', true);
 	}
 }
 function toggleAutoTargetSwapper() {
 	if(autoTargetSwapper) {
 		stopAutoTargetSwapper();
-		$J("#toggleAutoTargetSwapperBtn").html("<span>Enable Target Swap</span>");
+		toggleAutoClass('#toggleAutoTargetSwapperBtn', false);
 	}
 	else {
 		startAutoTargetSwapper();
-		$J("#toggleAutoTargetSwapperBtn").html("<span>Disable Target Swap</span>");
+		toggleAutoClass('#toggleAutoTargetSwapperBtn', true);
 	}
 }
 function toggleAutoAbilityUser(){
 	if(autoAbilityUser) {
 		stopAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Enable Ability/Item</span>");
+		toggleAutoClass('#toggleAutoAbilityUserBtn', false);
 	}
 	else {
 		startAutoAbilityUser();
-		$J("#toggleAutoAbilityUserBtn").html("<span>Disable Ability/Item</span>");
+		toggleAutoClass('#toggleAutoAbilityUserBtn', true);
 	}
 }
 function toggleAutoItemUser(){
 	if(autoUseConsumables) {
 		stopAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Enable Auto Consumable Use</span>");
+		toggleAutoClass('#toggleAutoItemUserBtn', false);
 	}
 	else {
 		startAutoItemUser();
-		$J("#toggleAutoItemUserBtn").html("<span>Disable Auto Consumable Use</span>");
+		toggleAutoClass('#toggleAutoItemUserBtn', true);
 	}
 }
 function toggleAutoUpgradeManager(){
 	if(autoUpgradeManager) {
 		stopAutoUpgradeManager();
-		$J("#toggleAutoUpgradeBtn").html("<span>Enable Upgrader</span>");
+		toggleAutoClass('#toggleAutoUpgradeBtn', false);
 	}
 	else {
 		startAutoUpgradeManager();
-		$J("#toggleAutoUpgradeBtn").html("<span>Disable Upgrader</span>");
+		toggleAutoClass('#toggleAutoUpgradeBtn', true);
 	}
 }
 

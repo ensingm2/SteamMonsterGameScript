@@ -66,8 +66,8 @@ function runMaster()
 	};
 	
 	var tgt = $J('#toggleAllSoundBtn');
-	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(tgt).click(spawnSlaves).text('Spawn Slaves').css(spacerStyle);
-	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).text('Kill Slaves');
+	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn').addClass('toggle_btn').insertAfter(tgt).click(spawnSlaves).html('<span>Spawn</span><br /><span>Slaves</span>').css(spacerStyle);
+	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn').addClass('toggle_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).html('<span>Kill</span><br /><span>Slaves</span>');
 	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
 
 	$J('#slaveCounter').css(counterStyle);
