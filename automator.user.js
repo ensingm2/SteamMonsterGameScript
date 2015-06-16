@@ -1454,12 +1454,6 @@ var startAll = setInterval(function() {
 				this.m_Game.m_rgPlayerData.loot = [];
 			}
 		};
-		
-		// expand list of active abilities on hover to show all of them
-		var abilities_extra_styles = document.createElement('style');
-		abilities_extra_styles.type = 'text/css';
-		abilities_extra_styles.textContent = '#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover + #activitylog {margin-top:97px} #activitylog {margin-top: 29px}';
-		document.getElementsByTagName('head')[0].appendChild(abilities_extra_styles);
 
 		//Start leaderboard (if user is running userscript)
 		if(typeof unsafeWindow != 'undefined')
@@ -1720,6 +1714,11 @@ function customCSS() {
 
 	addGlobalStyle(".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;}");
 	addGlobalStyle(".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;}");
+
+	// expand list of active abilities on hover to show all of them
+	addGlobalStyle("#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover ~ #activitylog {margin-top:97px} #activitylog {margin-top: 29px}");
+
+	addGlobalStyle("#leaderboard_wrapper {overflow: hidden; height: 360px; width: 261px; position: relative; margin: 50px 0px 0px 5px; padding: 5px;} #activeinlanecontainer:hover ~ #leaderboard_wrapper {margin-top: 118px}");
 }
 
 function updateToggle(id, enabled) {
@@ -1809,13 +1808,7 @@ function toggleSpammer() {
 function initLeaderboard() {
     var container = document.createElement('div');
     container.id = 'leaderboard_wrapper';
-    container.style.overflow = "hidden";
-    container.style.height = "360px";
-    container.style.width = "261px";
     container.style.display = "none";
-    container.style.position = "relative";
-    container.style.margin =  "50px 0 0 5px";
-    container.style.padding = "5px";
 
     document.getElementById('col_right').appendChild(container);
 
