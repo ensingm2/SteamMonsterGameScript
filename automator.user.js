@@ -1,13 +1,14 @@
 // ==UserScript== 
-// @name [esingm2] Steam Monster Game Script
+// @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.04
+// @version 2.05
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_98
+// @grant none
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
