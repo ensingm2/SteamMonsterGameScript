@@ -36,6 +36,10 @@ function runMaster()
 		WebStorage.SetLocal('minigame_mutemusic', true);
 		g_AudioManager.m_eleMusic.pause();
 	
+	
+		//Set the local variable (for restarts)
+		WebStorage.SetLocal('minigame_slaveCount', cnt);
+		
 		for(var i=0;i<cnt;i++)
 			setTimeout(spawnSlave, i * slaveDelayBetweenSpawns);
 	}
@@ -48,6 +52,9 @@ function runMaster()
 				toKill.close();
 		}
 		$J('.slaveWindowCount').text(slavesList.length);
+		
+		//Delete the local variable
+		WebStorage.SetLocal('minigame_slaveCount', 0);
 	}
 	
 	var cont = $J('<div>').addClass('slaveManager');
@@ -71,6 +78,11 @@ function runMaster()
 	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
 
 	$J('#slaveCounter').css(counterStyle);
+	
+	var autoOpenSlaveCount = WebStorage.GetLocal('minigame_slaveCount');
+	if(autoOpenSlaves !== null)
+		spawnSlaves(autoOpenSlaveCount);
+	
 }
 function runSlave()
 {
