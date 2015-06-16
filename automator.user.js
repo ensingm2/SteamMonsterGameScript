@@ -2,7 +2,7 @@
 // @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.02
+// @version 2.03
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -33,6 +33,13 @@ var nukeBossesAfterLevel = 1000;
 var farmGoldOnBossesLevelDiff = 200;
 var useNukeOnBossAbovePercent = 25;
 
+//Controls to sync us up with other scripts 
+var CONTROL = {
+	speedThreshold: 5000, // use gold rain every boss round after here
+	rainingRounds: 250, // use gold rain every x rounds
+	disableGoldRainLevels: 500 // min level to use gold rain on
+};
+
 //item use variables
 var useMedicsAtPercent = 40;
 var useMedicsAtLanePercent = 70;
@@ -58,6 +65,10 @@ var userMaxElementMultiiplier = 1;
 var swapReason;
 var lastLootLevel = 0;
 var lastLootCache = [];
+
+var CONTROLS = {
+
+};
 
 var ABILITIES = {
 	FIRE_WEAPON: 1,
@@ -356,7 +367,8 @@ function startAutoAbilityUser() {
 		var target = getTarget();
 
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
-
+		var lvl = getGameLevel();
+		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
 			if (hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) {
@@ -494,7 +506,7 @@ function startAutoAbilityUser() {
 			//Use cases for bosses
 			else if (!nukeBosses && isBoss) {
 				//Raining Gold
-				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {
+				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30 && lvl > CONTROL.disableGoldRainLevels && (lvl <= CONTROL.speedThreshold || lvl % CONTROL.rainingRounds === 0)) {
 					if (debug)
 						console.log('Using Raining Gold on boss.');
 
@@ -2204,4 +2216,8 @@ function getUserName() {
 		return g_Minigame.m_CurrentScene.m_rgPlayerNameCache[getAccountId(g_steamID)];
 	}
 	return "Unknown";
+}
+
+function getGameLevel() {
+	return g_Minigame.m_CurrentScene.m_rgGameData.level + 1;
 }
