@@ -1467,7 +1467,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({
 		"position": "absolute",
-		"background": "url('" + getUploadedFilePath("master/img/settings.png") + "')",
+		"background": "url('" + getUploadedFilePath("spamStatBoosters/img/settings.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "300px",
@@ -1616,6 +1616,9 @@ function addExtraUI() {
 	//Other UI elements
 	customCSS();
 	addCustomButtons();
+	
+	// Put the page footer behind settings
+	$J("#footer").css('z-index', -1);
 }
 
 function addCustomButtons() {
