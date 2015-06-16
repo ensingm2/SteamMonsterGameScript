@@ -2,12 +2,12 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.05
+// @version 2.06
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_98
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=2_06
 // @grant none
 // ==/UserScript==
 
@@ -28,6 +28,7 @@ var upgradeManagerFreq = 5000;
 var slowRenderingFreq = 1000;
 var autoBuyAbilities = false;
 var refreshDelay = 3600000; //Page refresh every 60min
+var spamStatBoosters = true;
 
 // Boss Nuke Variables
 var nukeBossesAfterLevel = 1000;
@@ -193,6 +194,7 @@ if (typeof unsafeWindow != 'undefined') {
 	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
 	unsafeWindow.autoUseConsumables = autoUseConsumables;
 	unsafeWindow.useResurrectToSaveCount = useResurrectToSaveCount;
+	unsafeWindow.spamStatBoosters = spamStatBoosters;
 
 	//Slave window variables
 	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
@@ -264,6 +266,7 @@ if (typeof unsafeWindow != 'undefined') {
 		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
 		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
 		useResurrectToSaveCount = unsafeWindow.useResurrectToSaveCount;
+		spamStatBoosters = unsafeWindow.spamStatBoosters;
 
 		//Boss nuke vars
 		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
@@ -365,6 +368,17 @@ function startAutoAbilityUser() {
 
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		var lvl = getGameLevel();
+		
+		// Spam permanent stat boosters if set
+		if(spamStatBoosters){
+			// Crit
+			if(getAbilityItemQuantity(18))
+				castAbility(18);
+			
+			// Pumped Up
+			if(getAbilityItemQuantity(19))
+				castAbility(19);
+		}
 		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
@@ -985,7 +999,8 @@ function startAutoUpgradeManager() {
 		var dpc = scene.m_rgPlayerTechTree.damage_per_click;
 		var base_dpc = scene.m_rgTuningData.player.damage_per_click;
 		var critmult = scene.m_rgPlayerTechTree.damage_multiplier_crit;
-		var critrate = Math.min(scene.m_rgPlayerTechTree.crit_percentage, 1);
+		var unusedCritChance = getAbilityItemQuantity(18) * 0.01; // Take unused Crit items into account, since they will probably be applied soon
+		var critrate = Math.min(scene.m_rgPlayerTechTree.crit_percentage + unusedCritChance, 1);
 		var elementals = getElementals();
 		var elementalCoefficient = getElementalCoefficient(elementals);
 
@@ -1452,10 +1467,10 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({
 		"position": "absolute",
-		"background": "url('" + getUploadedFilePath("master/img/settings.png") + "')",
+		"background": "url('" + getUploadedFilePath("master/img/settings.png?v2") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
-		"height": "250px",
+		"height": "300px",
 		"width": "500px",
 		"margin-top": "2px",
 		"bottom": "-65px",
@@ -1472,6 +1487,7 @@ function addExtraUI() {
 	$J("#settings").append('<div id="autoabilityuse_toggle" class="toggle"><span class="value enabled"></span><span class="title">Ability Use: </span></div>');
 	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
 	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
+	$J("#settings").append('<div id="spamStatBoosters_toggle" class="toggle"><span class="value enabled"></span><span class="title">Spam StatBoosts: </span></div>');
 	$J("#settings").append('<div id="fps_toggle" class="toggle"><span class="value disabled"></span><span class="title">FPS Limiter: </span></div>');
 	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
 	$J("#sfx_toggle").click(function(e) {
@@ -1509,6 +1525,11 @@ function addExtraUI() {
 	$J("#particles_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleSpammer()
+	});
+	
+	$J("#spamStatBoosters_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleSpamStatBoosters();
 	});
 
 	// We force update the icon once to sync with active settings
@@ -1595,6 +1616,9 @@ function addExtraUI() {
 	//Other UI elements
 	customCSS();
 	addCustomButtons();
+	
+	// Put the page footer behind settings
+	$J("#footer").css('z-index', -1);
 }
 
 function addCustomButtons() {
@@ -1789,6 +1813,11 @@ function toggleFPS() {
 		startFPSThrottle();
 	}
 	updateToggle("fps", (fpsThrottle === null));
+}
+
+function toggleSpamStatBoosters() {
+	spamStatBoosters = !spamStatBoosters;
+	updateToggle("spamStatBoosters", !spamStatBoosters);
 }
 
 function spamNoClick() {
