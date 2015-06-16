@@ -1501,7 +1501,7 @@ function addExtraUI() {
 
 	//Add in IRC link
 	$J(".tv_ui").css({"background": "url('" + getUploadedFilePath("master/img/game_frame_tv.png") + "')"});
-	$J("#info_block").append('<div id="irc_join"></div>');
+	$J("#info_block").append('<div id="irc_join" style="height: 30px"></div>');
 	$J("#irc_join").click(function(e) {
 		e.stopPropagation();
         window.open('http://chat.mibbit.com/?channel=%23SMG_'+g_GameID+'&server=irc.mibbit.net&nick='+$J("#account_pulldown").html(),'_blank'); // Cant seem to find a local storing in js of the players username, so lets just take it from the dropdown
