@@ -1619,7 +1619,7 @@ function toggleSFX(shouldToggle) {
 }
 
 function toggleMusic(shouldToggle) {
-	g_AudioManager.ToggleMusic();
+	if (shouldToggle)) { g_AudioManager.ToggleMusic(); }
 	updateToggle("music", WebStorage.GetLocal('minigame_mutemusic'));
 }
 
