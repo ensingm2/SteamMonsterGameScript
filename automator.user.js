@@ -2,15 +2,17 @@
 // @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.97
+// @version 1.98
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_95
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_98
 // ==/UserScript==
+
 // Compiled and customized by https://github.com/ensingm2
 // See a (hopefully) full list of contributors over at https://github.com/ensingm2/SteamMonsterGameScript#contributors
+
 // Custom variables
 var debug = false;
 var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
@@ -1394,7 +1396,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({
 		"position": "absolute",
-		"background": "url('" + getUploadedFilePath("img/settings.png") + "')",
+		"background": "url('" + getUploadedFilePath("master/img/settings.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
@@ -1464,7 +1466,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="statistics"></div>');
 	$J('#statistics').css({
 		"position": "absolute",
-		"background": "url('" + getUploadedFilePath("img/stats.png") + "')",
+		"background": "url('" + getUploadedFilePath("master/img/stats.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
@@ -1620,10 +1622,10 @@ function customCSS() {
 	css += "#settings .toggle { position: relative; margin-top: 10px; width: 30%; height: 32px; z-index: 0; float: left; margin-left: 10px;} ";
 	css += "#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;} ";
 	css += "#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;} ";
-	css += "#settings span.value.enabled { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; } ";
-	css += "#settings span.value.enabled:hover { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; } ";
-	css += "#settings span.value.disabled { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; } ";
-	css += "#settings span.value.disabled:hover { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; } ";
+	css += "#settings span.value.enabled { background: url('" + getUploadedFilePath("master/img/icons.png") + "'); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; } ";
+	css += "#settings span.value.enabled:hover { background: url('" + getUploadedFilePath("master/img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; } ";
+	css += "#settings span.value.disabled { background: url('" + getUploadedFilePath("master/img/icons.png") + "'); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; } ";
+	css += "#settings span.value.disabled:hover { background: url('" + getUploadedFilePath("master/img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; } ";
 
 	css += "#statistics .stat { position: relative; margin-top: 5px; width: 40%; height: 32px; z-index: 0; margin-left: 25px; float:left;} ";
 	css += "#statistics span.value { position: relative; float: right; margin-right: 30px; text-align: right; width: 100%;} ";
