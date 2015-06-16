@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.91
+// @version 1.92
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1489,15 +1489,17 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({ 
 		"position": "absolute", 
-		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
+		// "background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
+		"background": "url('http://i.imgur.com/Eg0ARKA.png')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
-		"height": "500px",
-		"width": "250px",
+		"height": "250px",
+		"width": "500px",
 		"margin-top": "2px",
-		"top": "125px",
-		"right": "-50px",
-		"padding-top": "15px"
+		"bottom": "-65px",
+		"right": "10px",
+		"padding-top": "15px",
+  		"padding-left": "12px"
 	});
 	
 	//Add replacement settings options
@@ -1525,22 +1527,24 @@ function addExtraUI() {
 	// Slide the settings panel out on click
 	$J("#settings").click (function() {
 		var op = $J("#settings");
-		op.animate({ right: parseInt(op.css('right') , 10) == -50 ? -op.outerWidth() : -50 });
+		op.animate({ bottom: parseInt(op.css('bottom') , 10) == -65 ? -op.outerHeight() : -65 });
 	});
 
 	//Statistics
 	$J("#gamecontainer").append('<div id="statistics"></div>');
 	$J('#statistics').css({ 
 		"position": "absolute", 
-		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
+		// "background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
+		"background": "url('http://i.imgur.com/HS0YV3D.png')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
-		"height": "500px",
-		"width": "250px",
+		"height": "250px",
+		"width": "500px",
 		"margin-top": "2px",
-		"top": "125px",
-		"left": "-50px",
-		"padding-top": "15px"
+		"bottom": "-65px",
+		"left": "10px",
+		"padding-top": "15px",
+		"padding-left": "25px"
 	});
 
 	//Add in stats
@@ -1553,6 +1557,8 @@ function addExtraUI() {
 	$J("#statistics").append('<div id="stat_elemental_dps" class="stat"><span class="title">Elemental DPS: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_boss_loot" class="stat"><span class="title">Boss Loot Chance: </span><span class="value">0</span></div>');
 
+	$J("#footer_spacer").css({"height": "175px"});
+	$J("canvas").css({"position": "relative","z-index":"5"});
 	//Update stats
 	setInterval(function() {
 		function getElementalMul() {
@@ -1570,7 +1576,7 @@ function addExtraUI() {
 
 	$J("#statistics").click (function() {
 		var op = $J("#statistics");
-		op.animate({ left: parseInt(op.css('left') , 10) == -50 ? -op.outerWidth() : -50 });
+		op.animate({ bottom: parseInt(op.css('bottom') , 10) == -65 ? -op.outerHeight() : -65 });
 	});
 
 	//Other UI elements
@@ -1600,7 +1606,7 @@ function addCustomButtons() {
 		"float": "right",
 		"margin-right": "7px",
 		"padding-top": "14px",
-		"cursor": "pointer"
+		"cursor": "pointer",
 	});
 	$J('<div class="leave_game_helper">You can safely close the game or leave this screen at any time—you will continue collecting gold and damaging monsters even while away from your computer. Check back occasionally to see how you\'re doing and use in-game gold to purchase upgrades.</div>').insertAfter("#settings");
 	$J(".leave_game_helper").css({"left": "150px", "top": "initial", "bottom": "-20px",  "z-index": "12"});
@@ -1673,7 +1679,7 @@ function customCSS() {
 	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
 
 	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
-	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10; }");
+	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 30%; height: 32px; z-index: 0; float: left; margin-left: 10px;}");
 	addGlobalStyle("#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;}");
 	addGlobalStyle("#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;}");
 	addGlobalStyle("#settings span.value.enabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
@@ -1681,7 +1687,7 @@ function customCSS() {
 	addGlobalStyle("#settings span.value.disabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
 	addGlobalStyle("#settings span.value.disabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
 	
-	addGlobalStyle("#statistics .stat { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10; margin-left: 70px; margin-bottom: 10px;}");
+	addGlobalStyle("#statistics .stat { position: relative; margin-top: 5px; width: 40%; height: 32px; z-index: 0; margin-left: 25px; float:left;}");
 	addGlobalStyle("#statistics span.value { position: relative; float: right; margin-right: 30px; text-align: right; width: 100%;}");
 	addGlobalStyle("#statistics span.title { position: relative; width: 100%; font-weight: bold;}");
 
