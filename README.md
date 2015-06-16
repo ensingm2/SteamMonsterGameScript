@@ -67,6 +67,7 @@ Feel free to edit any variables to suit your needs
 - **useRainingGoldAbovePercent (default: 75):** Above this % percentage threshold, Raining Gold will be used on a targeted boss
 - **useLikeNewAboveCooldown (default: 14220000):** If total non-item ability cooldown passes this threshold (in milliseconds) and one is available, a Like New will be used.
 - **useResurrectToSaveCount (default: 150):** Will use resurrect if over this number of players is dead in your lane.
+- **spamStatBoosters (default: true):** If set, will automatically use Crit and Pumped up whenever they become available.
 
 ###Slave Window Settings (NOT CURRENTLY ACCESSABLE)
 - **slaveWindowUICleanup (default: true):** Whether or not slave windows will have all graphics removed in order to reduce load.
