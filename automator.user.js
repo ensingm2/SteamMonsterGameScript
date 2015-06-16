@@ -52,6 +52,7 @@ var useRainingGoldAbovePercent = 50;
 var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
 var useResurrectToSaveCount = 150; // Use revive to save 150 people
 var minutesBufferForConsumableDump = 10;
+var survivalTime = 30; // check how long we would survive on a level and prioritize armour if needed
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -753,10 +754,6 @@ function startAutoUpgradeManager() {
 	/************
 	 * SETTINGS *
 	 ************/
-	// On each level, we check for the lane that has the highest enemy DPS.
-	// Based on that DPS, if we would not be able to survive more than
-	// `survivalTime` seconds, we should buy some armor.
-	var survivalTime = 30;
 
 	// Should we highlight the item we're going for next?
 	var highlightNext = true;
@@ -1500,6 +1497,7 @@ function addExtraUI() {
 	$J("#settings").append('<div id="spamStatBoosters_toggle" class="toggle"><span class="value enabled"></span><span class="title">Spam StatBoosts: </span></div>');
 	$J("#settings").append('<div id="fps_toggle" class="toggle"><span class="value disabled"></span><span class="title">FPS Limiter: </span></div>');
 	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
+	$J("#settings").append('<div id="survival_time_toggle" class="toggle"><span class="title" style="top: 0px;">Survival Time: <span id="increase_survival" class="arrow"> ^ </span></span><span class="title" style="top: 0px;"><span id="survival_time">30</span> seconds<span id="decrease_survival" class="arrow"> v </span></span></div>');
 	$J("#sfx_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleSFX(true)
@@ -1541,7 +1539,17 @@ function addExtraUI() {
 		e.stopPropagation();
 		toggleSpamStatBoosters();
 	});
-
+	$J("#increase_survival").click(function(e) {
+		e.stopPropagation();
+		survivalTime += 10;
+		$J("#survival_time").html(survivalTime);
+	});
+	$J("#decrease_survival").click(function(e) {
+		e.stopPropagation();
+		if (survivalTime - 10 <= 0) { return; }
+		survivalTime -= 10;
+		$J("#survival_time").html(survivalTime);
+	});
 	// We force update the icon once to sync with active settings
 	toggleSFX(false);
 	toggleMusic(false);
@@ -1743,7 +1751,7 @@ function customCSS() {
 	css += "#leaderboard_wrapper {overflow: hidden; height: 360px; width: 261px; position: relative; margin: 50px 0px 0px 5px; padding: 5px;} #activeinlanecontainer:hover ~ #leaderboard_wrapper {margin-top: 118px}";
 	css += "#info_hp { position:relative; top:28px; text-align: center;}";
 	css += "#irc_join {position: relative; width: 175px; height: 30px; top: -50px; left: 30px; cursor: pointer;}";
-
+	css += ".arrow {font-weight: bold; background-color: #bebebe; width: 20px; color: #434340; border-radius: 7px; float: right; text-align: center; margin-top: -2px; margin-left: 10px; }";
 	$J('head').append('<style>' + css + '</style>');
 }
 
