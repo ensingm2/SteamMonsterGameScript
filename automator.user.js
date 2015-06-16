@@ -1885,7 +1885,7 @@ function getLeaderboard() {
             leaderboard.sort(function(a, b) { 
                 return b.level - a.level;
             });
-            for each (var room in leaderboard){
+            for (var room in leaderboard){
                 drawLeaderboardRoom(room);
             }
         }
