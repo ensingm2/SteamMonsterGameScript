@@ -2,12 +2,12 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.82
+// @version 1.83
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_82
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_83
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -1367,8 +1367,17 @@ var startAll = setInterval(function() {
 			}
 		};
 
-		var refresher = setTimeout(function() {
-			location.reload();
+		setTimeout(function() {
+			//Try to reload every 15s
+			var reloader = setInterval(function(){
+				//No raining gold, treasure mob, boss, or miniboss
+				var target = getTarget();
+				var reload = !currentLaneHasAbility(17) && target.m_data.type != 4 && target.m_data.type != 2 && target.m_data.type != 3 && target.m_data.type !== false;
+				if(reload){
+					clearInterval(reloader);
+					location.reload();
+				}
+			}, 15000);
 		}, refreshDelay);
 		
 		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
