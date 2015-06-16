@@ -1389,6 +1389,14 @@ var startAll = setInterval(function() {
 			}
 		};
 
+		//Keep Playing while minimized - http://www.reddit.com/r/SteamMonsterGame/comments/39yng9/keep_autoclicking_after_minimizingchanging_tabs/
+		setInterval(function(p) {
+		    return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
+		        function() {
+		            p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
+		        }
+		}(CSceneGame.prototype), 1e3);
+
 		setTimeout(function() {
 			//Try to reload every 15s
 			var reloader = setInterval(function(){
