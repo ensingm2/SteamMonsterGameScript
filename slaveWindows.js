@@ -9,7 +9,7 @@ var slaveDelayBetweenSpawns = 1000; // Delay (in milliseconds) between when each
 
 function runMaster()
 {
-	window.unload = function(){ killAllSlaves(); };
+	window.onbeforeunload = function(){ killAllSlaves(); };
 	
 	var slavesList = window.slaves = [];
 	
