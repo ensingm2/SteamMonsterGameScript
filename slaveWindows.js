@@ -45,11 +45,15 @@ function runMaster()
 	}
 	
 	function killAllSlaves(deleteAutoSlaveCount){
+		var newSlaveCount = 0;
 		while(slavesList.length) {
 			var toKill = slavesList.pop();
 			
-			if(toKill)
+			if(toKill){
 				toKill.close();
+				//Only "save" slaves that haven't been manually closed.
+				newSlaveCount++;
+			}
 		}
 		$J('.slaveWindowCount').text(slavesList.length);
 		
@@ -57,6 +61,8 @@ function runMaster()
 			//Delete the local variable
 			WebStorage.SetLocal('minigame_slaveCount', 0);
 		}
+		else
+			WebStorage.SetLocal('minigame_slaveCount', newSlaveCount);
 	}
 	
 	var cont = $J('<div>').addClass('slaveManager');
