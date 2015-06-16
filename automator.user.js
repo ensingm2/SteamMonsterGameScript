@@ -57,6 +57,36 @@ var swapReason;
 var lastLootLevel = 0;
 var lastLootCache = [];
 
+var ABILITIES = {
+	FIRE_WEAPON: 1,
+	CHANGE_LANE: 2,
+	RESPAWN: 3,
+	CHANGE_TARGET: 4,
+	MORALE_BOOSTER: 5,
+	GOOD_LUCK_CHARMS: 6,
+	MEDICS: 7,
+	METAL_DETECTOR: 8,
+	DECREASE_COOLDOWNS: 9,
+	TACTICAL_NUKE: 10,
+	CLUSTER_BOMB: 11,
+	NAPALM: 12,
+	RESURRECTION: 13,
+	CRIPPLE_SPAWNER: 14,
+	CRIPPLE_MONSTER: 15,
+	MAX_ELEMENTAL_DAMAGE: 16,
+	RAINING_GOLD: 17,
+	CRIT: 18,
+	PUMPED_UP: 19,
+	THROW_MONEY_AT_SCREEN: 20,
+	GOD_MODE: 21,
+	TREASURE: 22,
+	STEAL_HEALTH: 23,
+	REFLECT_DAMAGE: 24,
+	FEELING_LUCKY: 25,
+	WORMHOLE: 26,
+	LIKE_NEW: 27
+};
+
 // ================ STARTER FUNCTIONS ================
 function startAutoClicker() {
 	if(autoClicker) {
@@ -648,17 +678,17 @@ function startAutoAbilityUser() {
 		
 
 		// Wormholes -- use before wasting items on lanes
-		if (hasAbility(26) && autoUseConsumables) {
+		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
 			var nearEndWithTimeForWormholes = function() {
 				var time = new Date();
 				var hrs = time.getUTCHours();
 				var mins = time.getUTCMinutes();
-				return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(26) + 5)); // give a little extra time to clear the last levels
+				return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(ABILITIES.WORMHOLE) + 5)); // give a little extra time to clear the last levels
 			};
 			if (nearEndWithTimeForWormholes()) {
 				if(debug)
 					console.log("Casting Wormhole! Allons-y!!!");
-				castAbility(26);
+				castAbility(ABILITIES.WORMHOLE);
 			}
 		}
 
@@ -679,27 +709,27 @@ function startAutoAbilityUser() {
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
 			if((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (isBoss && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
-				var moraleBoosterReady = hasAbility(5);
-				var goodLuckCharmReady = hasAbility(6);
-				var critReady = (hasAbility(18) && autoUseConsumables);
+				var moraleBoosterReady = hasAbility(ABILITIES.MORALE_BOOSTER);
+				var goodLuckCharmReady = hasAbility(ABILITIES.GOOD_LUCK_CHARMS);
+				var critReady = (hasAbility(ABILITIES.CRIT) && autoUseConsumables);
 				
 				// Only use items on targets that are spawners and have nearly full health
-				if(targetPercentHPRemaining >= 90  && autoUseConsumables && (hasAbility(14) || hasAbility(15))) {
+				if(targetPercentHPRemaining >= 90  && autoUseConsumables && (hasAbility(ABILITIES.CRIPPLE_SPAWNER) || hasAbility(ABILITIES.CRIPPLE_MONSTER))) {
 					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
-					if(hasAbility(14)){
-						castAbility(14);
-					}else if(hasAbility(15)){
-						castAbility(15);
+					if(hasAbility(ABILITIES.CRIPPLE_SPAWNER)){
+						castAbility(ABILITIES.CRIPPLE_SPAWNER);
+					}else if(hasAbility(ABILITIES.CRIPPLE_MONSTER)){
+						castAbility(ABILITIES.CRIPPLE_MONSTER);
 					}
 				}
 				else if(moraleBoosterReady || critReady || goodLuckCharmReady) {
 					// If we have both we want to combo them
-					var moraleBoosterUnlocked = abilityIsUnlocked(5);
-					var goodLuckCharmUnlocked = abilityIsUnlocked(6);
+					var moraleBoosterUnlocked = abilityIsUnlocked(ABILITIES.MORALE_BOOSTER);
+					var goodLuckCharmUnlocked = abilityIsUnlocked(ABILITIES.GOOD_LUCK_CHARMS);
 
 					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
 					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && (goodLuckCharmReady || !goodLuckCharmUnlocked))) {
-						var currentLaneHasCooldown = currentLaneHasAbility(9);
+						var currentLaneHasCooldown = currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS);
 						// Only use on targets that are spawners and have nearly full health
 						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
 							// Combo these with Decrease Cooldowns ability
@@ -707,15 +737,15 @@ function startAutoAbilityUser() {
 							// If Decreased Cooldowns will be available soon, wait
 							if(
 							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
-							   hasAbility(9) ||			 // If we have the ability ready
-							   !abilityIsUnlocked(9) ||  // if we haven't unlocked the ability yet, or
-							   (abilityCooldown(9) > 60) // if cooldown > 60
+							   hasAbility(ABILITIES.DECREASE_COOLDOWNS) ||			 // If we have the ability ready
+							   !abilityIsUnlocked(ABILITIES.DECREASE_COOLDOWNS) ||  // if we haven't unlocked the ability yet, or
+							   (abilityCooldown(ABILITIES.DECREASE_COOLDOWNS) > 60) // if cooldown > 60
 							  ) {
-								if(hasAbility(9) && !currentLaneHasAbility(9)) {
+								if(hasAbility(ABILITIES.DECREASE_COOLDOWNS) && !currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS)) {
 									// Other abilities won't benifit if used at the same time
 									if(debug)
 										console.log('Triggering Decrease Cooldown!');
-									castAbility(9);
+									castAbility(ABILITIES.DECREASE_COOLDOWNS);
 								}
 								else {
 									// Use these abilities next pass
@@ -724,18 +754,18 @@ function startAutoAbilityUser() {
 									if(critReady) {
 										if(debug)
 											console.log("Using Crit!");
-										castAbility(18);
+										castAbility(ABILITIES.CRIT);
 									}
 									else if (moraleBoosterReady) {
 										if(debug)
 											console.log("Casting Morale Booster!");
-										castAbility(5);
+										castAbility(ABILITIES.MORALE_BOOSTER);
 									}
 									
 									if(goodLuckCharmReady) {
 										if(debug)
 											console.log("Casting Good Luck Charm!");
-										castAbility(6);
+										castAbility(ABILITIES.GOOD_LUCK_CHARMS);
 									}
 								}
 							}
@@ -744,49 +774,49 @@ function startAutoAbilityUser() {
 				}
 
 				// Tactical Nuke
-				if(hasAbility(10) && (targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent || (target.m_data.type == 2 && targetPercentHPRemaining >= useNukeOnBossAbovePercent))) {
+				if(hasAbility(ABILITIES.TACTICAL_NUKE) && (targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent || (target.m_data.type == 2 && targetPercentHPRemaining >= useNukeOnBossAbovePercent))) {
 					if(debug)
 						console.log('Nuclear launch detected.');
 					
-					castAbility(10);
+					castAbility(ABILITIES.TACTICAL_NUKE);
 				}
 
 		
 				// Napalm
-				else if(target.m_data.type === 0 && hasAbility(12) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
+				else if(target.m_data.type === 0 && hasAbility(ABILITIES.NAPALM) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
 				
 					if(debug)
 						console.log('Triggering napalm!');
 					
-					castAbility(12);
+					castAbility(ABILITIES.NAPALM);
 				}
 				
 				// Cluster Bomb
-				else if(target.m_data.type === 0 && hasAbility(11) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+				else if(target.m_data.type === 0 && hasAbility(ABILITIES.CLUSTER_BOMB) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
 					
 					if(debug)
 						console.log('Triggering cluster bomb!');
 					
-					castAbility(11);
+					castAbility(ABILITIES.CLUSTER_BOMB);
 				}
 
 				// Boss Nuke Rounds
 				if( isBoss ) {
 					
 					// Max Elemental Damage
-					if(hasAbility(16) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
+					if(hasAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
 						if(debug)
 							console.log('Using Max Elemental Damage on boss.');
 						
-						castAbility(16);
+						castAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE);
 					}
 					
 					// Reflect Damage
-					if(hasAbility(24) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
+					if(hasAbility(ABILITIES.REFLECT_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
 						if(debug)
 							console.log('Using Reflect Damage on boss.');
 						
-						castAbility(24);
+						castAbility(ABILITIES.REFLECT_DAMAGE);
 					}
 				}
 			}
@@ -794,29 +824,28 @@ function startAutoAbilityUser() {
 			//Use cases for bosses
 			else if(!nukeBosses && isBoss) {
 				//Raining Gold
-				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {
-					
+				if(hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {	
 					if(debug)
 						console.log('Using Raining Gold on boss.');
 					
-					castAbility(17);
+					castAbility(ABILITIES.RAINING_GOLD);
 				}
 			}
 			
 			
 			// Metal Detector
-			var  treasureReady = hasAbility(22) && autoUseConsumables;
+			var  treasureReady = hasAbility(ABILITIES.TREASURE) && autoUseConsumables;
 			if((isBoss || target.m_data.type == 4) && timeToTargetDeath < 10) {
-				if(hasAbility(8) || treasureReady) {
+				if(hasAbility(ABILITIES.METAL_DETECTOR) || treasureReady) {
 					if(treasureReady){
 						if(debug)
 							console.log('Using Metal Detector via Treasure.');
-						castAbility(22);
+						castAbility(ABILITIES.TREASURE);
 					}
 					else {
 						if(debug)
 							console.log('Using Metal Detector.');
-						castAbility(8);
+						castAbility(ABILITIES.METAL_DETECTOR);
 					}
 				}
 			}
@@ -843,41 +872,41 @@ function startAutoAbilityUser() {
 			}
 			
 			// Only use if there isn't already a Medics active?
-			var pumpedUpReady = hasAbility(19) && autoUseConsumables;
-			var stealHealthReady = hasAbility(23) && autoUseConsumables;
-			if((hasAbility(7) || pumpedUpReady) && currentLaneHasAbility(7) < 2) {
+			var pumpedUpReady = hasAbility(ABILITIES.PUMPED_UP) && autoUseConsumables;
+			var stealHealthReady = hasAbility(ABILITIES.STEAL_HEALTH) && autoUseConsumables;
+			if((hasAbility(ABILITIES.MEDICS) || pumpedUpReady) && currentLaneHasAbility(ABILITIES.MEDICS) < 2) {
 				
 				if(pumpedUpReady){
 					if(debug)
 						console.log("Using Medics via Pumped Up!");
-					castAbility(19);
+					castAbility(ABILITIES.PUMPED_UP);
 				}
 				else {
 					if(debug)
 						console.log("Using Medics!");
-					castAbility(7);
+					castAbility(ABILITIES.MEDICS);
 				}
 			}
 			else if(stealHealthReady && percentHPRemaining <= useMedicsAtPercent) {
 					if(debug)
 						console.log("Using Steal Health in place of Medics!");
-					castAbility(23);
+					castAbility(ABILITIES.STEAL_HEALTH);
 			}
 			else if(debug)
 				console.log("No medics to unleash!");
 		}
 		
 		// Resurrect
-		if(hasAbility(13) && autoUseConsumables) {
+		if(hasAbility(ABILITIES.RESURRECTION) && autoUseConsumables) {
 			if(currentLane.player_hp_buckets[0] >= useResurrectToSaveCount) {
 				if(debug)
 					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
-				castAbility(13);
+				castAbility(ABILITIES.RESURRECTION);
 			}
 		}
 		
 		// Like New
-		if(hasAbility(27) && autoUseConsumables) {
+		if(hasAbility(ABILITIES.LIKE_NEW) && autoUseConsumables) {
 			var totalCD = 0;
 			for(i=5; i <= 12; i++){
 				if(abilityIsUnlocked(i))
@@ -886,8 +915,8 @@ function startAutoAbilityUser() {
 				
 			if(totalCD * 1000 >= useLikeNewAboveCooldown) {
 				if(debug)
-					console.log('Using resurrection to save a total of ' + totalCD + ' seconds of cooldown.');
-				castAbility(27);
+					console.log('Using like new to save a total of ' + totalCD + ' seconds of cooldown.');
+				castAbility(ABILITIES.LIKE_NEW);
 			}
 		}
 			
@@ -993,7 +1022,7 @@ function disableAutoNukes() {
 // ================ HELPER FUNCTIONS ================
 function castAbility(abilityID) {
 	if(hasAbility(abilityID)) {
-		if(abilityID <= 12 && document.getElementById('ability_' + abilityID) !== null)
+		if(abilityID <= ABILITIES.NAPALM && document.getElementById('ability_' + abilityID) !== null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
 		else if(document.getElementById('abilityitem_' + abilityID) !== null)
 			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
@@ -1017,7 +1046,7 @@ function laneHasAbility(lane, abilityID) {
 }
 
 function abilityIsUnlocked(abilityID) {
-		if(abilityID <= 12)
+		if(abilityID <= ABILITIES.NAPALM)
 			return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
 		else
 			return getAbilityItemQuantity(abilityID) > 0;
@@ -1095,11 +1124,11 @@ function compareMobPriority(mobA, mobB) {
 	}
 	
 	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-	var aHasHealing = laneHasAbility(mobA.m_nLane, 7) || laneHasAbility(mobA.m_nLane, 23);
-	var bHasHealing = laneHasAbility(mobB.m_nLane, 7) || laneHasAbility(mobB.m_nLane, 23);
+	var aHasHealing = laneHasAbility(mobA.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobA.m_nLane, ABILITIES.STEAL_HEALTH);
+	var bHasHealing = laneHasAbility(mobB.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobB.m_nLane, ABILITIES.STEAL_HEALTH);
 
-	var aIsGold = laneHasAbility(mobA.m_nLane, 17);
-	var bIsGold = laneHasAbility(mobB.m_nLane, 17);
+	var aIsGold = laneHasAbility(mobA.m_nLane, ABILITIES.RAINING_GOLD);
+	var bIsGold = laneHasAbility(mobB.m_nLane, ABILITIES.RAINING_GOLD);
 	
 	var aTypePriority = getMobTypePriority(mobA);
 	var bTypePriority = getMobTypePriority(mobB);
@@ -1108,9 +1137,9 @@ function compareMobPriority(mobA, mobB) {
 	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
 
 	//check for Max Elemental Damage Ability
-	if(laneHasAbility(mobA.m_nLane, 16))
+	if(laneHasAbility(mobA.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
 		aElemMult = userMaxElementMultiiplier;
-	if(laneHasAbility(mobB.m_nLane, 16))
+	if(laneHasAbility(mobB.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
 		bElemMult = userMaxElementMultiiplier;
 	
 	var aHP = mobA.m_data.hp;
@@ -1187,19 +1216,14 @@ function addPointer() {
 	var w = 26;
 	var h = 49;
 
-
-	for( var y = 0; y < 4; y++)
-	{
-		for( var x = 0; x < 5; x++ )
-
-		{
+	for( var y = 0; y < 4; y++) {
+		for( var x = 0; x < 5; x++ ) {
 			g_Minigame.m_CurrentScene.m_rgFingerTextures.push( new PIXI.Texture( g_rgTextureCache.pointer.texture, {
 				x: x * w,
 				y: y * h,
 				width: w,
 				height: h
-			} )
-			);
+			}));
 		}
 	}
 
@@ -1395,14 +1419,14 @@ var startAll = setInterval(function() {
 		        function() {
 		            p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
 		        }
-		}(CSceneGame.prototype), 1e3);
+		}(CSceneGame.prototype), 1000);
 
 		setTimeout(function() {
 			//Try to reload every 15s
 			var reloader = setInterval(function(){
 				//No raining gold, treasure mob, boss, or miniboss
 				var target = getTarget();
-				var reload = !currentLaneHasAbility(17) && target.m_data.type != 4 && target.m_data.type != 2 && target.m_data.type != 3 && target.m_data.type !== false;
+				var reload = !currentLaneHasAbility(ABILITIES.RAINING_GOLD) && target.m_data.type != 4 && target.m_data.type != 2 && target.m_data.type != 3 && target.m_data.type !== false;
 				if(reload){
 					clearInterval(reloader);
 					location.reload();
