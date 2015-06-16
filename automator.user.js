@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.95
+// @version 1.96
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -43,6 +43,7 @@ var useStealHealthAtPercent = 15;
 var useRainingGoldAbovePercent = 50;
 var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
 var useResurrectToSaveCount = 150; // Use revive to save 150 people
+var minutesBufferForConsumableDump = 10; 
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -675,17 +676,10 @@ function startAutoAbilityUser() {
 		var target = getTarget();
 		
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
-		
 
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			var nearEndWithTimeForWormholes = function() {
-				var time = new Date();
-				var hrs = time.getUTCHours();
-				var mins = time.getUTCMinutes();
-				return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(ABILITIES.WORMHOLE) + 5)); // give a little extra time to clear the last levels
-			};
-			if (nearEndWithTimeForWormholes()) {
+			if (hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) {
 				if(debug)
 					console.log("Casting Wormhole! Allons-y!!!");
 				castAbility(ABILITIES.WORMHOLE);
@@ -923,6 +917,13 @@ function startAutoAbilityUser() {
 	}, abilityUseCheckFreq);
 	
 	console.log("autoAbilityUser has been started.");
+}
+
+function hasTimeLeftToUseConsumable(id) {
+	var time = new Date();
+	var hrs = time.getUTCHours();
+	var mins = time.getUTCMinutes();
+	return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(id) + minutesBufferForConsumableDump)); // give a little extra time to clear the last levels
 }
 
 function startAutoItemUser() {
@@ -1884,7 +1885,6 @@ function drawLeaderboardRoom(room) {
     level.style.textAlign = 'right';
     level.appendChild(document.createTextNode(room.level));
     
-    console.log(room.id+" - "+g_GameID);
     if(room.id == g_GameID) {
         item.style.color = '#d4e157';
     }
