@@ -1489,8 +1489,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({ 
 		"position": "absolute", 
-		// "background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
-		"background": "url('http://i.imgur.com/Eg0ARKA.png')",
+		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
@@ -1534,8 +1533,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="statistics"></div>');
 	$J('#statistics').css({ 
 		"position": "absolute", 
-		// "background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
-		"background": "url('http://i.imgur.com/HS0YV3D.png')",
+		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
