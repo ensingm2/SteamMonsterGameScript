@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.90
+// @version 1.91
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1350,11 +1350,15 @@ function updatePlayersInRoom() {
 var startAttempts = 0;
 var startAll = setInterval(function() { 
 		if(!gameRunning()){
-			//Refresh if the game still isn't running after 15s
-			if(startAttempts > 15)
-				location.reload();
+			//Don't refresh if we're waiting on game to start
+			if(g_Minigame.m_CurrentScene.m_rgGameData.status != 1) {
+				//Refresh if the game still isn't running after 15s
+				if(startAttempts > 15)
+					location.reload();
+				
+				startAttempts++;
+			}
 			
-			startAttempts++;
 			return;
 		}
 		
