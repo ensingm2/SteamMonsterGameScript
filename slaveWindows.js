@@ -51,7 +51,7 @@ function runMaster()
 			
 			if(toKill){
 				toKill.close();
-				//Only "save" slaves that haven't been manually closed.
+				//Only "save" slaves that haven't been manually closed. (NOT CURRENTLY WORKING)
 				newSlaveCount++;
 			}
 		}

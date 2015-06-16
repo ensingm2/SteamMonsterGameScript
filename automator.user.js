@@ -7,7 +7,7 @@
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/test/slaveWindows.js?ver=1_82_7
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_82
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -25,7 +25,7 @@ var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
 var upgradeManagerFreq = 5000;
 var autoBuyAbilities = false;
-var refreshDelay = 900000; //Page refresh every 15min
+var refreshDelay = 3600000; //Page refresh every 60min
 
 // Boss Nuke Variables
 var nukeBossesAfterLevel = 1000;
