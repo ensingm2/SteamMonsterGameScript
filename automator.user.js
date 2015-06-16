@@ -66,10 +66,6 @@ var swapReason;
 var lastLootLevel = 0;
 var lastLootCache = [];
 
-var CONTROLS = {
-
-};
-
 var ABILITIES = {
 	FIRE_WEAPON: 1,
 	CHANGE_LANE: 2,
@@ -371,7 +367,7 @@ function startAutoAbilityUser() {
 		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) {
+			if (((getEstimatedLevelsLeft() % 100) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 100 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
 				if (debug)
 					console.log("Casting Wormhole! Allons-y!!!");
 				castAbility(ABILITIES.WORMHOLE);
@@ -1408,13 +1404,7 @@ function initEndDate() {
 }
 
 function updateStats() {
-	var getSecondsUntilEnd = function() {
-		return (endDate.getTime() / 1000) - g_Minigame.m_CurrentScene.m_nTime;
-	}
-
-	var getSecondsPerLevel = function() {
-		return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
-	}
+	
 
 	var getFormattedRemainingTime = function() {
 		var secondsUntilEnd = getSecondsUntilEnd();
@@ -1965,13 +1955,21 @@ function toggleLeaderboard() {
 }
 
 // ================ UTILS================
-function hasTimeLeftToUseConsumable(id) {
-	var time = new Date();
-	var hrs = time.getUTCHours();
-	var mins = time.getUTCMinutes();
-	return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(id) + minutesBufferForConsumableDump)); // give a little extra time to clear the last levels
+function getSecondsUntilEnd() {
+	return (endDate.getTime() / 1000) - g_Minigame.m_CurrentScene.m_nTime;
 }
 
+function getSecondsPerLevel() {
+	return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
+}
+
+function hasTimeLeftToUseConsumable(id) {
+	return getSecondsUntilEnd() <= ((getAbilityItemQuantity(id) * abilityCooldown(id)) + minutesBufferForConsumableDump * 60);
+}
+	
+function getEstimatedLevelsLeft() {
+	return getSecondsUntilEnd() / getSecondsPerLevel();
+}
 function castAbility(abilityID) {
 	if (hasAbility(abilityID)) {
 		if (abilityID <= ABILITIES.NAPALM && document.getElementById('ability_' + abilityID) !== null)
