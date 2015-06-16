@@ -2,7 +2,7 @@
 // @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.98
+// @version 1.99
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1498,6 +1498,15 @@ function addExtraUI() {
 	$J("#uicontainer").css({
 		"z-index": "6"
 	});
+
+	//Add in IRC link
+	$J(".tv_ui").css({"background": "url('" + getUploadedFilePath("master/img/game_frame_tv.png") + "')"});
+	$J("#info_block").append('<div id="irc_join"></div>');
+	$J("#irc_join").click(function(e) {
+		e.stopPropagation();
+        window.open('http://chat.mibbit.com/?channel=%23SMG_'+g_GameID+'&server=irc.mibbit.net&nick='+$J("#account_pulldown").html(),'_blank'); // Cant seem to find a local storing in js of the players username, so lets just take it from the dropdown
+	});
+
 	//Update stats
 	setInterval(function() {
 		function getElementalMul() {
@@ -1564,7 +1573,7 @@ function addCustomButtons() {
 		.mouseout(function() {
 			$J('.leave_game_helper').hide();
 		});
-	$J('.leave_game_helper').hide();
+	$J('.leave_game_helper').hide(); 
 
 	// Append gameid to breadcrumbs
 	var breadcrumbs = document.querySelector('.breadcrumbs');
@@ -1635,6 +1644,8 @@ function customCSS() {
 	css += ".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;} ";
 	css += "#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover ~ #activitylog {margin-top:97px} #activitylog {margin-top: 29px} ";
 	css += "#leaderboard_wrapper {overflow: hidden; height: 360px; width: 261px; position: relative; margin: 50px 0px 0px 5px; padding: 5px;} #activeinlanecontainer:hover ~ #leaderboard_wrapper {margin-top: 118px}";
+	css += "#info_hp { position:relative; top:28px; text-align: center;}";
+	css += "#irc_join {position: relative; width: 175px; height: 30px; top: -50px; left: 30px; cursor: pointer;}";
 
 	$J('head').append('<style>' + css + '</style>');
 }
