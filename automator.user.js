@@ -1791,7 +1791,6 @@ function toggleFPS() {
 	} else {
 		startSlowRendering();
 	}
-	WebStorage.SetLocal('minigame_fpsLimiter', (slowRendering == null));
 	updateToggle("fps", (slowRendering == null));
 }
 
