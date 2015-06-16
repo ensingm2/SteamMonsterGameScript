@@ -132,6 +132,9 @@ var startAll = setInterval(function() {
 
 	startAllAutos();
 	initGUI();
+	if (!WebStorage.GetLocal('minigame_fpsThrottle')) {
+		toggleFPS();
+	}
 
 	//Start leaderboard (if user is running userscript)
 	if (typeof unsafeWindow != 'undefined')
@@ -1819,6 +1822,7 @@ function toggleFPS() {
 	} else {
 		startFPSThrottle();
 	}
+	WebStorage.SetLocal('minigame_fpsThrottle', (fpsThrottle === null));
 	updateToggle("fps", (fpsThrottle === null));
 }
 
