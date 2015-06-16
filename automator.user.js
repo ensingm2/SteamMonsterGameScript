@@ -1401,7 +1401,7 @@ var startAll = setInterval(function() {
 var endDate = initEndDate();
 function initEndDate() {
 	var endDate = new Date();
-	endDate.setUTCDate(endDate.getDate()+1);
+	if (endDate.getUTCHours() > 16) { endDate.setUTCDate(endDate.getUTCDate()+1); }
 	endDate.setUTCHours(16, 0, 0, 0);
 	return endDate;
 }
