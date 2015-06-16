@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.08
+// @version 2.09
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -132,7 +132,7 @@ var startAll = setInterval(function() {
 
 	startAllAutos();
 	initGUI();
-	if (!WebStorage.GetLocal('minigame_fpsThrottle')) {
+	if (WebStorage.GetLocal('minigame_fpsThrottle') === false) {
 		toggleFPS();
 	}
 
