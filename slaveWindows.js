@@ -9,7 +9,7 @@ var slaveDelayBetweenSpawns = 1000; // Delay (in milliseconds) between when each
 
 function runMaster()
 {
-	window.unload = function(){ killAllSlaves(); };
+	window.onbeforeunload = function(){ killAllSlaves(false); };
 	
 	var slavesList = window.slaves = [];
 	
@@ -36,18 +36,33 @@ function runMaster()
 		WebStorage.SetLocal('minigame_mutemusic', true);
 		g_AudioManager.m_eleMusic.pause();
 	
+	
+		//Set the local variable (for restarts)
+		WebStorage.SetLocal('minigame_slaveCount', cnt);
+		
 		for(var i=0;i<cnt;i++)
 			setTimeout(spawnSlave, i * slaveDelayBetweenSpawns);
 	}
 	
-	function killAllSlaves(){
+	function killAllSlaves(deleteAutoSlaveCount){
+		var newSlaveCount = 0;
 		while(slavesList.length) {
 			var toKill = slavesList.pop();
 			
-			if(toKill)
+			if(toKill){
 				toKill.close();
+				//Only "save" slaves that haven't been manually closed. (NOT CURRENTLY WORKING)
+				newSlaveCount++;
+			}
 		}
 		$J('.slaveWindowCount').text(slavesList.length);
+		
+		if(deleteAutoSlaveCount){
+			//Delete the local variable
+			WebStorage.SetLocal('minigame_slaveCount', 0);
+		}
+		else
+			WebStorage.SetLocal('minigame_slaveCount', newSlaveCount);
 	}
 	
 	var cont = $J('<div>').addClass('slaveManager');
@@ -67,6 +82,11 @@ function runMaster()
 	$J("#kill_slaves").click(function(e) { e.stopPropagation(); killAllSlaves()});
 
 	$J('#slaveCounter').css(counterStyle);
+	
+	var autoOpenSlaveCount = WebStorage.GetLocal('minigame_slaveCount');
+	if(autoOpenSlaveCount !== null && autoOpenSlaveCount !== 0)
+		spawnSlaves(autoOpenSlaveCount);
+	
 }
 function runSlave()
 {

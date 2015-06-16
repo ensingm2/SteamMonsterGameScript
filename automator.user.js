@@ -2,12 +2,12 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.80
+// @version 1.82
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_82
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -25,6 +25,7 @@ var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
 var upgradeManagerFreq = 5000;
 var autoBuyAbilities = false;
+var refreshDelay = 3600000; //Page refresh every 60min
 
 // Boss Nuke Variables
 var nukeBossesAfterLevel = 1000;
@@ -783,7 +784,7 @@ function startAutoAbilityUser() {
 			//Use cases for bosses
 			else if(!nukeBosses && isBoss) {
 				//Raining Gold
-				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent) {
+				if(hasAbility(17) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {
 					
 					if(debug)
 						console.log('Using Raining Gold on boss.');
@@ -1366,6 +1367,10 @@ var startAll = setInterval(function() {
 			}
 		};
 
+		var refresher = setTimeout(function() {
+			location.reload();
+		}, refreshDelay);
+		
 		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
 		CUI.prototype.UpdateLootNotification = function() {
 			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length !== 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length === 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
