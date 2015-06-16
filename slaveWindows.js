@@ -80,7 +80,7 @@ function runMaster()
 	$J('#slaveCounter').css(counterStyle);
 	
 	var autoOpenSlaveCount = WebStorage.GetLocal('minigame_slaveCount');
-	if(autoOpenSlaves !== null)
+	if(autoOpenSlaveCount !== null && autoOpenSlaveCount !== 0)
 		spawnSlaves(autoOpenSlaveCount);
 	
 }
