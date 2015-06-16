@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.92
+// @version 1.93
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1559,6 +1559,7 @@ function addExtraUI() {
 
 	$J("#footer_spacer").css({"height": "175px"});
 	$J("canvas").css({"position": "relative","z-index":"5"});
+	$J("#uicontainer").css({"z-index":"6"});
 	//Update stats
 	setInterval(function() {
 		function getElementalMul() {
