@@ -56,19 +56,15 @@ function runMaster()
 	var counterStyle = {
 		'position': 'relative',
 		'font-weight': 'bold',
-		'top': '25px',
-		'margin-left': '10px',
-		'color': '#FF8585'
+		'top': '5px',
+		'color': '#FF8585',
+		"float": "right",
+		"margin-right": "75px"
 	};
 	
-	var spacerStyle = {
-		'margin-left': '153px'
-	};
-	
-	var tgt = $J('#toggleAllSoundBtn');
-	var spawnSlavesBtn = $J('<span>').addClass('toggle_music_btn  toggle_btn').addClass('toggle_btn').insertAfter(tgt).click(spawnSlaves).html('<span>Spawn</span><br /><span>Slaves</span>').css(spacerStyle);
-	var killSlavesBtn = $J('<span>').addClass('toggle_music_btn  toggle_btn').addClass('toggle_btn').insertAfter(spawnSlavesBtn).click(killAllSlaves).html('<span>Kill</span><br /><span>Slaves</span>');
-	$J('<span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span>').insertAfter(killSlavesBtn).css(counterStyle);
+	$J("#settings").append('<div id="slaves"><div id="spawn_slaves" class="toggle toggle_btn" style="width:50%;margin-left:50px"><span class="title">Spawn Slaves</span></div><div id="kill_slaves" class="toggle toggle_btn" style="width:50%;margin-left:50px"><span class="title">Kill Slaves</span></div><div class="slave_num"><span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span></div></div>');
+	$J("#spawn_slaves").click(function(e) { e.stopPropagation(); spawnSlaves(e)});
+	$J("#kill_slaves").click(function(e) { e.stopPropagation(); killAllSlaves()});
 
 	$J('#slaveCounter').css(counterStyle);
 }
