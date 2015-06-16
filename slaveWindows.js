@@ -9,7 +9,7 @@ var slaveDelayBetweenSpawns = 1000; // Delay (in milliseconds) between when each
 
 function runMaster()
 {
-	window.onbeforeunload = function(){ killAllSlaves(true); };
+	window.onbeforeunload = function(){ killAllSlaves(false); };
 	
 	var slavesList = window.slaves = [];
 	
@@ -44,7 +44,7 @@ function runMaster()
 			setTimeout(spawnSlave, i * slaveDelayBetweenSpawns);
 	}
 	
-	function killAllSlaves(refresh){
+	function killAllSlaves(deleteAutoSlaveCount){
 		while(slavesList.length) {
 			var toKill = slavesList.pop();
 			
@@ -53,7 +53,7 @@ function runMaster()
 		}
 		$J('.slaveWindowCount').text(slavesList.length);
 		
-		if(refresh === false){
+		if(deleteAutoSlaveCount){
 			//Delete the local variable
 			WebStorage.SetLocal('minigame_slaveCount', 0);
 		}
