@@ -1500,6 +1500,51 @@ function addExtraUI() {
 		op.animate({ right: parseInt(op.css('right') , 10) == -50 ? -op.outerWidth() : -50 });
 	});
 
+	//Statistics
+	$J("#gamecontainer").append('<div id="statistics"></div>');
+	$J('#statistics').css({ 
+		"position": "absolute", 
+		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
+		"background-repeat": "no-repeat",
+		"background-position": "0px 0px",
+		"height": "500px",
+		"width": "250px",
+		"margin-top": "2px",
+		"top": "125px",
+		"left": "-50px",
+		"padding-top": "15px"
+	});
+
+	//Add in stats
+	$J("#statistics").append('<div id="stat_player_dpc" class="stat"><span class="title">Dmg Per Click: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_player_dps" class="stat"><span class="title">Dmg Per Second: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_player_crit" class="stat"><span class="title">Critical Dmg: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_crit_mul" class="stat"><span class="title">Critical Dmg Multiplier: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_elemental_mul" class="stat"><span class="title">Elemental Multiplier: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_elemental_dpc" class="stat"><span class="title">Elemental DPC: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_elemental_dps" class="stat"><span class="title">Elemental DPS: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_boss_loot" class="stat"><span class="title">Boss Loot Chance: </span><span class="value">0</span></div>');
+
+	//Update stats
+	setInterval(function() {
+		function getElementalMul() {
+			return Math.max(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water);
+		}
+		$J("#statistics #stat_player_dpc .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
+		$J("#statistics #stat_player_dps .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clicksPerSecond, 5));
+		$J("#statistics #stat_player_crit .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.crit_percentage * 100), 5) + "%");
+		$J("#statistics #stat_crit_mul .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_crit, 5)+ "x");
+		$J("#statistics #stat_elemental_mul .value").html(FormatNumberForDisplay(getElementalMul()) + "x");
+		$J("#statistics #stat_elemental_dpc .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
+		$J("#statistics #stat_elemental_dps .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clicksPerSecond, 5));
+		$J("#statistics #stat_boss_loot .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100, 5)) + "%");
+	}, 1000);
+
+	$J("#statistics").click (function() {
+		var op = $J("#statistics");
+		op.animate({ left: parseInt(op.css('left') , 10) == -50 ? -op.outerWidth() : -50 });
+	});
+
 	//Other UI elements
 	customCSS();
 	addCustomButtons();
@@ -1600,7 +1645,7 @@ function customCSS() {
 	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
 
 	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
-	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10}");
+	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10; }");
 	addGlobalStyle("#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;}");
 	addGlobalStyle("#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;}");
 	addGlobalStyle("#settings span.value.enabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
@@ -1608,6 +1653,10 @@ function customCSS() {
 	addGlobalStyle("#settings span.value.disabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
 	addGlobalStyle("#settings span.value.disabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
 	
+	addGlobalStyle("#statistics .stat { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10; margin-left: 70px; margin-bottom: 10px;}");
+	addGlobalStyle("#statistics span.value { position: relative; float: right; margin-right: 30px; text-align: right; width: 100%;}");
+	addGlobalStyle("#statistics span.title { position: relative; width: 100%; font-weight: bold;}");
+
 	addGlobalStyle(".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;}");
 	addGlobalStyle(".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;}");
 }
