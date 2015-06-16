@@ -1,18 +1,16 @@
 // ==UserScript== 
-// @name Steam Monster Game Script
+// @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.96
+// @version 1.97
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_95
 // ==/UserScript==
-
 // Compiled and customized by https://github.com/ensingm2
 // See a (hopefully) full list of contributors over at https://github.com/ensingm2/SteamMonsterGameScript#contributors
-
 // Custom variables
 var debug = false;
 var clicksPerSecond = g_TuningData.abilities[1].max_num_clicks;
@@ -43,7 +41,7 @@ var useStealHealthAtPercent = 15;
 var useRainingGoldAbovePercent = 50;
 var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
 var useResurrectToSaveCount = 150; // Use revive to save 150 people
-var minutesBufferForConsumableDump = 10; 
+var minutesBufferForConsumableDump = 10;
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -88,47 +86,229 @@ var ABILITIES = {
 	LIKE_NEW: 27
 };
 
-// ================ STARTER FUNCTIONS ================
+function startAllAutos() {
+	startAutoClicker();
+	startAutoRespawner();
+	startAutoTargetSwapper();
+	startAutoAbilityUser();
+	startAutoUpgradeManager();
+}
+
+function stopAllAutos() {
+	stopAutoClicker();
+	stopAutoRespawner();
+	stopAutoTargetSwapper();
+	stopAutoAbilityUser();
+	stopAutoItemUser();
+	stopAutoUpgradeManager();
+}
+
+//Keep trying to start every second till success
+var startAttempts = 0;
+var startAll = setInterval(function() {
+	if (!gameRunning()) {
+		//Don't refresh if we're waiting on game to start
+		if (g_Minigame.m_CurrentScene.m_rgGameData.status != 1) {
+			//Refresh if the game still isn't running after 15s
+			if (startAttempts > 15)
+				location.reload();
+
+			startAttempts++;
+		}
+		return;
+	}
+
+	clearInterval(startAll);
+
+	startAllAutos();
+	initGUI();
+
+	//Start leaderboard (if user is running userscript)
+	if (typeof unsafeWindow != 'undefined')
+		initLeaderboard();
+
+	if (typeof runMaster == 'function') {
+		//Setup for slave windows
+		if (location.search.match(/slave/))
+			runSlave();
+		else
+			runMaster();
+	}
+
+	//Keep Playing while minimized - http://www.reddit.com/r/SteamMonsterGame/comments/39yng9/keep_autoclicking_after_minimizingchanging_tabs/
+	setInterval(function(p) {
+		return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
+			function() {
+				p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
+			}
+	}(CSceneGame.prototype), 1000);
+
+	setTimeout(function() {
+		//Try to reload every 15s
+		var reloader = setInterval(function() {
+			//No raining gold, treasure mob, boss, or miniboss
+			var target = getTarget();
+			var reload = !currentLaneHasAbility(ABILITIES.RAINING_GOLD) && target.m_data.type != 4 && target.m_data.type != 2 && target.m_data.type != 3 && target.m_data.type !== false;
+			if (reload) {
+				clearInterval(reloader);
+				location.reload();
+			}
+		}, 15000);
+	}, refreshDelay);
+}, 1000);
+
+//Expose functions if running in userscript
+if (typeof unsafeWindow != 'undefined') {
+	// Variables
+	unsafeWindow.debug = debug;
+	unsafeWindow.clicksPerSecond = clicksPerSecond;
+	unsafeWindow.autoClickerVariance = autoClickerVariance;
+	unsafeWindow.respawnCheckFreq = respawnCheckFreq;
+	unsafeWindow.targetSwapperFreq = targetSwapperFreq;
+	unsafeWindow.abilityUseCheckFreq = abilityUseCheckFreq;
+	unsafeWindow.itemUseCheckFreq = itemUseCheckFreq;
+	unsafeWindow.seekHealingPercent = seekHealingPercent;
+	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
+	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
+
+	//item use variables
+	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
+	unsafeWindow.useMedicsAtLanePercent = useMedicsAtLanePercent;
+	unsafeWindow.useMedicsAtLanePercentAliveReq = useMedicsAtLanePercentAliveReq;
+	unsafeWindow.useNukeOnSpawnerAbovePercent = useNukeOnSpawnerAbovePercent;
+	unsafeWindow.useMetalDetectorOnBossBelowPercent = useMetalDetectorOnBossBelowPercent;
+	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
+	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
+	unsafeWindow.autoUseConsumables = autoUseConsumables;
+	unsafeWindow.useResurrectToSaveCount = useResurrectToSaveCount;
+
+	//Slave window variables
+	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
+	unsafeWindow.slaveWindowPeriodicRestart = slaveWindowPeriodicRestart;
+	unsafeWindow.slaveWindowPeriodicRestartInterval = slaveWindowPeriodicRestartInterval;
+
+	//Boss nuke vars
+	unsafeWindow.nukeBossesAfterLevel = nukeBossesAfterLevel;
+	unsafeWindow.farmGoldOnBossesLevelDiff = farmGoldOnBossesLevelDiff;
+	unsafeWindow.useNukeOnBossAbovePercent = useNukeOnBossAbovePercent;
+
+	// Functions
+	unsafeWindow.startAutoClicker = startAutoClicker;
+	unsafeWindow.startAutoRespawner = startAutoRespawner;
+	unsafeWindow.startAutoTargetSwapper = startAutoTargetSwapper;
+	unsafeWindow.startAutoAbilityUser = startAutoAbilityUser;
+	unsafeWindow.startAutoItemUser = startAutoItemUser;
+	unsafeWindow.startAllAutos = startAllAutos;
+	unsafeWindow.startAutoUpgradeManager = startAutoUpgradeManager;
+	unsafeWindow.stopAutoClicker = stopAutoClicker;
+	unsafeWindow.stopAutoRespawner = stopAutoRespawner;
+	unsafeWindow.stopAutoTargetSwapper = stopAutoTargetSwapper;
+	unsafeWindow.stopAutoAbilityUser = stopAutoAbilityUser;
+	unsafeWindow.stopAutoItemUser = stopAutoItemUser;
+	unsafeWindow.stopAutoUpgradeManager = stopAutoUpgradeManager;
+	unsafeWindow.stopAllAutos = stopAllAutos;
+	unsafeWindow.disableAutoNukes = disableAutoNukes;
+	unsafeWindow.castAbility = castAbility;
+	unsafeWindow.hasAbility = hasAbility;
+	unsafeWindow.abilityIsUnlocked = abilityIsUnlocked;
+	unsafeWindow.abilityCooldown = abilityCooldown;
+	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
+	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
+	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
+	unsafeWindow.toggleAutoItemUser = toggleAutoItemUser;
+	unsafeWindow.toggleAutoUpgradeManager = toggleAutoUpgradeManager;
+	unsafeWindow.spamNoClick = spamNoClick;
+	unsafeWindow.toggleSpammer = toggleSpammer;
+	unsafeWindow.getTarget = getTarget;
+	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
+	unsafeWindow.laneHasAbility = laneHasAbility;
+	unsafeWindow.getMobTypePriority = getMobTypePriority;
+	unsafeWindow.updateStats = updateStats;
+
+	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
+	var varSetter = setInterval(function() {
+		if (debug)
+			console.log('updating options');
+
+		// Main vars
+		debug = unsafeWindow.debug;
+		clicksPerSecond = unsafeWindow.clicksPerSecond;
+		autoClickerVariance = unsafeWindow.autoClickerVariance;
+		respawnCheckFreq = unsafeWindow.respawnCheckFreq;
+		targetSwapperFreq = unsafeWindow.targetSwapperFreq;
+		abilityUseCheckFreq = unsafeWindow.abilityUseCheckFreq;
+		itemUseCheckFreq = unsafeWindow.itemUseCheckFreq;
+		seekHealingPercent = unsafeWindow.seekHealingPercent;
+		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
+		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
+
+		//item use variables
+		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
+		useMedicsAtLanePercent = unsafeWindow.useMedicsAtLanePercent;
+		useMedicsAtLanePercentAliveReq = unsafeWindow.useMedicsAtLanePercentAliveReq;
+		useNukeOnSpawnerAbovePercent = unsafeWindow.useNukeOnSpawnerAbovePercent;
+		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
+		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
+		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
+		useResurrectToSaveCount = unsafeWindow.useResurrectToSaveCount;
+
+		//Boss nuke vars
+		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
+		farmGoldOnBossesLevelDiff = unsafeWindow.farmGoldOnBossesLevelDiff;
+		useNukeOnBossAbovePercent = unsafeWindow.useNukeOnBossAbovePercent;
+
+	}, 5000);
+
+	//Add closure 'debug' getter and setter
+	unsafeWindow.getDebug = function() {
+		return debug;
+	};
+	unsafeWindow.setDebug = function(state) {
+		debug = state;
+	};
+}
+
+// ================ AUTO CLICKER ================
 function startAutoClicker() {
-	if(autoClicker) {
+	if (autoClicker) {
 		console.log("Autoclicker is already running!");
 		return;
 	}
 
-	autoClicker = setInterval( function(){
-		if(!gameRunning()) return;
+	autoClicker = setInterval(function() {
+		if (!gameRunning()) return;
 
 		//Vary the number of clicks by up to the autoClickerVariance variable (plus or minus)
 		var randomVariance = Math.floor(Math.random() * autoClickerVariance * 2) - (autoClickerVariance);
 		var clicks = clicksPerSecond + randomVariance;
-		
+
 		// Set the variable to be sent to the server
 		g_Minigame.m_CurrentScene.m_nClicks += clicks;
-		
+
 		// Anti-anti-clicker countermeasure
 		g_msTickRate = 1100;
-		
+
 		// Update Gold Counter
-		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[  g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane ].active_player_ability_gold_per_click;
+		var nClickGoldPct = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].active_player_ability_gold_per_click;
 		var enemy = getTarget();
-		if(enemy && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
+		if (enemy && nClickGoldPct > 0 && enemy.m_data.hp > 0) {
 			var nClickGold = enemy.m_data.gold * nClickGoldPct * g_Minigame.m_CurrentScene.m_nClicks;
-			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold );
-			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true );
+			g_Minigame.m_CurrentScene.ClientOverride('player_data', 'gold', g_Minigame.m_CurrentScene.m_rgPlayerData.gold + nClickGold);
+			g_Minigame.m_CurrentScene.ApplyClientOverrides('player_data', true);
 		}
-			
+
 		//Clear out the crits
-		var numCrits =  g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
+		var numCrits = g_Minigame.m_CurrentScene.m_rgStoredCrits.length;
 		g_Minigame.m_CurrentScene.m_rgStoredCrits = [];
-		
-		if(debug) {
-			if(numCrits > 1)
+
+		if (debug) {
+			if (numCrits > 1)
 				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second. (' + numCrits + ' crits).');
-			if(numCrits == 1)
+			if (numCrits == 1)
 				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second. (1 crit).');
 			else
 				console.log('Clicking ' + g_Minigame.m_CurrentScene.m_nClicks + ' times this second.');
-			
+
 			//Calculate Damage done
 			var damage = g_Minigame.m_CurrentScene.CalculateDamage(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * userMaxElementMultiiplier * g_Minigame.m_CurrentScene.m_nClicks);
 			var damageStr = "(unknown)";
@@ -140,25 +320,394 @@ function startAutoClicker() {
 				damageStr = (damage / 1000) + "K";
 			console.log('We did roughly ' + damageStr + ' damage in the last second.');
 		}
-		
+
 	}, autoClickerFreq);
 
 	console.log("autoClicker has been started.");
 }
 
+function stopAutoClicker() {
+	if (autoClicker) {
+		clearInterval(autoClicker);
+		autoClicker = null;
+		console.log("autoClicker has been stopped.");
+	} else
+		console.log("No autoClicker is running to stop.");
+}
+
+// ================ AUTO ABILITY ITEM USE ================
+function startAutoAbilityUser() {
+	if (autoAbilityUser) {
+		console.log("autoAbilityUser is already running!");
+		return;
+	}
+
+	autoAbilityUser = setInterval(function() {
+
+		if (debug)
+			console.log("Checking if it's useful to use an ability.");
+
+		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+		var target = getTarget();
+
+		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
+
+		// Wormholes -- use before wasting items on lanes
+		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
+			if (hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) {
+				if (debug)
+					console.log("Casting Wormhole! Allons-y!!!");
+				castAbility(ABILITIES.WORMHOLE);
+			}
+		}
+
+		// Abilities only used on targets
+		if (target) {
+
+			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
+			var laneDPS = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].friendly_dps;
+			var timeToTargetDeath = target.m_data.hp / laneDPS;
+
+			// First priority since it can use Decrease Cooldowns
+
+			//Nuke bosses after the 1000th level and not every 200th level thereafter
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel + 1) % farmGoldOnBossesLevelDiff !== 0);
+
+			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
+
+			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
+			if ((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= nukeBossesAfterLevel) || (isBoss && nukeBosses)) {
+				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
+				var moraleBoosterReady = hasAbility(ABILITIES.MORALE_BOOSTER);
+				var goodLuckCharmReady = hasAbility(ABILITIES.GOOD_LUCK_CHARMS);
+				var critReady = (hasAbility(ABILITIES.CRIT) && autoUseConsumables);
+
+				// Only use items on targets that are spawners and have nearly full health
+				if (targetPercentHPRemaining >= 90 && autoUseConsumables && (hasAbility(ABILITIES.CRIPPLE_SPAWNER) || hasAbility(ABILITIES.CRIPPLE_MONSTER))) {
+					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
+					if (hasAbility(ABILITIES.CRIPPLE_SPAWNER)) {
+						castAbility(ABILITIES.CRIPPLE_SPAWNER);
+					} else if (hasAbility(ABILITIES.CRIPPLE_MONSTER)) {
+						castAbility(ABILITIES.CRIPPLE_MONSTER);
+					}
+				} else if (moraleBoosterReady || critReady || goodLuckCharmReady) {
+					// If we have both we want to combo them
+					var moraleBoosterUnlocked = abilityIsUnlocked(ABILITIES.MORALE_BOOSTER);
+					var goodLuckCharmUnlocked = abilityIsUnlocked(ABILITIES.GOOD_LUCK_CHARMS);
+
+					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
+					if ((!moraleBoosterUnlocked && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady) && (goodLuckCharmReady || !goodLuckCharmUnlocked))) {
+						var currentLaneHasCooldown = currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS);
+						// Only use on targets that are spawners and have nearly full health
+						if (targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
+							// Combo these with Decrease Cooldowns ability
+
+							// If Decreased Cooldowns will be available soon, wait
+							if (
+								currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
+								hasAbility(ABILITIES.DECREASE_COOLDOWNS) || // If we have the ability ready
+								!abilityIsUnlocked(ABILITIES.DECREASE_COOLDOWNS) || // if we haven't unlocked the ability yet, or
+								(abilityCooldown(ABILITIES.DECREASE_COOLDOWNS) > 60) // if cooldown > 60
+							) {
+								if (hasAbility(ABILITIES.DECREASE_COOLDOWNS) && !currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS)) {
+									// Other abilities won't benifit if used at the same time
+									if (debug)
+										console.log('Triggering Decrease Cooldown!');
+									castAbility(ABILITIES.DECREASE_COOLDOWNS);
+								} else {
+									// Use these abilities next pass
+
+									//Use crit if one's available
+									if (critReady) {
+										if (debug)
+											console.log("Using Crit!");
+										castAbility(ABILITIES.CRIT);
+									} else if (moraleBoosterReady) {
+										if (debug)
+											console.log("Casting Morale Booster!");
+										castAbility(ABILITIES.MORALE_BOOSTER);
+									}
+
+									if (goodLuckCharmReady) {
+										if (debug)
+											console.log("Casting Good Luck Charm!");
+										castAbility(ABILITIES.GOOD_LUCK_CHARMS);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// Tactical Nuke
+				if (hasAbility(ABILITIES.TACTICAL_NUKE) && (targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent || (target.m_data.type == 2 && targetPercentHPRemaining >= useNukeOnBossAbovePercent))) {
+					if (debug)
+						console.log('Nuclear launch detected.');
+
+					castAbility(ABILITIES.TACTICAL_NUKE);
+				}
+
+				// Napalm
+				else if (target.m_data.type === 0 && hasAbility(ABILITIES.NAPALM) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+
+					if (debug)
+						console.log('Triggering napalm!');
+
+					castAbility(ABILITIES.NAPALM);
+				}
+
+				// Cluster Bomb
+				else if (target.m_data.type === 0 && hasAbility(ABILITIES.CLUSTER_BOMB) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
+
+					if (debug)
+						console.log('Triggering cluster bomb!');
+
+					castAbility(ABILITIES.CLUSTER_BOMB);
+				}
+
+				// Boss Nuke Rounds
+				if (isBoss) {
+
+					// Max Elemental Damage
+					if (hasAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent) {
+						if (debug)
+							console.log('Using Max Elemental Damage on boss.');
+
+						castAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE);
+					}
+
+					// Reflect Damage
+					if (hasAbility(ABILITIES.REFLECT_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent) {
+						if (debug)
+							console.log('Using Reflect Damage on boss.');
+
+						castAbility(ABILITIES.REFLECT_DAMAGE);
+					}
+				}
+			}
+
+			//Use cases for bosses
+			else if (!nukeBosses && isBoss) {
+				//Raining Gold
+				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {
+					if (debug)
+						console.log('Using Raining Gold on boss.');
+
+					castAbility(ABILITIES.RAINING_GOLD);
+				}
+			}
+
+			// Metal Detector
+			var treasureReady = hasAbility(ABILITIES.TREASURE) && autoUseConsumables;
+			if ((isBoss || target.m_data.type == 4) && timeToTargetDeath < 10) {
+				if (hasAbility(ABILITIES.METAL_DETECTOR) || treasureReady) {
+					if (treasureReady) {
+						if (debug)
+							console.log('Using Metal Detector via Treasure.');
+						castAbility(ABILITIES.TREASURE);
+					} else {
+						if (debug)
+							console.log('Using Metal Detector.');
+						castAbility(ABILITIES.METAL_DETECTOR);
+					}
+				}
+			}
+		}
+
+		//Estimate average player HP Percent in lane
+		var laneTotalPctHP = 0;
+		var laneTotalCount = 0;
+		for (var i = 1; i < 10; i++) {
+			var HPGuess = ((i - 1) * 10 + 5);
+			laneTotalPctHP += HPGuess * currentLane.player_hp_buckets[i];
+			laneTotalCount += currentLane.player_hp_buckets[i];
+		}
+		var avgLanePercentHP = laneTotalPctHP / laneTotalCount;
+		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
+
+		// Medics
+		if ((percentHPRemaining <= useMedicsAtPercent || (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) && !g_Minigame.m_CurrentScene.m_bIsDead) {
+			if (debug) {
+				if (percentHPRemaining <= useMedicsAtPercent)
+					console.log("Health below threshold. Need medics!");
+				if (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)
+					console.log("Average lane below threshold. Need medics!");
+			}
+
+			// Only use if there isn't already a Medics active?
+			var pumpedUpReady = hasAbility(ABILITIES.PUMPED_UP) && autoUseConsumables;
+			var stealHealthReady = hasAbility(ABILITIES.STEAL_HEALTH) && autoUseConsumables;
+			if ((hasAbility(ABILITIES.MEDICS) || pumpedUpReady) && currentLaneHasAbility(ABILITIES.MEDICS) < 2) {
+
+				if (pumpedUpReady) {
+					if (debug)
+						console.log("Using Medics via Pumped Up!");
+					castAbility(ABILITIES.PUMPED_UP);
+				} else {
+					if (debug)
+						console.log("Using Medics!");
+					castAbility(ABILITIES.MEDICS);
+				}
+			} else if (stealHealthReady && percentHPRemaining <= useMedicsAtPercent) {
+				if (debug)
+					console.log("Using Steal Health in place of Medics!");
+				castAbility(ABILITIES.STEAL_HEALTH);
+			} else if (debug)
+				console.log("No medics to unleash!");
+		}
+
+		// Resurrect
+		if (hasAbility(ABILITIES.RESURRECTION) && autoUseConsumables) {
+			if (currentLane.player_hp_buckets[0] >= useResurrectToSaveCount) {
+				if (debug)
+					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
+				castAbility(ABILITIES.RESURRECTION);
+			}
+		}
+
+		// Like New
+		if (hasAbility(ABILITIES.LIKE_NEW) && autoUseConsumables) {
+			var totalCD = 0;
+			for (i = 5; i <= 12; i++) {
+				if (abilityIsUnlocked(i))
+					totalCD += abilityCooldown(i);
+			}
+
+			if (totalCD * 1000 >= useLikeNewAboveCooldown) {
+				if (debug)
+					console.log('Using like new to save a total of ' + totalCD + ' seconds of cooldown.');
+				castAbility(ABILITIES.LIKE_NEW);
+			}
+		}
+
+	}, abilityUseCheckFreq);
+
+	console.log("autoAbilityUser has been started.");
+}
+
+function startAutoItemUser() {
+	autoUseConsumables = true;
+	console.log("Automatic use of consumables has been enabled.");
+}
+
+function stopAutoAbilityUser() {
+	if (autoAbilityUser) {
+		clearInterval(autoAbilityUser);
+		autoAbilityUser = null;
+		console.log("autoAbilityUser has been stopped.");
+	} else
+		console.log("No autoAbilityUser is running to stop.");
+}
+
+function stopAutoItemUser() {
+	autoUseConsumables = false;
+	console.log("Automatic use of consumables has been disabled.");
+}
+
+function disableAutoNukes() {
+	useNukeOnSpawnerAbovePercent = 200;
+	console.log('Automatic nukes have been disabled');
+}
+
+// ================ AUTO RESPAWNER ================
+function startAutoRespawner() {
+	if (autoRespawner) {
+		console.log("autoRespawner is already running!");
+		return;
+	}
+
+	autoRespawner = setInterval(function() {
+		if (debug)
+			console.log('Checking if the player is dead.');
+
+		// Credit to /u/kolodz for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39joz2/javascript_auto_respawn/
+		if (g_Minigame.m_CurrentScene.m_bIsDead) {
+			if (debug)
+				console.log('Player is dead. Respawning.');
+
+			RespawnPlayer();
+		}
+	}, respawnCheckFreq);
+
+	console.log("autoRespawner has been started.");
+}
+
+function stopAutoRespawner() {
+	if (autoRespawner) {
+		clearInterval(autoRespawner);
+		autoRespawner = null;
+		console.log("autoRespawner has been stopped.");
+	} else
+		console.log("No autoRespawner is running to stop.");
+}
+
+// ================ AUTO TARGET SWAPPER ================
+function startAutoTargetSwapper() {
+	if (autoTargetSwapper) {
+		console.log("autoTargetSwapper is already running!");
+		return;
+	}
+
+	updateUserElementMultipliers();
+	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
+
+	autoTargetSwapper = setInterval(function() {
+
+		if (debug)
+			console.log('Looking for a new target.');
+
+		var currentTarget = getTarget();
+		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget) {
+			if (compareMobPriority(potentialTarget, currentTarget))
+				currentTarget = potentialTarget;
+		});
+
+		//Switch to that target
+		var oldTarget = getTarget();
+		if (currentTarget.m_data && oldTarget.m_data && currentTarget.m_data.id != oldTarget.m_data.id) {
+			if (debug && swapReason !== null) {
+				console.log(swapReason);
+				swapReason = null;
+			}
+
+			if (g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
+				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
+			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
+
+		}
+		//Move back to lane if still targetting
+		else if (currentTarget.m_data && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
+			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
+		}
+
+	}, targetSwapperFreq);
+
+	console.log("autoTargetSwapper has been started.");
+}
+
+function stopAutoTargetSwapper() {
+	if (autoTargetSwapper) {
+		clearInterval(autoTargetSwapper);
+		autoTargetSwapper = null;
+		console.log("autoTargetSwapper has been stopped.");
+	} else
+		console.log("No autoTargetSwapper is running to stop.");
+}
+
+// ================ AUTO UPGRADE MANAGER ================
 var upgradeManagerPrefilter;
 if (!upgradeManagerPrefilter) {
 	// add prefilter on first run
 	$J.ajaxPrefilter(function() {
 		// this will be defined by the end of the script
-		if(upgradeManagerPrefilter !== undefined) {
+		if (upgradeManagerPrefilter !== undefined) {
 			upgradeManagerPrefilter.apply(this, arguments);
 		}
 	});
 }
 
 function startAutoUpgradeManager() {
-	if( autoUpgradeManager ) {
+	if (autoUpgradeManager) {
 		console.log("UpgradeManager is already running!");
 		return;
 	}
@@ -211,10 +760,22 @@ function startAutoUpgradeManager() {
 	};
 
 	var necessary = [
-		{ id: 0, level: 1 }, // Light Armor
-		{ id: 11, level: 1 }, // Medics
-		{ id: 2, level: 10 }, // Armor Piercing Round
-		{ id: 1, level: 10 }, // Auto-fire Cannon
+		{
+			id: 0,
+			level: 1
+		}, // Light Armor
+		{
+			id: 11,
+			level: 1
+		}, // Medics
+		{
+			id: 2,
+			level: 10
+		}, // Armor Piercing Round
+		{
+			id: 1,
+			level: 10
+		}, // Auto-fire Cannon
 	];
 
 	var gAbilities = [
@@ -236,13 +797,21 @@ function startAutoUpgradeManager() {
 	var gDamageUpgrades = [];
 
 	Object.keys(scene.m_rgTuningData.upgrades)
-		.sort(function(a, b) { return a - b; }) // why is default sort string comparison
+		.sort(function(a, b) {
+			return a - b;
+		}) // why is default sort string comparison
 		.forEach(function(id) {
 			var upgrade = scene.m_rgTuningData.upgrades[id];
 			switch (upgrade.type) {
-				case 0: gHealthUpgrades.push(+id); break;
-				case 1: gAutoUpgrades.push(+id); break;
-				case 2: gDamageUpgrades.push(+id); break;
+				case 0:
+					gHealthUpgrades.push(+id);
+					break;
+				case 1:
+					gAutoUpgrades.push(+id);
+					break;
+				case 2:
+					gDamageUpgrades.push(+id);
+					break;
 			}
 		});
 
@@ -254,8 +823,15 @@ function startAutoUpgradeManager() {
 		return function(refresh) {
 			if (!cache || refresh) {
 				cache = gElementalUpgrades
-					.map(function(id) { return { id: id, level: scene.GetUpgradeLevel(id) }; })
-					.sort(function(a, b) { return b.level - a.level; });
+					.map(function(id) {
+						return {
+							id: id,
+							level: scene.GetUpgradeLevel(id)
+						};
+					})
+					.sort(function(a, b) {
+						return b.level - a.level;
+					});
 			}
 			return cache;
 		};
@@ -312,17 +888,27 @@ function startAutoUpgradeManager() {
 			}
 		}
 
-		return { boost: boost, cost: cost, required: parent };
+		return {
+			boost: boost,
+			cost: cost,
+			required: parent
+		};
 	};
 
 	var necessaryUpgrade = function() {
-		var best = { id: -1, cost: 0 };
+		var best = {
+			id: -1,
+			cost: 0
+		};
 		var wanted, id;
 		while (necessary.length > 0) {
 			wanted = necessary[0];
 			id = wanted.id;
 			if (scene.GetUpgradeLevel(id) < wanted.level) {
-				best = { id: id, cost: scene.GetUpgradeCost(id) };
+				best = {
+					id: id,
+					cost: scene.GetUpgradeCost(id)
+				};
 				break;
 			}
 			necessary.shift();
@@ -331,11 +917,17 @@ function startAutoUpgradeManager() {
 	};
 
 	var nextAbilityUpgrade = function() {
-		var best = { id: -1, cost: 0 };
+		var best = {
+			id: -1,
+			cost: 0
+		};
 		if (autoBuyAbilities) {
 			gAbilities.some(function(id) {
 				if (canUpgrade(id) && scene.GetUpgradeLevel(id) < 1) {
-					best = { id: id, cost: scene.GetUpgradeCost(id) };
+					best = {
+						id: id,
+						cost: scene.GetUpgradeCost(id)
+					};
 					return true;
 				}
 			});
@@ -344,7 +936,11 @@ function startAutoUpgradeManager() {
 	};
 
 	var bestHealthUpgrade = function() {
-		var best = { id: -1, cost: 0, hpg: 0 };
+		var best = {
+			id: -1,
+			cost: 0,
+			hpg: 0
+		};
 		var result, hpg;
 		gHealthUpgrades.forEach(function(id) {
 			result = calculateUpgradeTree(id);
@@ -353,7 +949,11 @@ function startAutoUpgradeManager() {
 				if (result.required !== undefined) id = result.required;
 				cost = scene.GetUpgradeCost(id);
 				if (cost <= scene.m_rgPlayerData.gold || (best.cost === 0 || cost < best.cost)) { // TODO
-					best = { id: id, cost: cost, hpg: hpg };
+					best = {
+						id: id,
+						cost: cost,
+						hpg: hpg
+					};
 				}
 			}
 		});
@@ -361,7 +961,11 @@ function startAutoUpgradeManager() {
 	};
 
 	var bestDamageUpgrade = function() {
-		var best = { id: -1, cost: 0, dpg: 0 };
+		var best = {
+			id: -1,
+			cost: 0,
+			dpg: 0
+		};
 		var result, data, cost, dpg, boost;
 
 		var dpc = scene.m_rgPlayerTechTree.damage_per_click;
@@ -377,7 +981,11 @@ function startAutoUpgradeManager() {
 			dpg = (scene.m_rgPlayerTechTree.base_dps * result.boost / clickFrequency) / result.cost;
 			if (dpg >= best.dpg) {
 				if (result.required !== undefined) id = result.required;
-				best = { id: id, cost: scene.GetUpgradeCost(id), dpg: dpg };
+				best = {
+					id: id,
+					cost: scene.GetUpgradeCost(id),
+					dpg: dpg
+				};
 			}
 		});
 
@@ -388,7 +996,11 @@ function startAutoUpgradeManager() {
 			cost = scene.GetUpgradeCost(gLuckyShot);
 			dpg = boost / cost;
 			if (dpg >= best.dpg) {
-				best = { id: gLuckyShot, cost: cost, dpg: dpg };
+				best = {
+					id: gLuckyShot,
+					cost: cost,
+					dpg: dpg
+				};
 			}
 		}
 
@@ -398,7 +1010,11 @@ function startAutoUpgradeManager() {
 			dpg = base_dpc * result.boost * (critrate * critmult + (1 - critrate) * elementalCoefficient) / result.cost;
 			if (dpg >= best.dpg) {
 				if (result.required !== undefined) id = result.required;
-				best = { id: id, cost: scene.GetUpgradeCost(id), dpg: dpg };
+				best = {
+					id: id,
+					cost: scene.GetUpgradeCost(id),
+					dpg: dpg
+				};
 			}
 		});
 
@@ -410,7 +1026,11 @@ function startAutoUpgradeManager() {
 		cost = data.cost * Math.pow(data.cost_exponential_base, elementalLevels);
 
 		// - make new elementals array for testing
-		var testElementals = elementals.map(function(elemental) { return { level: elemental.level }; });
+		var testElementals = elementals.map(function(elemental) {
+			return {
+				level: elemental.level
+			};
+		});
 		var upgradeLevel = testElementals[elementalSpecializations - 1].level;
 		testElementals[elementalSpecializations - 1].level++;
 		if (elementalSpecializations > 1) {
@@ -427,9 +1047,15 @@ function startAutoUpgradeManager() {
 		dpg = boost / cost;
 		if (dpg > best.dpg) { // give base damage boosters priority
 			// find all elements at upgradeLevel and randomly pick one
-			var match = elementals.filter(function(elemental) { return elemental.level == upgradeLevel; });
+			var match = elementals.filter(function(elemental) {
+				return elemental.level == upgradeLevel;
+			});
 			match = match[Math.floor(Math.random() * match.length)].id;
-			best = { id: match, cost: cost, dpg: dpg };
+			best = {
+				id: match,
+				cost: cost,
+				dpg: dpg
+			};
 		}
 
 		return best;
@@ -497,7 +1123,7 @@ function startAutoUpgradeManager() {
 			next.id = -1;
 		}
 	});
-	
+
 	hook(CSceneGame, 'ChangeLevel', function() {
 		// recalculate enemy DPS to see if we can survive this level
 		if (timeToDie(true) < survivalTime) updateNext();
@@ -506,17 +1132,17 @@ function startAutoUpgradeManager() {
 	upgradeManagerPrefilter = function(opts, origOpts, xhr) {
 		if (/ChooseUpgrade/.test(opts.url)) {
 			xhr
-			.success(function() {
-				// wait as short a delay as possible
-				// then we re-run to figure out the next item to queue
-				window.setTimeout(upgradeManager, 0);
-			 })
-			.fail(function() {
-				// we're desynced. wait til data refresh
-				// m_bUpgradesBusy was not set to false
-				scene.m_bNeedTechTree = true;
-				waitingForUpdate = true;
-			});
+				.success(function() {
+					// wait as short a delay as possible
+					// then we re-run to figure out the next item to queue
+					window.setTimeout(upgradeManager, 0);
+				})
+				.fail(function() {
+					// we're desynced. wait til data refresh
+					// m_bUpgradesBusy was not set to false
+					scene.m_bNeedTechTree = true;
+					waitingForUpdate = true;
+				});
 		} else if (/GetPlayerData/.test(opts.url)) {
 			if (waitingForUpdate) {
 				xhr.success(function(result) {
@@ -561,7 +1187,7 @@ function startAutoUpgradeManager() {
 
 	// ---------- Timer ----------
 	function upgradeManager() {
-		if(debug)
+		if (debug)
 			console.log('Checking for worthwhile upgrades');
 
 		scene = g_Minigame.CurrentScene();
@@ -590,401 +1216,13 @@ function startAutoUpgradeManager() {
 		}
 	}
 
-	autoUpgradeManager = setInterval( upgradeManager, upgradeManagerFreq );
+	autoUpgradeManager = setInterval(upgradeManager, upgradeManagerFreq);
 
 	console.log("autoUpgradeManager has been started.");
 }
 
-function startAutoRespawner() {
-	if(autoRespawner) {
-		console.log("autoRespawner is already running!");
-		return;
-	}
-	
-	autoRespawner = setInterval( function(){
-		if(debug)
-			console.log('Checking if the player is dead.');
-
-		// Credit to /u/kolodz for base code. http://www.reddit.com/r/SteamMonsterGame/comments/39joz2/javascript_auto_respawn/
-		if(g_Minigame.m_CurrentScene.m_bIsDead) {
-			if(debug)
-				console.log('Player is dead. Respawning.');
-
-			RespawnPlayer();
-		}
-	}, respawnCheckFreq);
-	
-	console.log("autoRespawner has been started.");
-}
-
-function startAutoTargetSwapper() {
-	if(autoTargetSwapper) {
-		console.log("autoTargetSwapper is already running!");
-		return;
-	}
-
-	
-	updateUserElementMultipliers();
-	autoTargetSwapperElementUpdate = setInterval(updateUserElementMultipliers, elementUpdateRate);
-	
-	autoTargetSwapper = setInterval(function() {
-
-		if(debug)
-			console.log('Looking for a new target.');
-		
-		var currentTarget = getTarget();
-		g_Minigame.m_CurrentScene.m_rgEnemies.each(function(potentialTarget){
-			if(compareMobPriority(potentialTarget, currentTarget))
-				currentTarget = potentialTarget;
-		});
-			
-		//Switch to that target
-		var oldTarget = getTarget();
-		if(currentTarget.m_data && oldTarget.m_data && currentTarget.m_data.id != oldTarget.m_data.id) {
-			if(debug && swapReason !== null) {
-				console.log(swapReason);
-				swapReason = null;
-			}
-			
-			if(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane)
-				g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
-			g_Minigame.m_CurrentScene.TryChangeTarget(currentTarget.m_nID);
-
-		}
-		//Move back to lane if still targetting
-		else if(currentTarget.m_data && g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane != currentTarget.m_nLane) {
-			g_Minigame.m_CurrentScene.TryChangeLane(currentTarget.m_nLane);
-		}
-		
-	}, targetSwapperFreq);
-	
-	console.log("autoTargetSwapper has been started.");
-}
-
-function startAutoAbilityUser() {
-	if(autoAbilityUser) {
-		console.log("autoAbilityUser is already running!");
-		return;
-	}
-
-	autoAbilityUser = setInterval(function() {
-		
-		if(debug)
-			console.log("Checking if it's useful to use an ability.");
-		
-		var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-		var target = getTarget();
-		
-		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
-
-		// Wormholes -- use before wasting items on lanes
-		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) {
-				if(debug)
-					console.log("Casting Wormhole! Allons-y!!!");
-				castAbility(ABILITIES.WORMHOLE);
-			}
-		}
-
-		// Abilities only used on targets
-		if(target) {
-			
-			var targetPercentHPRemaining = target.m_data.hp / target.m_data.max_hp * 100;
-			var laneDPS = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.CurrentScene().m_rgPlayerData.current_lane].friendly_dps;
-			var timeToTargetDeath = target.m_data.hp / laneDPS;
-				
-			// First priority since it can use Decrease Cooldowns
-			
-			//Nuke bosses after the 1000th level and not every 200th level thereafter
-			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel+1) % farmGoldOnBossesLevelDiff !== 0);
-			
-			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
-			
-			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
-			if((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel+1 >= nukeBossesAfterLevel) || (isBoss && nukeBosses)) {
-				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
-				var moraleBoosterReady = hasAbility(ABILITIES.MORALE_BOOSTER);
-				var goodLuckCharmReady = hasAbility(ABILITIES.GOOD_LUCK_CHARMS);
-				var critReady = (hasAbility(ABILITIES.CRIT) && autoUseConsumables);
-				
-				// Only use items on targets that are spawners and have nearly full health
-				if(targetPercentHPRemaining >= 90  && autoUseConsumables && (hasAbility(ABILITIES.CRIPPLE_SPAWNER) || hasAbility(ABILITIES.CRIPPLE_MONSTER))) {
-					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
-					if(hasAbility(ABILITIES.CRIPPLE_SPAWNER)){
-						castAbility(ABILITIES.CRIPPLE_SPAWNER);
-					}else if(hasAbility(ABILITIES.CRIPPLE_MONSTER)){
-						castAbility(ABILITIES.CRIPPLE_MONSTER);
-					}
-				}
-				else if(moraleBoosterReady || critReady || goodLuckCharmReady) {
-					// If we have both we want to combo them
-					var moraleBoosterUnlocked = abilityIsUnlocked(ABILITIES.MORALE_BOOSTER);
-					var goodLuckCharmUnlocked = abilityIsUnlocked(ABILITIES.GOOD_LUCK_CHARMS);
-
-					// "if Moral Booster isn't unlocked or Good Luck Charm isn't unlocked, or both are ready"
-					if((!moraleBoosterUnlocked  && !critReady) || !goodLuckCharmUnlocked || ((moraleBoosterReady || critReady ) && (goodLuckCharmReady || !goodLuckCharmUnlocked))) {
-						var currentLaneHasCooldown = currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS);
-						// Only use on targets that are spawners and have nearly full health
-						if(targetPercentHPRemaining >= 70 || (currentLaneHasCooldown && targetPercentHPRemaining >= 60)) {
-							// Combo these with Decrease Cooldowns ability
-
-							// If Decreased Cooldowns will be available soon, wait
-							if(
-							   currentLaneHasCooldown || // If current lane already has Decreased Cooldown, or
-							   hasAbility(ABILITIES.DECREASE_COOLDOWNS) ||			 // If we have the ability ready
-							   !abilityIsUnlocked(ABILITIES.DECREASE_COOLDOWNS) ||  // if we haven't unlocked the ability yet, or
-							   (abilityCooldown(ABILITIES.DECREASE_COOLDOWNS) > 60) // if cooldown > 60
-							  ) {
-								if(hasAbility(ABILITIES.DECREASE_COOLDOWNS) && !currentLaneHasAbility(ABILITIES.DECREASE_COOLDOWNS)) {
-									// Other abilities won't benifit if used at the same time
-									if(debug)
-										console.log('Triggering Decrease Cooldown!');
-									castAbility(ABILITIES.DECREASE_COOLDOWNS);
-								}
-								else {
-									// Use these abilities next pass
-									
-									//Use crit if one's available
-									if(critReady) {
-										if(debug)
-											console.log("Using Crit!");
-										castAbility(ABILITIES.CRIT);
-									}
-									else if (moraleBoosterReady) {
-										if(debug)
-											console.log("Casting Morale Booster!");
-										castAbility(ABILITIES.MORALE_BOOSTER);
-									}
-									
-									if(goodLuckCharmReady) {
-										if(debug)
-											console.log("Casting Good Luck Charm!");
-										castAbility(ABILITIES.GOOD_LUCK_CHARMS);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				// Tactical Nuke
-				if(hasAbility(ABILITIES.TACTICAL_NUKE) && (targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent || (target.m_data.type == 2 && targetPercentHPRemaining >= useNukeOnBossAbovePercent))) {
-					if(debug)
-						console.log('Nuclear launch detected.');
-					
-					castAbility(ABILITIES.TACTICAL_NUKE);
-				}
-
-		
-				// Napalm
-				else if(target.m_data.type === 0 && hasAbility(ABILITIES.NAPALM) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) { 
-				
-					if(debug)
-						console.log('Triggering napalm!');
-					
-					castAbility(ABILITIES.NAPALM);
-				}
-				
-				// Cluster Bomb
-				else if(target.m_data.type === 0 && hasAbility(ABILITIES.CLUSTER_BOMB) && targetPercentHPRemaining >= useNukeOnSpawnerAbovePercent && currentLane.enemies.length >= 4) {
-					
-					if(debug)
-						console.log('Triggering cluster bomb!');
-					
-					castAbility(ABILITIES.CLUSTER_BOMB);
-				}
-
-				// Boss Nuke Rounds
-				if( isBoss ) {
-					
-					// Max Elemental Damage
-					if(hasAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
-						if(debug)
-							console.log('Using Max Elemental Damage on boss.');
-						
-						castAbility(ABILITIES.MAX_ELEMENTAL_DAMAGE);
-					}
-					
-					// Reflect Damage
-					if(hasAbility(ABILITIES.REFLECT_DAMAGE) && autoUseConsumables && targetPercentHPRemaining > useNukeOnBossAbovePercent){
-						if(debug)
-							console.log('Using Reflect Damage on boss.');
-						
-						castAbility(ABILITIES.REFLECT_DAMAGE);
-					}
-				}
-			}
-			
-			//Use cases for bosses
-			else if(!nukeBosses && isBoss) {
-				//Raining Gold
-				if(hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30) {	
-					if(debug)
-						console.log('Using Raining Gold on boss.');
-					
-					castAbility(ABILITIES.RAINING_GOLD);
-				}
-			}
-			
-			
-			// Metal Detector
-			var  treasureReady = hasAbility(ABILITIES.TREASURE) && autoUseConsumables;
-			if((isBoss || target.m_data.type == 4) && timeToTargetDeath < 10) {
-				if(hasAbility(ABILITIES.METAL_DETECTOR) || treasureReady) {
-					if(treasureReady){
-						if(debug)
-							console.log('Using Metal Detector via Treasure.');
-						castAbility(ABILITIES.TREASURE);
-					}
-					else {
-						if(debug)
-							console.log('Using Metal Detector.');
-						castAbility(ABILITIES.METAL_DETECTOR);
-					}
-				}
-			}
-		}
-
-		//Estimate average player HP Percent in lane
-		var laneTotalPctHP = 0;
-		var laneTotalCount = 0;
-		for(var i=1; i<10; i++) {
-			var HPGuess = ((i-1)*10 + 5);
-			laneTotalPctHP += HPGuess * currentLane.player_hp_buckets[i];
-			laneTotalCount += currentLane.player_hp_buckets[i];
-		}
-		var avgLanePercentHP = laneTotalPctHP / laneTotalCount;
-		var percentAlive = laneTotalCount / (laneTotalCount + currentLane.player_hp_buckets[0]) * 100;
-		
-		// Medics
-		if((percentHPRemaining <= useMedicsAtPercent || (avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)) && !g_Minigame.m_CurrentScene.m_bIsDead) {
-			if(debug) {
-				if(percentHPRemaining <= useMedicsAtPercent)
-					console.log("Health below threshold. Need medics!");
-				if(avgLanePercentHP <= useMedicsAtLanePercent && percentAlive > useMedicsAtLanePercentAliveReq)
-					console.log("Average lane below threshold. Need medics!");
-			}
-			
-			// Only use if there isn't already a Medics active?
-			var pumpedUpReady = hasAbility(ABILITIES.PUMPED_UP) && autoUseConsumables;
-			var stealHealthReady = hasAbility(ABILITIES.STEAL_HEALTH) && autoUseConsumables;
-			if((hasAbility(ABILITIES.MEDICS) || pumpedUpReady) && currentLaneHasAbility(ABILITIES.MEDICS) < 2) {
-				
-				if(pumpedUpReady){
-					if(debug)
-						console.log("Using Medics via Pumped Up!");
-					castAbility(ABILITIES.PUMPED_UP);
-				}
-				else {
-					if(debug)
-						console.log("Using Medics!");
-					castAbility(ABILITIES.MEDICS);
-				}
-			}
-			else if(stealHealthReady && percentHPRemaining <= useMedicsAtPercent) {
-					if(debug)
-						console.log("Using Steal Health in place of Medics!");
-					castAbility(ABILITIES.STEAL_HEALTH);
-			}
-			else if(debug)
-				console.log("No medics to unleash!");
-		}
-		
-		// Resurrect
-		if(hasAbility(ABILITIES.RESURRECTION) && autoUseConsumables) {
-			if(currentLane.player_hp_buckets[0] >= useResurrectToSaveCount) {
-				if(debug)
-					console.log('Using resurrection to save ' + currentLane.player_hp_buckets[0] + ' lane allies.');
-				castAbility(ABILITIES.RESURRECTION);
-			}
-		}
-		
-		// Like New
-		if(hasAbility(ABILITIES.LIKE_NEW) && autoUseConsumables) {
-			var totalCD = 0;
-			for(i=5; i <= 12; i++){
-				if(abilityIsUnlocked(i))
-					totalCD += abilityCooldown(i);
-			}
-				
-			if(totalCD * 1000 >= useLikeNewAboveCooldown) {
-				if(debug)
-					console.log('Using like new to save a total of ' + totalCD + ' seconds of cooldown.');
-				castAbility(ABILITIES.LIKE_NEW);
-			}
-		}
-			
-	}, abilityUseCheckFreq);
-	
-	console.log("autoAbilityUser has been started.");
-}
-
-function hasTimeLeftToUseConsumable(id) {
-	var time = new Date();
-	var hrs = time.getUTCHours();
-	var mins = time.getUTCMinutes();
-	return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(id) + minutesBufferForConsumableDump)); // give a little extra time to clear the last levels
-}
-
-function startAutoItemUser() {
-	autoUseConsumables = true;
-	console.log("Automatic use of consumables has been enabled.");
-}
-
-function startAllAutos() {
-	startAutoClicker();
-	startAutoRespawner();
-	startAutoTargetSwapper();
-	startAutoAbilityUser();
-	startAutoUpgradeManager();
-}
-
-// ================ STOPPER FUNCTIONS ================
-function stopAutoClicker() {
-	if(autoClicker) {
-		clearInterval(autoClicker);
-		autoClicker = null;
-		console.log("autoClicker has been stopped.");
-	}
-	else
-		console.log("No autoClicker is running to stop.");
-}
-function stopAutoRespawner() {
-	if(autoRespawner) {
-		clearInterval(autoRespawner);
-		autoRespawner = null;
-		console.log("autoRespawner has been stopped.");
-	}
-	else
-		console.log("No autoRespawner is running to stop.");
-		
-}
-function stopAutoTargetSwapper() {
-	if(autoTargetSwapper){
-		clearInterval(autoTargetSwapper);
-		autoTargetSwapper = null;
-		console.log("autoTargetSwapper has been stopped.");
-	}
-	else
-		console.log("No autoTargetSwapper is running to stop.");
-}
-function stopAutoAbilityUser() {
-	if(autoAbilityUser){
-		clearInterval(autoAbilityUser);
-		autoAbilityUser = null;
-		console.log("autoAbilityUser has been stopped.");
-	}
-	else
-		console.log("No autoAbilityUser is running to stop.");
-}
-
-function stopAutoItemUser() {
-	autoUseConsumables = false;
-	console.log("Automatic use of consumables has been disabled.");
-}
-
 function stopAutoUpgradeManager() {
-	if(autoUpgradeManager){
+	if (autoUpgradeManager) {
 		clearInterval(autoUpgradeManager);
 		autoUpgradeManager = null;
 
@@ -992,224 +1230,60 @@ function stopAutoUpgradeManager() {
 		var removeHook = function removeHook(base, method) {
 			base.prototype[method] = (base.prototype[method + '_upgradeManager'] || base.prototype[method]);
 		};
-		
+
 		removeHook(CSceneGame, 'TryUpgrade');
 		removeHook(CSceneGame, 'ChangeLevel');
 
 		//Clear the visual
 		$J(document.body).removeClass('upgrade_waiting');
 		$J('.next_upgrade').removeClass('next_upgrade');
-		
+
 		console.log("autoUpgradeManager has been stopped.");
-	}
-	else
+	} else
 		console.log("No autoUpgradeManager is running to stop.");
 }
 
-function stopAllAutos() {
-	stopAutoClicker();
-	stopAutoRespawner();
-	stopAutoTargetSwapper();
-	stopAutoAbilityUser();
-	stopAutoItemUser();
-	stopAutoUpgradeManager();
-}
+// ================ UI ELEMENTS ================
+function initGUI() {
+	updatePlayersInLane();
+	updatePlayersInRoom();
+	setInterval(function() {
+		updatePlayersInLane();
+		updatePlayersInRoom();
+	}, 10000);
+	addPointer();
+	addExtraUI();
 
-function disableAutoNukes() {
-	useNukeOnSpawnerAbovePercent = 200;
-	console.log('Automatic nukes have been disabled');
-}
-
-// ================ HELPER FUNCTIONS ================
-function castAbility(abilityID) {
-	if(hasAbility(abilityID)) {
-		if(abilityID <= ABILITIES.NAPALM && document.getElementById('ability_' + abilityID) !== null)
-			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
-		else if(document.getElementById('abilityitem_' + abilityID) !== null)
-			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
-	}
-}
-
-function currentLaneHasAbility(abilityID) {
-	return laneHasAbility(g_Minigame.CurrentScene().m_rgPlayerData.current_lane, abilityID);
-}
-
-function laneHasAbility(lane, abilityID) {
-	try {
-		if(g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID])
-			return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
-		else
-			return 0;
-	}
-	catch(e){
-		return 0;
-	}	
-}
-
-function abilityIsUnlocked(abilityID) {
-		if(abilityID <= ABILITIES.NAPALM)
-			return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
-		else
-			return getAbilityItemQuantity(abilityID) > 0;
-}
-
-function getAbilityItemQuantity(abilityID) {
-	for ( var i = 0; i < g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items.length; ++i ) {
-		var abilityItem = g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items[i];
-
-		if(abilityItem.ability == abilityID)
-			return abilityItem.quantity;
-	}
-
-	return 0;
-}
-
-// Ability cooldown time remaining (in seconds)
-function abilityCooldown(abilityID) {
-	return g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
-}
-
-// thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
-function hasAbility(abilityID) {
-	// each bit in unlocked_abilities_bitfield corresponds to an ability.
-	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
-	// the player has purchased the specified ability.
-	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
-}
-
-function updateUserElementMultipliers() {
-	if(!gameRunning() || !g_Minigame.m_CurrentScene.m_rgPlayerTechTree) return;
-	
-	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
-	userElementMultipliers[4] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
-	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
-	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
-	
-	userMaxElementMultiiplier = Math.max.apply(null, userElementMultipliers);
- }
-
-// Return a value to compare mobs' priority (lower value = less important)
-//  (treasure > boss > miniboss > spawner > creep)
-function getMobTypePriority(potentialTarget) {
-	
-	if(!potentialTarget || !potentialTarget.m_data)
-		return -1;
-	
-	mobType = potentialTarget.m_data.type;
-	
-	switch(mobType) {
-		case 1: // Creep
-			return 0;
-		case 0: // Spawner
-			return 1;
-		case 3: // Miniboss
-			return 2;
-		case 2: // Boss
-			return 3;
-		case 4: // Treasure
-			return 4;
-		case false: // Let's just assume false is a flag for most important
-			return 4;
-		default:
-			return -1;
-	}
-}
-
-// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
-function compareMobPriority(mobA, mobB) {
-	if(!mobA)
-		return false;
-	if(!mobB) {
-		swapReason = "Swapping off a non-existent mob.";
-		return true;
-	}
-	
-	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp  / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
-	var aHasHealing = laneHasAbility(mobA.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobA.m_nLane, ABILITIES.STEAL_HEALTH);
-	var bHasHealing = laneHasAbility(mobB.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobB.m_nLane, ABILITIES.STEAL_HEALTH);
-
-	var aIsGold = laneHasAbility(mobA.m_nLane, ABILITIES.RAINING_GOLD);
-	var bIsGold = laneHasAbility(mobB.m_nLane, ABILITIES.RAINING_GOLD);
-	
-	var aTypePriority = getMobTypePriority(mobA);
-	var bTypePriority = getMobTypePriority(mobB);
-	
-	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
-	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
-
-	//check for Max Elemental Damage Ability
-	if(laneHasAbility(mobA.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
-		aElemMult = userMaxElementMultiiplier;
-	if(laneHasAbility(mobB.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
-		bElemMult = userMaxElementMultiiplier;
-	
-	var aHP = mobA.m_data.hp;
-	var bHP = mobB.m_data.hp;
-
-	//First, make sure they're alive
-	if(mobA.m_bIsDestroyed || aHP <= 0)
-		return false;
-	else if(mobB.m_bIsDestroyed || bHP <= 0) {
-		swapReason = "Swapping off a destroyed mob.";
-		return true;
-	}
-
-	//ignore in the weird case that mob priority isn't set to any type (usually set to 'false') (I've seen it sometimes)
-	/*if(aTypePriority !== -1) {
-		//if(debug)
-		//	console.log('wtf, unknown mobType.', [mobA.m_nLane, mobA.m_nID, aTypePriority], [mobB.m_nLane, mobB.m_nID, bTypePriority]);
-		return false;
-	}
-	else if(bTypePriority !== -1)
-		return true;
-	*/
-	
-	else if(aIsGold != bIsGold) {
-		if(aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
-			swapReason = "Switching to target with Raining Gold.";
-			return true;
+	// Overwrite this function so it doesn't delete our sexy pointer
+	CSceneGame.prototype.ClearNewPlayer = function() {
+		if (this.m_spriteFinger) {
+			var bPlayedBefore = WebStorage.SetLocal('mg_how2click', 1);
+			$J('#newplayer').hide();
 		}
-	}
-	
-	else if(aTypePriority != bTypePriority) {		
-		if(aTypePriority > bTypePriority) {
-			swapReason = "Switching to higher priority target.";
-			return true;
-		}
-	}
-	
-	//Run to a medic lane if needed
-	else if(percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
-		if(aHasHealing != bHasHealing) {
-			if(aHasHealing) {
-				swapReason = "Swapping to lane with active healing.";
-				return true;
+	};
+
+	// Overwrite this function so our loot notifications do not repeat until we actually have a new one
+	CUI.prototype.UpdateLootNotification = function() {
+		if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length !== 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length === 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
+			$J("#loot_notification").show();
+			var abilities = this.m_Game.m_rgTuningData.abilities;
+			var strLootNames = "";
+			for (var i = 0; i < this.m_Game.m_rgPlayerData.loot.length; ++i) {
+				var loot = this.m_Game.m_rgPlayerData.loot[i];
+				if (i !== 0) {
+					strLootNames += ", ";
+				}
+				strLootNames += abilities[loot.ability].name;
 			}
+			$J("#loot_name").text(strLootNames);
+			setTimeout(function() {
+				$J("#loot_notification").fadeOut(1000);
+			}, 5000);
+			lastLootLevel = this.m_Game.m_rgGameData.level;
+			lastLootCache = this.m_Game.m_rgPlayerData.loot;
+			this.m_Game.m_rgPlayerData.loot = [];
 		}
-	}
-	
-	else if(aElemMult != bElemMult) {
-		if(aElemMult > bElemMult) {
-			swapReason = "Switching to elementally weaker target.";
-			return true;
-		}
-	}
-	else if(aHP != bHP) {
-		if(aHP < bHP) {
-			swapReason = "Switching to lower HP target.";
-			return true;
-		}
-	}
-	return false;
-}
-
-function gameRunning() {
-	try {
-		return (typeof g_Minigame === "object" && g_Minigame.m_CurrentScene.m_rgGameData.status == 2);
-	}
-	catch (e) {
-		return false;
-	}
+	};
 }
 
 function addPointer() {
@@ -1217,9 +1291,9 @@ function addPointer() {
 	var w = 26;
 	var h = 49;
 
-	for( var y = 0; y < 4; y++) {
-		for( var x = 0; x < 5; x++ ) {
-			g_Minigame.m_CurrentScene.m_rgFingerTextures.push( new PIXI.Texture( g_rgTextureCache.pointer.texture, {
+	for (var y = 0; y < 4; y++) {
+		for (var x = 0; x < 5; x++) {
+			g_Minigame.m_CurrentScene.m_rgFingerTextures.push(new PIXI.Texture(g_rgTextureCache.pointer.texture, {
 				x: x * w,
 				y: y * h,
 				width: w,
@@ -1230,247 +1304,43 @@ function addPointer() {
 
 	g_Minigame.m_CurrentScene.m_nFingerIndex = 0;
 
-	g_Minigame.m_CurrentScene.m_spriteFinger = new PIXI.Sprite( g_Minigame.m_CurrentScene.m_rgFingerTextures[g_Minigame.m_CurrentScene.m_nFingerIndex] );
+	g_Minigame.m_CurrentScene.m_spriteFinger = new PIXI.Sprite(g_Minigame.m_CurrentScene.m_rgFingerTextures[g_Minigame.m_CurrentScene.m_nFingerIndex]);
 	g_Minigame.m_CurrentScene.m_spriteFinger.scale.x = g_Minigame.m_CurrentScene.m_spriteFinger.scale.y = 2;
 
-	g_Minigame.m_CurrentScene.m_containerParticles.addChild( g_Minigame.m_CurrentScene.m_spriteFinger );
-}
-
-function getTarget() {
-	try {
-		var target = g_Minigame.m_CurrentScene.GetEnemy(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target);
-		return target;
-	} catch(e) {
-		return null;
-	}
-}
-		
-
-//Expose functions if running in userscript
-if(typeof unsafeWindow != 'undefined') {
-	// Variables
-	unsafeWindow.debug = debug;
-	unsafeWindow.clicksPerSecond = clicksPerSecond;
-	unsafeWindow.autoClickerVariance = autoClickerVariance;
-	unsafeWindow.respawnCheckFreq = respawnCheckFreq;
-	unsafeWindow.targetSwapperFreq = targetSwapperFreq;
-	unsafeWindow.abilityUseCheckFreq = abilityUseCheckFreq;
-	unsafeWindow.itemUseCheckFreq = itemUseCheckFreq;
-	unsafeWindow.seekHealingPercent = seekHealingPercent;
-	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
-	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
-
-	//item use variables
-	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
-	unsafeWindow.useMedicsAtLanePercent = useMedicsAtLanePercent;
-	unsafeWindow.useMedicsAtLanePercentAliveReq = useMedicsAtLanePercentAliveReq;
-	unsafeWindow.useNukeOnSpawnerAbovePercent = useNukeOnSpawnerAbovePercent;
-	unsafeWindow.useMetalDetectorOnBossBelowPercent = useMetalDetectorOnBossBelowPercent;
-	unsafeWindow.useStealHealthAtPercent = useStealHealthAtPercent;
-	unsafeWindow.useRainingGoldAbovePercent = useRainingGoldAbovePercent;
-	unsafeWindow.autoUseConsumables = autoUseConsumables;
-	unsafeWindow.useResurrectToSaveCount = useResurrectToSaveCount;
-	
-	//Slave window variables
-	unsafeWindow.slaveWindowUICleanup = slaveWindowUICleanup;
-	unsafeWindow.slaveWindowPeriodicRestart = slaveWindowPeriodicRestart;
-	unsafeWindow.slaveWindowPeriodicRestartInterval = slaveWindowPeriodicRestartInterval;
-	
-	//Boss nuke vars
-	unsafeWindow.nukeBossesAfterLevel = nukeBossesAfterLevel;
-	unsafeWindow.farmGoldOnBossesLevelDiff = farmGoldOnBossesLevelDiff;
-	unsafeWindow.useNukeOnBossAbovePercent = useNukeOnBossAbovePercent;
-	
-	// Functions
-	unsafeWindow.startAutoClicker = startAutoClicker;
-	unsafeWindow.startAutoRespawner = startAutoRespawner;
-	unsafeWindow.startAutoTargetSwapper = startAutoTargetSwapper;
-	unsafeWindow.startAutoAbilityUser = startAutoAbilityUser;
-	unsafeWindow.startAutoItemUser = startAutoItemUser;
-	unsafeWindow.startAllAutos = startAllAutos;
-	unsafeWindow.startAutoUpgradeManager = startAutoUpgradeManager;
-	unsafeWindow.stopAutoClicker = stopAutoClicker;
-	unsafeWindow.stopAutoRespawner = stopAutoRespawner;
-	unsafeWindow.stopAutoTargetSwapper = stopAutoTargetSwapper;
-	unsafeWindow.stopAutoAbilityUser = stopAutoAbilityUser;
-	unsafeWindow.stopAutoItemUser = stopAutoItemUser;
-	unsafeWindow.stopAutoUpgradeManager = stopAutoUpgradeManager;
-	unsafeWindow.stopAllAutos = stopAllAutos;
-	unsafeWindow.disableAutoNukes = disableAutoNukes;
-	unsafeWindow.castAbility = castAbility;
-	unsafeWindow.hasAbility = hasAbility;
-	unsafeWindow.abilityIsUnlocked = abilityIsUnlocked;
-	unsafeWindow.abilityCooldown = abilityCooldown;
-	unsafeWindow.toggleAutoClicker = toggleAutoClicker;
-	unsafeWindow.toggleAutoTargetSwapper = toggleAutoTargetSwapper;
-	unsafeWindow.toggleAutoAbilityUser = toggleAutoAbilityUser;
-	unsafeWindow.toggleAutoItemUser = toggleAutoItemUser;
-	unsafeWindow.toggleAutoUpgradeManager = toggleAutoUpgradeManager;
-	unsafeWindow.spamNoClick = spamNoClick;
-	unsafeWindow.toggleSpammer = toggleSpammer;
-	unsafeWindow.getTarget = getTarget;
-	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
-	unsafeWindow.laneHasAbility = laneHasAbility;
-	unsafeWindow.getMobTypePriority = getMobTypePriority;
-	unsafeWindow.updateStats = updateStats;
-	
-	
-	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
-	var varSetter = setInterval(function() {
-		if(debug)
-			console.log('updating options');
-		
-		// Main vars
-		debug = unsafeWindow.debug;
-		clicksPerSecond = unsafeWindow.clicksPerSecond;
-		autoClickerVariance = unsafeWindow.autoClickerVariance;
-		respawnCheckFreq = unsafeWindow.respawnCheckFreq;
-		targetSwapperFreq = unsafeWindow.targetSwapperFreq;
-		abilityUseCheckFreq = unsafeWindow.abilityUseCheckFreq;
-		itemUseCheckFreq = unsafeWindow.itemUseCheckFreq;
-		seekHealingPercent = unsafeWindow.seekHealingPercent;
-		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
-		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
-
-		//item use variables
-		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
-		useMedicsAtLanePercent = unsafeWindow.useMedicsAtLanePercent;
-		useMedicsAtLanePercentAliveReq = unsafeWindow.useMedicsAtLanePercentAliveReq;
-		useNukeOnSpawnerAbovePercent = unsafeWindow.useNukeOnSpawnerAbovePercent;
-		useMetalDetectorOnBossBelowPercent = unsafeWindow.useMetalDetectorOnBossBelowPercent;
-		useStealHealthAtPercent = unsafeWindow.useStealHealthAtPercent;
-		useRainingGoldAbovePercent = unsafeWindow.useRainingGoldAbovePercent;
-		useResurrectToSaveCount = unsafeWindow.useResurrectToSaveCount;
-		
-		//Boss nuke vars
-		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
-		farmGoldOnBossesLevelDiff = unsafeWindow.farmGoldOnBossesLevelDiff;
-		useNukeOnBossAbovePercent = unsafeWindow.useNukeOnBossAbovePercent;
-		
-	}, 5000);
-	
-	//Add closure 'debug' getter and setter
-	unsafeWindow.getDebug = function() { return debug; };
-	unsafeWindow.setDebug = function(state) { debug = state; };
+	g_Minigame.m_CurrentScene.m_containerParticles.addChild(g_Minigame.m_CurrentScene.m_spriteFinger);
 }
 
 function updatePlayersInLane() {
 	// update players in lane
 	var players = "???";
-	if(g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane])
+	if (g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane])
 		players = g_Minigame.m_CurrentScene.m_rgLaneData[g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane].players;
-	
+
 	$J("#players_in_lane").html(players);
 }
 
 function updatePlayersInRoom() {
 	//Update players in room
 	var players = "???";
-	if(g_Minigame.m_CurrentScene.m_rgLaneData[0])
+	if (g_Minigame.m_CurrentScene.m_rgLaneData[0])
 		players = (g_Minigame.m_CurrentScene.m_rgLaneData[0].players + g_Minigame.m_CurrentScene.m_rgLaneData[1].players + g_Minigame.m_CurrentScene.m_rgLaneData[2].players);
 	$J("#players_in_room").html(players);
 }
 
-//Keep trying to start every second till success
-var startAttempts = 0;
-var startAll = setInterval(function() { 
-		if(!gameRunning()){
-			//Don't refresh if we're waiting on game to start
-			if(g_Minigame.m_CurrentScene.m_rgGameData.status != 1) {
-				//Refresh if the game still isn't running after 15s
-				if(startAttempts > 15)
-					location.reload();
-				
-				startAttempts++;
-			}
-			
-			return;
-		}
-		
-		clearInterval(startAll);
-		
-		startAllAutos();
-		addPointer();
-		addExtraUI();
-
-		//Update current players in lane/room count
-		updatePlayersInLane();
-		updatePlayersInRoom();
-		setInterval(function() { updatePlayersInLane(); updatePlayersInRoom(); }, 10000);		
-		
-		if(typeof runMaster == 'function'){
-			//Setup for slave windows
-			if(location.search.match(/slave/))
-				runSlave();
-			else
-				runMaster();
-		}
-
-		// Overwrite this function so it doesn't delete our sexy pointer
-		CSceneGame.prototype.ClearNewPlayer = function() {
-			if( this.m_spriteFinger )  {
-				var bPlayedBefore = WebStorage.SetLocal('mg_how2click', 1);
-				$J('#newplayer').hide();
-			}
-		};
-
-		//Keep Playing while minimized - http://www.reddit.com/r/SteamMonsterGame/comments/39yng9/keep_autoclicking_after_minimizingchanging_tabs/
-		setInterval(function(p) {
-		    return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
-		        function() {
-		            p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
-		        }
-		}(CSceneGame.prototype), 1000);
-
-		setTimeout(function() {
-			//Try to reload every 15s
-			var reloader = setInterval(function(){
-				//No raining gold, treasure mob, boss, or miniboss
-				var target = getTarget();
-				var reload = !currentLaneHasAbility(ABILITIES.RAINING_GOLD) && target.m_data.type != 4 && target.m_data.type != 2 && target.m_data.type != 3 && target.m_data.type !== false;
-				if(reload){
-					clearInterval(reloader);
-					location.reload();
-				}
-			}, 15000);
-		}, refreshDelay);
-		
-		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
-		CUI.prototype.UpdateLootNotification = function() {
-			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length !== 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length === 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
-				$J("#loot_notification").show();
-
-				var abilities = this.m_Game.m_rgTuningData.abilities;
-				var strLootNames = "";
-				for (var i = 0; i < this.m_Game.m_rgPlayerData.loot.length; ++i) {
-					var loot = this.m_Game.m_rgPlayerData.loot[i];
-					if (i !== 0) { strLootNames += ", "; }
-					strLootNames += abilities[loot.ability].name;
-				}
-				$J("#loot_name").text( strLootNames );
-				setTimeout(function() { $J("#loot_notification").fadeOut(1000); }, 5000);
-				lastLootLevel = this.m_Game.m_rgGameData.level;
-				lastLootCache = this.m_Game.m_rgPlayerData.loot;
-				this.m_Game.m_rgPlayerData.loot = [];
-			}
-		};
-
-		//Start leaderboard (if user is running userscript)
-		if(typeof unsafeWindow != 'undefined')
-			initLeaderboard();
-	}, 1000);
-
 var endDate = initEndDate();
+
 function initEndDate() {
 	var endDate = new Date();
-	if (endDate.getUTCHours() > 16) { endDate.setUTCDate(endDate.getUTCDate()+1); }
+	if (endDate.getUTCHours() > 16) {
+		endDate.setUTCDate(endDate.getUTCDate() + 1);
+	}
 	endDate.setUTCHours(16, 0, 0, 0);
 	return endDate;
 }
 
 function updateStats() {
 	var getSecondsUntilEnd = function() {
-	    return (endDate.getTime()/1000) - g_Minigame.m_CurrentScene.m_nTime;
+		return (endDate.getTime() / 1000) - g_Minigame.m_CurrentScene.m_nTime;
 	}
 
 	var getSecondsPerLevel = function() {
@@ -1479,39 +1349,52 @@ function updateStats() {
 
 	var getFormattedRemainingTime = function() {
 		var secondsUntilEnd = getSecondsUntilEnd();
-	    var hrs   = Math.floor(secondsUntilEnd / 3600);
-	    var min = Math.floor((secondsUntilEnd - (hrs * 3600)) / 60);
-	    var sec = secondsUntilEnd - (hrs * 3600) - (min * 60);
+		var hrs = Math.floor(secondsUntilEnd / 3600);
+		var min = Math.floor((secondsUntilEnd - (hrs * 3600)) / 60);
+		var sec = secondsUntilEnd - (hrs * 3600) - (min * 60);
 
-	    var time = '';
-	    if (hrs > 0) {
-	      if (hrs == 1) { time += "an hour"; }
-	      else { time += hrs + " hours"; }
-	      if (min > 1) { time += " and " + min + " minute"+(min == 1 ? '' : 's'); }
-	    } else if (min > 0) {
-	      if (min == 1) { time += "a minute"; }
-	      else { time += min + " minutes"; }
-	      if (sec > 1) {time += " and " + sec + " second"+(sec == 1 ? '' : 's'); }
-	    } else {
-	      if (sec <= 1) { time += "about a second"; }
-	      else { time += "about " + sec + " seconds"; }
-	    }
-	    return time;
+		var time = '';
+		if (hrs > 0) {
+			if (hrs == 1) {
+				time += "an hour";
+			} else {
+				time += hrs + " hours";
+			}
+			if (min > 1) {
+				time += " and " + min + " minute" + (min == 1 ? '' : 's');
+			}
+		} else if (min > 0) {
+			if (min == 1) {
+				time += "a minute";
+			} else {
+				time += min + " minutes";
+			}
+			if (sec > 1) {
+				time += " and " + sec + " second" + (sec == 1 ? '' : 's');
+			}
+		} else {
+			if (sec <= 1) {
+				time += "about a second";
+			} else {
+				time += "about " + sec + " seconds";
+			}
+		}
+		return time;
 	}
 
 	$J('#avg_completion_rate').html(parseFloat(getSecondsPerLevel()).toFixed(2));
-	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd()/getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
+	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd() / getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
 	$J("#remaining_time").html(getFormattedRemainingTime());
 }
 
 function addExtraUI() {
 	//Add in player count for current room
 	var old = $J(".title_activity").html();
-	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
+	$J(".title_activity").html(old + '&nbsp;[<span id="players_in_room">0</span> in room]');
 	$J("#gamecontainer").append('<div id="settings"></div>');
-	$J('#settings').css({ 
-		"position": "absolute", 
-		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
+	$J('#settings').css({
+		"position": "absolute",
+		"background": "url('" + getUploadedFilePath("img/settings.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
@@ -1520,9 +1403,9 @@ function addExtraUI() {
 		"bottom": "-65px",
 		"right": "10px",
 		"padding-top": "15px",
-  		"padding-left": "12px"
+		"padding-left": "12px"
 	});
-	
+
 	//Add replacement settings options
 	$J("#settings").append('<div id="music_toggle" class="toggle"><span class="value disabled"></span><span class="title">Music: </span></div>');
 	$J("#settings").append('<div id="sfx_toggle" class="toggle"><span class="value disabled"></span><span class="title">SFX: </span></div>');
@@ -1532,30 +1415,56 @@ function addExtraUI() {
 	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
 	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
 	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
-	$J("#sfx_toggle").click(function(e) { e.stopPropagation(); toggleSFX(true)});
-	$J("#music_toggle").click(function(e) { e.stopPropagation(); toggleMusic(true)});
-	$J("#autoclicker_toggle").click(function(e) { e.stopPropagation(); toggleAutoClicker()});
-	$J("#autotargetswapper_toggle").click(function(e) { e.stopPropagation(); toggleAutoTargetSwapper()});
-	$J("#autoabilityuse_toggle").click(function(e) { e.stopPropagation(); toggleAutoAbilityUser()});
-	$J("#autoconsume_toggle").click(function(e) { e.stopPropagation(); toggleAutoItemUser()});
-	$J("#autoupgrade_toggle").click(function(e) { e.stopPropagation(); toggleAutoUpgradeManager()});
-	$J("#particles_toggle").click(function(e) { e.stopPropagation(); toggleSpammer()});
+	$J("#sfx_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleSFX(true)
+	});
+	$J("#music_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleMusic(true)
+	});
+	$J("#autoclicker_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleAutoClicker()
+	});
+	$J("#autotargetswapper_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleAutoTargetSwapper()
+	});
+	$J("#autoabilityuse_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleAutoAbilityUser()
+	});
+	$J("#autoconsume_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleAutoItemUser()
+	});
+	$J("#autoupgrade_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleAutoUpgradeManager()
+	});
+	$J("#particles_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleSpammer()
+	});
 
 	// We force update the icon once to sync with active settings
 	toggleSFX(false);
 	toggleMusic(false);
 
 	// Slide the settings panel out on click
-	$J("#settings").click (function() {
+	$J("#settings").click(function() {
 		var op = $J("#settings");
-		op.animate({ bottom: parseInt(op.css('bottom') , 10) == -65 ? -op.outerHeight() : -65 });
+		op.animate({
+			bottom: parseInt(op.css('bottom'), 10) == -65 ? -op.outerHeight() : -65
+		});
 	});
 
 	//Statistics
 	$J("#gamecontainer").append('<div id="statistics"></div>');
-	$J('#statistics').css({ 
-		"position": "absolute", 
-		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/stats.png')",
+	$J('#statistics').css({
+		"position": "absolute",
+		"background": "url('" + getUploadedFilePath("img/stats.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "250px",
@@ -1577,9 +1486,16 @@ function addExtraUI() {
 	$J("#statistics").append('<div id="stat_elemental_dps" class="stat"><span class="title">Elemental DPS: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_boss_loot" class="stat"><span class="title">Boss Loot Chance: </span><span class="value">0</span></div>');
 
-	$J("#footer_spacer").css({"height": "175px"});
-	$J("canvas").css({"position": "relative","z-index":"5"});
-	$J("#uicontainer").css({"z-index":"6"});
+	$J("#footer_spacer").css({
+		"height": "175px"
+	});
+	$J("canvas").css({
+		"position": "relative",
+		"z-index": "5"
+	});
+	$J("#uicontainer").css({
+		"z-index": "6"
+	});
 	//Update stats
 	setInterval(function() {
 		function getElementalMul() {
@@ -1588,16 +1504,18 @@ function addExtraUI() {
 		$J("#statistics #stat_player_dpc .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
 		$J("#statistics #stat_player_dps .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clicksPerSecond, 5));
 		$J("#statistics #stat_player_crit .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.crit_percentage * 100), 5) + "%");
-		$J("#statistics #stat_crit_mul .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_crit, 5)+ "x");
+		$J("#statistics #stat_crit_mul .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_crit, 5) + "x");
 		$J("#statistics #stat_elemental_mul .value").html(FormatNumberForDisplay(getElementalMul()) + "x");
 		$J("#statistics #stat_elemental_dpc .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
 		$J("#statistics #stat_elemental_dps .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clicksPerSecond, 5));
 		$J("#statistics #stat_boss_loot .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100, 5)) + "%");
 	}, 1000);
 
-	$J("#statistics").click (function() {
+	$J("#statistics").click(function() {
 		var op = $J("#statistics");
-		op.animate({ bottom: parseInt(op.css('bottom') , 10) == -65 ? -op.outerHeight() : -65 });
+		op.animate({
+			bottom: parseInt(op.css('bottom'), 10) == -65 ? -op.outerHeight() : -65
+		});
 	});
 
 	//Other UI elements
@@ -1608,21 +1526,21 @@ function addExtraUI() {
 function addCustomButtons() {
 	//Smack the TV Easter Egg
 	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
-	
+
 	//Remove unneeded options area 
 	$J(".game_options").remove();
 
 	//Bring the close button back
 	$J('<a href="http://steamcommunity.com/minigame/" class="leave_game_btn"><span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span></a>').insertAfter("#settings");
 	$J(".leave_game_btn").css({
-		"width": "120px", 
-		"position": "absolute", 
-		"bottom": "72px", 
-		"z-index": "12", 
+		"width": "120px",
+		"position": "absolute",
+		"bottom": "72px",
+		"z-index": "12",
 		"left": "340px",
 		"background": "url('http://steamcommunity-a.akamaihd.net/public/images/promo/towerattack/leave_game_btn.png')",
 		"background-repeat": "no-repeat",
-		"background-position": "-75px 0px", 
+		"background-position": "-75px 0px",
 		"height": "56px",
 		"float": "right",
 		"margin-right": "7px",
@@ -1630,17 +1548,26 @@ function addCustomButtons() {
 		"cursor": "pointer",
 	});
 	$J('<div class="leave_game_helper">You can safely close the game or leave this screen at any time—you will continue collecting gold and damaging monsters even while away from your computer. Check back occasionally to see how you\'re doing and use in-game gold to purchase upgrades.</div>').insertAfter("#settings");
-	$J(".leave_game_helper").css({"left": "150px", "top": "initial", "bottom": "-20px",  "z-index": "12"});
-	
+	$J(".leave_game_helper").css({
+		"left": "150px",
+		"top": "initial",
+		"bottom": "-20px",
+		"z-index": "12"
+	});
+
 	//Hide the stupid "Leave game" tooltip
-	$J('.leave_game_btn').mouseover(function(){	$J('.leave_game_helper').show(); })
-		.mouseout(function(){ $J('.leave_game_helper').hide();	});
+	$J('.leave_game_btn').mouseover(function() {
+			$J('.leave_game_helper').show();
+		})
+		.mouseout(function() {
+			$J('.leave_game_helper').hide();
+		});
 	$J('.leave_game_helper').hide();
 
 	// Append gameid to breadcrumbs
 	var breadcrumbs = document.querySelector('.breadcrumbs');
 
-	if(breadcrumbs) {
+	if (breadcrumbs) {
 		var element = document.createElement('span');
 		element.textContent = ' > ';
 		breadcrumbs.appendChild(element);
@@ -1650,7 +1577,7 @@ function addCustomButtons() {
 		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
 		element.textContent = 'Room ' + g_GameID;
 		breadcrumbs.appendChild(element);
-      
+
 		element = document.createElement('span');
 		element.textContent = ' > ';
 		breadcrumbs.appendChild(element);
@@ -1672,58 +1599,50 @@ function addCustomButtons() {
 		breadcrumbs.appendChild(element);
 
 		updateStats();
-		setInterval(function() { updateStats(); }, 10000);
+		setInterval(function() {
+			updateStats();
+		}, 10000);
 
-		if(typeof GM_info != 'undefined') {
+		if (typeof GM_info != 'undefined') {
 			element = document.createElement('span');
 			element.style.cssFloat = 'right';
 			element.style.color = '#D4E157';
 			element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
-			element.innerHTML = '<a target="_blank"  href="'+GM_info.script.namespace+'">'+GM_info.script.name + ' v' + GM_info.script.version+'</a>';
+			element.innerHTML = '<a target="_blank"  href="' + GM_info.script.namespace + '">' + GM_info.script.name + ' v' + GM_info.script.version + '</a>';
 			breadcrumbs.appendChild(element);
 		}
 	}
 
 }
 
-function addGlobalStyle(css) {
-    $J('head').append('<style>'+css+'</style>');
-}
-
 function customCSS() {
-	addGlobalStyle(".game_options .toggle_btn { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px 0px;cursor: pointer;width: 150px;height: 21px;}");
-	addGlobalStyle(".game_options .toggle_btn.enabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -56px;cursor: pointer;height: 21px;}");
-	addGlobalStyle(".game_options .toggle_btn.disabled {background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: 0px -112px;cursor: pointer;height: 21px; }");
+	var css = "";
+	css += "#settings .toggle { position: relative; margin-top: 10px; width: 30%; height: 32px; z-index: 0; float: left; margin-left: 10px;} ";
+	css += "#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;} ";
+	css += "#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;} ";
+	css += "#settings span.value.enabled { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; } ";
+	css += "#settings span.value.enabled:hover { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; } ";
+	css += "#settings span.value.disabled { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; } ";
+	css += "#settings span.value.disabled:hover { background: url('" + getUploadedFilePath("img/icons.png") + "'); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; } ";
 
-	addGlobalStyle(".game_options .toggle_btn:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-repeat: no-repeat;background-position: -150px 0px;color: #fff;}");
-	addGlobalStyle(".game_options .toggle_btn.enabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -56px;color: #fff; }");
-	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
+	css += "#statistics .stat { position: relative; margin-top: 5px; width: 40%; height: 32px; z-index: 0; margin-left: 25px; float:left;} ";
+	css += "#statistics span.value { position: relative; float: right; margin-right: 30px; text-align: right; width: 100%;} ";
+	css += "#statistics span.title { position: relative; width: 100%; font-weight: bold;} ";
 
-	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
-	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 30%; height: 32px; z-index: 0; float: left; margin-left: 10px;}");
-	addGlobalStyle("#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;}");
-	addGlobalStyle("#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;}");
-	addGlobalStyle("#settings span.value.enabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
-	addGlobalStyle("#settings span.value.enabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; }");
-	addGlobalStyle("#settings span.value.disabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
-	addGlobalStyle("#settings span.value.disabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
-	
-	addGlobalStyle("#statistics .stat { position: relative; margin-top: 5px; width: 40%; height: 32px; z-index: 0; margin-left: 25px; float:left;}");
-	addGlobalStyle("#statistics span.value { position: relative; float: right; margin-right: 30px; text-align: right; width: 100%;}");
-	addGlobalStyle("#statistics span.title { position: relative; width: 100%; font-weight: bold;}");
+	css += ".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;} ";
+	css += ".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;} ";
+	css += "#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover ~ #activitylog {margin-top:97px} #activitylog {margin-top: 29px} ";
+	css += "#leaderboard_wrapper {overflow: hidden; height: 360px; width: 261px; position: relative; margin: 50px 0px 0px 5px; padding: 5px;} #activeinlanecontainer:hover ~ #leaderboard_wrapper {margin-top: 118px}";
 
-	addGlobalStyle(".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;}");
-	addGlobalStyle(".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;}");
-
-	// expand list of active abilities on hover to show all of them
-	addGlobalStyle("#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover ~ #activitylog {margin-top:97px} #activitylog {margin-top: 29px}");
-
-	addGlobalStyle("#leaderboard_wrapper {overflow: hidden; height: 360px; width: 261px; position: relative; margin: 50px 0px 0px 5px; padding: 5px;} #activeinlanecontainer:hover ~ #leaderboard_wrapper {margin-top: 118px}");
+	$J('head').append('<style>' + css + '</style>');
 }
 
 function updateToggle(id, enabled) {
-	if (enabled) { $J("#"+id+"_toggle span.value").removeClass("enabled").addClass("disabled"); }
-	else { $J("#"+id+"_toggle span.value").removeClass("disabled").addClass("enabled"); }
+	if (enabled) {
+		$J("#" + id + "_toggle span.value").removeClass("enabled").addClass("disabled");
+	} else {
+		$J("#" + id + "_toggle span.value").removeClass("disabled").addClass("enabled");
+	}
 }
 
 function toggleSFX(shouldToggle) {
@@ -1736,191 +1655,419 @@ function toggleSFX(shouldToggle) {
 }
 
 function toggleMusic(shouldToggle) {
-	if (shouldToggle) { g_AudioManager.ToggleMusic(); }
+	if (shouldToggle) {
+		g_AudioManager.ToggleMusic();
+	}
 	updateToggle("music", WebStorage.GetLocal('minigame_mutemusic'));
 }
 
 function toggleAutoClicker() {
-	if(autoClicker) {stopAutoClicker(); }
-	else { startAutoClicker(); }
+	if (autoClicker) {
+		stopAutoClicker();
+	} else {
+		startAutoClicker();
+	}
 	updateToggle("autoclicker", !autoClicker);
 }
+
 function toggleAutoTargetSwapper() {
-	if(autoTargetSwapper) {	stopAutoTargetSwapper(); }
-	else { startAutoTargetSwapper(); }
+	if (autoTargetSwapper) {
+		stopAutoTargetSwapper();
+	} else {
+		startAutoTargetSwapper();
+	}
 	updateToggle("autotargetswapper", !autoTargetSwapper);
 }
-function toggleAutoAbilityUser(){
-	if(autoAbilityUser) { stopAutoAbilityUser(); }
-	else { startAutoAbilityUser(); }
+
+function toggleAutoAbilityUser() {
+	if (autoAbilityUser) {
+		stopAutoAbilityUser();
+	} else {
+		startAutoAbilityUser();
+	}
 	updateToggle("autoabilityuse", !autoAbilityUser);
 }
-function toggleAutoItemUser(){
-	if(autoUseConsumables) { stopAutoItemUser(); }
-	else { startAutoItemUser(); }
+
+function toggleAutoItemUser() {
+	if (autoUseConsumables) {
+		stopAutoItemUser();
+	} else {
+		startAutoItemUser();
+	}
 	updateToggle("autoconsume", !autoUseConsumables);
 }
-function toggleAutoUpgradeManager(){
-	if(autoUpgradeManager) { stopAutoUpgradeManager(); }
-	else { startAutoUpgradeManager(); }
+
+function toggleAutoUpgradeManager() {
+	if (autoUpgradeManager) {
+		stopAutoUpgradeManager();
+	} else {
+		startAutoUpgradeManager();
+	}
 	updateToggle("autoupgrade", !autoUpgradeManager);
 }
 
-var spammer;
 function spamNoClick() {
 	// Save the click count
 	var clickCount = g_Minigame.m_CurrentScene.m_nClicks;
-	
+
 	// Perform default click
-	g_Minigame.m_CurrentScene.DoClick(
-		{
-			data: {
-				getLocalPosition: function() {
-					var enemy = getTarget(),
+	g_Minigame.m_CurrentScene.DoClick({
+		data: {
+			getLocalPosition: function() {
+				var enemy = getTarget(),
 					laneOffset = enemy.m_nLane * 440;
 
-					return {
-						x: enemy.m_Sprite.position.x - laneOffset,
-						y: enemy.m_Sprite.position.y - 52
-					};
-				}
+				return {
+					x: enemy.m_Sprite.position.x - laneOffset,
+					y: enemy.m_Sprite.position.y - 52
+				};
 			}
 		}
-	);
-	
+	});
+
 	// Restore the click count
 	g_Minigame.m_CurrentScene.m_nClicks = clickCount;
 }
+
 function toggleSpammer() {
-	if(spammer) {
+	if (spammer) {
 		clearInterval(spammer);
 		spammer = null;
-	}
-	else {
-		if(confirm("Are you SURE you want to do this? This leads to massive memory leaks fairly quickly.")) {
+	} else {
+		if (confirm("Are you SURE you want to do this? This leads to massive memory leaks fairly quickly.")) {
 			spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
 		}
-	}	
+	}
 	updateToggle("particles", (spammer == null));
 }
 
-//Leaderboard stuff - pulled from https://github.com/hansskogvold/steamSummerMinigame/commit/f0f905188585e367f42b756a95d459205190b14f
+// ================ LEADERBOARD ================
+//Pulled from https://github.com/hansskogvold/steamSummerMinigame/commit/f0f905188585e367f42b756a95d459205190b14f
 function initLeaderboard() {
-    var container = document.createElement('div');
-    container.id = 'leaderboard_wrapper';
-    container.style.display = "none";
+	var container = document.createElement('div');
+	container.id = 'leaderboard_wrapper';
+	container.style.display = "none";
 
-    document.getElementById('col_right').appendChild(container);
+	document.getElementById('col_right').appendChild(container);
 
-    var leaderboard = document.createElement('table');
-    leaderboard.id = 'leaderboard';
+	var leaderboard = document.createElement('table');
+	leaderboard.id = 'leaderboard';
 
-    var th = document.createElement('tr');
-    th.style.fontSize = '11px';
-    th.style.color = '#ddd';
+	var th = document.createElement('tr');
+	th.style.fontSize = '11px';
+	th.style.color = '#ddd';
 
-    var thc = document.createElement('th');
-    var thn = document.createElement('th');
-    var thl = document.createElement('th');
-    thc.appendChild(document.createTextNode('Rank'));
-    thn.appendChild(document.createTextNode('Name'));
-    thl.appendChild(document.createTextNode('Level'));
+	var thc = document.createElement('th');
+	var thn = document.createElement('th');
+	var thl = document.createElement('th');
+	thc.appendChild(document.createTextNode('Rank'));
+	thn.appendChild(document.createTextNode('Name'));
+	thl.appendChild(document.createTextNode('Level'));
 
-    th.appendChild(thc);
-    th.appendChild(thn);
-    th.appendChild(thl);
+	th.appendChild(thc);
+	th.appendChild(thn);
+	th.appendChild(thl);
 
-    leaderboard.appendChild(th);
+	leaderboard.appendChild(th);
 
-    document.getElementById('leaderboard_wrapper').appendChild(leaderboard);
+	document.getElementById('leaderboard_wrapper').appendChild(leaderboard);
 
-    var credit = document.createElement('div');
-    credit.style.fontSize = "12px";
-    credit.style.textAlign = "center";
-    credit.innerHTML = 'Data by <a href="http://steamga.me/" style="color:#ddd;" alt="http://steamga.me/" target="_blank">steamga.me</a>';
+	var credit = document.createElement('div');
+	credit.style.fontSize = "12px";
+	credit.style.textAlign = "center";
+	credit.innerHTML = 'Data by <a href="http://steamga.me/" style="color:#ddd;" alt="http://steamga.me/" target="_blank">steamga.me</a>';
 
-    document.getElementById('leaderboard_wrapper').appendChild(credit);
+	document.getElementById('leaderboard_wrapper').appendChild(credit);
 
-    var toggler = document.createElement('div');
-    toggler.id = "leaderboard_toggler";
-    toggler.onclick = function(){
-        toggleLeaderboard();
-    };
-    toggler.style.position = 'absolute';
-    toggler.style.bottom = "-48px";
-    toggler.style.color = "black";
-    toggler.style.textAlign = "center";
-    toggler.style.width = '261px';
-    toggler.style.cursor = "pointer";
-    toggler.appendChild(document.createTextNode("Show Leaderboards"));
+	var toggler = document.createElement('div');
+	toggler.id = "leaderboard_toggler";
+	toggler.onclick = function() {
+		toggleLeaderboard();
+	};
+	toggler.style.position = 'absolute';
+	toggler.style.bottom = "-48px";
+	toggler.style.color = "black";
+	toggler.style.textAlign = "center";
+	toggler.style.width = '261px';
+	toggler.style.cursor = "pointer";
+	toggler.appendChild(document.createTextNode("Show Leaderboards"));
 
-    document.getElementById('col_right').appendChild(toggler);
+	document.getElementById('col_right').appendChild(toggler);
 
-    getLeaderboard();
-    
-    setInterval(function(){ getLeaderboard(); }, 1000 * 30);
+	getLeaderboard();
+
+	setInterval(function() {
+		getLeaderboard();
+	}, 1000 * 30);
 }
 
 function drawLeaderboardRoom(room) {
-    var item = document.createElement('tr');
-    item.className = 'leaderboard_item';
-    item.style.height = '23px';
-    item.style.fontSize = '10px';
+	var item = document.createElement('tr');
+	item.className = 'leaderboard_item';
+	item.style.height = '23px';
+	item.style.fontSize = '10px';
 
-    var num = document.createElement('td');
-    num.appendChild(document.createTextNode('#' + room.position));
+	var num = document.createElement('td');
+	num.appendChild(document.createTextNode('#' + room.position));
 
-    var name = document.createElement('td');
-    name.style.textAlign = 'center';
-    name.appendChild(document.createTextNode(room.name));
+	var name = document.createElement('td');
+	name.style.textAlign = 'center';
+	name.appendChild(document.createTextNode(room.name));
 
-    var level = document.createElement('td');
-    level.style.textAlign = 'right';
-    level.appendChild(document.createTextNode(room.level));
-    
-    if(room.id == g_GameID) {
-        item.style.color = '#d4e157';
-    }
+	var level = document.createElement('td');
+	level.style.textAlign = 'right';
+	level.appendChild(document.createTextNode(room.level));
 
-    item.appendChild(num);
-    item.appendChild(name);
-    item.appendChild(level);
+	if (room.id == g_GameID) {
+		item.style.color = '#d4e157';
+	}
 
-    document.getElementById('leaderboard').appendChild(item);
+	item.appendChild(num);
+	item.appendChild(name);
+	item.appendChild(level);
+
+	document.getElementById('leaderboard').appendChild(item);
 }
 
 function getLeaderboard() {
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: "http://steamga.me/data/api/leaderboard.json",
-        onload: function(response) {
-            console.log('Downloading new leaderboard...');
-            var elements = document.getElementsByClassName('leaderboard_item');
-            while(elements.length > 0){
-                elements[0].parentNode.removeChild(elements[0]);
-            }
-            var resp = JSON.parse(response.responseText);
-            var leaderboard = Object.keys(resp).map(function (key) {return resp[key]});
-            leaderboard.sort(function(a, b) { 
-                return b.level - a.level;
-            });
-            leaderboard.map(function(room) {drawLeaderboardRoom(room);});
-        }
-    });
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: "http://steamga.me/data/api/leaderboard.json",
+		onload: function(response) {
+			console.log('Downloading new leaderboard...');
+			var elements = document.getElementsByClassName('leaderboard_item');
+			while (elements.length > 0) {
+				elements[0].parentNode.removeChild(elements[0]);
+			}
+			var resp = JSON.parse(response.responseText);
+			var leaderboard = Object.keys(resp).map(function(key) {
+				return resp[key]
+			});
+			leaderboard.sort(function(a, b) {
+				return b.level - a.level;
+			});
+			leaderboard.map(function(room) {
+				drawLeaderboardRoom(room);
+			});
+		}
+	});
 }
 
 function toggleLeaderboard() {
-    var a = document.getElementById('leaderboard_wrapper'); 
-    var b = document.getElementById('activitylog'); 
-    var c = document.getElementById('leaderboard_toggler'); 
-    if (a.style.display == 'block') {
-        a.style.display = 'none'; 
-        b.style.display = 'block'; 
-        c.innerHTML = "Show Leaderboards";
-    } else {
-        a.style.display = 'block'; 
-        b.style.display = 'none'; 
-        c.innerHTML = "Show Activity";
-    }
+	var a = document.getElementById('leaderboard_wrapper');
+	var b = document.getElementById('activitylog');
+	var c = document.getElementById('leaderboard_toggler');
+	if (a.style.display == 'block') {
+		a.style.display = 'none';
+		b.style.display = 'block';
+		c.innerHTML = "Show Leaderboards";
+	} else {
+		a.style.display = 'block';
+		b.style.display = 'none';
+		c.innerHTML = "Show Activity";
+	}
 }
 
+// ================ UTILS================
+function hasTimeLeftToUseConsumable(id) {
+	var time = new Date();
+	var hrs = time.getUTCHours();
+	var mins = time.getUTCMinutes();
+	return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(id) + minutesBufferForConsumableDump)); // give a little extra time to clear the last levels
+}
+
+function castAbility(abilityID) {
+	if (hasAbility(abilityID)) {
+		if (abilityID <= ABILITIES.NAPALM && document.getElementById('ability_' + abilityID) !== null)
+			g_Minigame.CurrentScene().TryAbility(document.getElementById('ability_' + abilityID).childElements()[0]);
+		else if (document.getElementById('abilityitem_' + abilityID) !== null)
+			g_Minigame.CurrentScene().TryAbility(document.getElementById('abilityitem_' + abilityID).childElements()[0]);
+	}
+}
+
+function currentLaneHasAbility(abilityID) {
+	return laneHasAbility(g_Minigame.CurrentScene().m_rgPlayerData.current_lane, abilityID);
+}
+
+function laneHasAbility(lane, abilityID) {
+	try {
+		if (g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID])
+			return g_Minigame.m_CurrentScene.m_rgLaneData[lane].abilities[abilityID];
+		else
+			return 0;
+	} catch (e) {
+		return 0;
+	}
+}
+
+function abilityIsUnlocked(abilityID) {
+	if (abilityID <= ABILITIES.NAPALM)
+		return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
+	else
+		return getAbilityItemQuantity(abilityID) > 0;
+}
+
+function getAbilityItemQuantity(abilityID) {
+	for (var i = 0; i < g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items.length; ++i) {
+		var abilityItem = g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items[i];
+
+		if (abilityItem.ability == abilityID)
+			return abilityItem.quantity;
+	}
+
+	return 0;
+}
+
+// Ability cooldown time remaining (in seconds)
+function abilityCooldown(abilityID) {
+	return g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
+}
+
+// thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
+function hasAbility(abilityID) {
+	// each bit in unlocked_abilities_bitfield corresponds to an ability.
+	// the above condition checks if the ability's bit is set or cleared. I.e. it checks if
+	// the player has purchased the specified ability.
+	return abilityIsUnlocked(abilityID) && abilityCooldown(abilityID) <= 0;
+}
+
+function updateUserElementMultipliers() {
+	if (!gameRunning() || !g_Minigame.m_CurrentScene.m_rgPlayerTechTree) return;
+
+	userElementMultipliers[3] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air;
+	userElementMultipliers[4] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth;
+	userElementMultipliers[1] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire;
+	userElementMultipliers[2] = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water;
+
+	userMaxElementMultiiplier = Math.max.apply(null, userElementMultipliers);
+}
+
+// Return a value to compare mobs' priority (lower value = less important)
+//  (treasure > boss > miniboss > spawner > creep)
+function getMobTypePriority(potentialTarget) {
+
+	if (!potentialTarget || !potentialTarget.m_data)
+		return -1;
+
+	mobType = potentialTarget.m_data.type;
+
+	switch (mobType) {
+		case 1: // Creep
+			return 0;
+		case 0: // Spawner
+			return 1;
+		case 3: // Miniboss
+			return 2;
+		case 2: // Boss
+			return 3;
+		case 4: // Treasure
+			return 4;
+		case false: // Let's just assume false is a flag for most important
+			return 4;
+		default:
+			return -1;
+	}
+}
+
+// Compares two mobs' priority. Returns a negative number if A < B, 0 if equal, positive if A > B
+function compareMobPriority(mobA, mobB) {
+	if (!mobA)
+		return false;
+	if (!mobB) {
+		swapReason = "Swapping off a non-existent mob.";
+		return true;
+	}
+
+	var percentHPRemaining = g_Minigame.CurrentScene().m_rgPlayerData.hp / g_Minigame.CurrentScene().m_rgPlayerTechTree.max_hp * 100;
+	var aHasHealing = laneHasAbility(mobA.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobA.m_nLane, ABILITIES.STEAL_HEALTH);
+	var bHasHealing = laneHasAbility(mobB.m_nLane, ABILITIES.MEDICS) || laneHasAbility(mobB.m_nLane, ABILITIES.STEAL_HEALTH);
+
+	var aIsGold = laneHasAbility(mobA.m_nLane, ABILITIES.RAINING_GOLD);
+	var bIsGold = laneHasAbility(mobB.m_nLane, ABILITIES.RAINING_GOLD);
+
+	var aTypePriority = getMobTypePriority(mobA);
+	var bTypePriority = getMobTypePriority(mobB);
+
+	var aElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobA.m_nLane].element];
+	var bElemMult = userElementMultipliers[g_Minigame.m_CurrentScene.m_rgGameData.lanes[mobB.m_nLane].element];
+
+	//check for Max Elemental Damage Ability
+	if (laneHasAbility(mobA.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
+		aElemMult = userMaxElementMultiiplier;
+	if (laneHasAbility(mobB.m_nLane, ABILITIES.MAX_ELEMENTAL_DAMAGE))
+		bElemMult = userMaxElementMultiiplier;
+
+	var aHP = mobA.m_data.hp;
+	var bHP = mobB.m_data.hp;
+
+	//First, make sure they're alive
+	if (mobA.m_bIsDestroyed || aHP <= 0)
+		return false;
+	else if (mobB.m_bIsDestroyed || bHP <= 0) {
+		swapReason = "Swapping off a destroyed mob.";
+		return true;
+	}
+
+	//ignore in the weird case that mob priority isn't set to any type (usually set to 'false') (I've seen it sometimes)
+	/*if(aTypePriority !== -1) {
+		//if(debug)
+		//	console.log('wtf, unknown mobType.', [mobA.m_nLane, mobA.m_nID, aTypePriority], [mobB.m_nLane, mobB.m_nID, bTypePriority]);
+		return false;
+	}
+	else if(bTypePriority !== -1)
+		return true;
+	*/
+	else if (aIsGold != bIsGold) {
+		if (aIsGold > bIsGold && (mobB.m_data.type == 3 || mobB.m_data.type == 1)) {
+			swapReason = "Switching to target with Raining Gold.";
+			return true;
+		}
+	} else if (aTypePriority != bTypePriority) {
+		if (aTypePriority > bTypePriority) {
+			swapReason = "Switching to higher priority target.";
+			return true;
+		}
+	}
+
+	//Run to a medic lane if needed
+	else if (percentHPRemaining <= seekHealingPercent && !g_Minigame.m_CurrentScene.m_bIsDead) {
+		if (aHasHealing != bHasHealing) {
+			if (aHasHealing) {
+				swapReason = "Swapping to lane with active healing.";
+				return true;
+			}
+		}
+	} else if (aElemMult != bElemMult) {
+		if (aElemMult > bElemMult) {
+			swapReason = "Switching to elementally weaker target.";
+			return true;
+		}
+	} else if (aHP != bHP) {
+		if (aHP < bHP) {
+			swapReason = "Switching to lower HP target.";
+			return true;
+		}
+	}
+	return false;
+}
+
+function getTarget() {
+	try {
+		var target = g_Minigame.m_CurrentScene.GetEnemy(g_Minigame.m_CurrentScene.m_rgPlayerData.current_lane, g_Minigame.m_CurrentScene.m_rgPlayerData.target);
+		return target;
+	} catch (e) {
+		return null;
+	}
+}
+
+function gameRunning() {
+	try {
+		return (typeof g_Minigame === "object" && g_Minigame.m_CurrentScene.m_rgGameData.status == 2);
+	} catch (e) {
+		return false;
+	}
+}
+
+function getUploadedFilePath(fileName) {
+	return GM_info.script.namespace.replace("github", "raw.githubusercontent") + "/" + fileName;
+}
