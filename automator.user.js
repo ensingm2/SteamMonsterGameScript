@@ -109,15 +109,15 @@ function startAutoClicker() {
 				damageStr = (damage / 1000) + "K";
 			console.log('We did roughly ' + damageStr + ' damage in the last second.');
 		}
-
-		// expand list of active abilities on hover to show all of them
-		var abilities_extra_styles = document.createElement('style');
-		abilities_extra_styles.type = 'text/css';
-		abilities_extra_styles.textContent = '#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover + #activitylog {margin-top:97px} #activitylog {margin-top: 29px}';
-		document.getElementsByTagName('head')[0].appendChild(abilities_extra_styles);
 		
 	}, autoClickerFreq);
 
+	// expand list of active abilities on hover to show all of them
+	var abilities_extra_styles = document.createElement('style');
+	abilities_extra_styles.type = 'text/css';
+	abilities_extra_styles.textContent = '#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover + #activitylog {margin-top:97px} #activitylog {margin-top: 29px}';
+	document.getElementsByTagName('head')[0].appendChild(abilities_extra_styles);
+	
 	console.log("autoClicker has been started.");
 }
 
