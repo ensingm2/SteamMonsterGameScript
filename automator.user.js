@@ -384,7 +384,7 @@ function startAutoAbilityUser() {
 		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (((getEstimatedLevelsLeft() % 100) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 100 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
+			if (((getEstimatedLevelsLeft() % 500) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 500 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 500th level (causes a 10 level jump instead of a 1 to keep in line with wchill and SteamDB scripts, maybe add level minimum like 100k)
 				if (debug)
 					console.log("Casting Wormhole! Allons-y!!!");
 				castAbility(ABILITIES.WORMHOLE);
