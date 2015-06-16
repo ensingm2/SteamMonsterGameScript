@@ -1382,6 +1382,14 @@ var startAll = setInterval(function() {
 			}, 15000);
 		}, refreshDelay);
 		
+		//Keep Playing while minimized - http://www.reddit.com/r/SteamMonsterGame/comments/39yng9/keep_autoclicking_after_minimizingchanging_tabs/
+		setInterval(function(p) {
+		    return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
+		        function() {
+		            p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
+		        }
+		}(CSceneGame.prototype), 1e3);
+
 		// Overwrite this function so our loot notifications do not repeat until we actually have a new one
 		CUI.prototype.UpdateLootNotification = function() {
 			if (this.m_Game.m_rgPlayerData.loot && this.m_Game.m_rgPlayerData.loot.length !== 0 && this.m_Game.m_rgGameData.level >= lastLootLevel + 10 && (lastLootCache.length === 0 || lastLootCache.toString() !== this.m_Game.m_rgPlayerData.loot.toString())) {
