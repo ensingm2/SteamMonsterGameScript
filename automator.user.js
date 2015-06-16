@@ -2,7 +2,7 @@
 // @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.03
+// @version 2.04
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -57,7 +57,7 @@ var minutesBufferForConsumableDump = 10;
 var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
-var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager, slowRendering, spammer;
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager, fpsThrottle, spammer;
 var elementUpdateRate = 60000;
 var autoUseConsumables = true;
 var userElementMultipliers = [1, 1, 1, 1];
@@ -180,7 +180,6 @@ if (typeof unsafeWindow != 'undefined') {
 	unsafeWindow.seekHealingPercent = seekHealingPercent;
 	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
 	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
-	unsafeWindow.slowRendering = slowRendering;
 
 	//item use variables
 	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
@@ -252,7 +251,6 @@ if (typeof unsafeWindow != 'undefined') {
 		seekHealingPercent = unsafeWindow.seekHealingPercent;
 		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
 		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
-		slowRendering = unsafeWindow.slowRendering;
 
 		//item use variables
 		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
@@ -1259,13 +1257,12 @@ function stopAutoUpgradeManager() {
 
 // ================ SLOW RENDERING ================
 var gameOldRenderer = function() {};
-function startSlowRendering(){
-	if (slowRendering) {
-		console.log("slowRendering is already running!");
+function startFPSThrottle(){
+	if (fpsThrottle) {
+		console.log("fpsThrottling is already running!");
 		return;
 	}
-	
-	// Stops normal render cycle
+
 	gameOldRenderer = g_Minigame.Render;
 	var ticker = PIXI.ticker.shared;
 	ticker.autoStart = false;
@@ -1276,22 +1273,22 @@ function startSlowRendering(){
 	$J("#uicontainer").append('<div id="slow_fps_dialog"><div class="waiting_for_players_ctn"><div class="title_waiting">Currently in slow FPS mode to maximize performance, toggle this off in the settings if you want full FPS</div></div></div>');
 	$J("#slow_fps_dialog").css({ "position": "absolute", "top": "0", "left":"0", "right":"0", "height":"100%", "background-color": "rgba(0,0,0,0.6)", "color":"white", "text-align": "center", "font-size":"12px", "z-index":"9", "padding": "10px"});
 
-	// Custom render cycle
-	slowRendering = setInterval(function() {
+
+	var fpsThrottleRender = function() {
 		if (!gameRunning()) return;
 		m_nLastTick = false;
 		g_Minigame.CurrentScene().Tick();
 		requestAnimationFrame(function() { g_Minigame.Renderer.render(g_Minigame.CurrentScene().m_Container); });
+	};
 
-	}, slowRenderingFreq);
-
-	console.log("slowRendering has been started.");
+	// Custom render cycle
+	fpsThrottle = setInterval(fpsThrottleRender, slowRenderingFreq);
+	console.log("fpsThrottle has been started.");
 }
 
-function stopSlowRendering() {
-	if (slowRendering) {
-		clearInterval(slowRendering);
-		slowRendering = null;
+function stopFPSThrottle() {
+	if (fpsThrottle) {
+		clearInterval(fpsThrottle);
 
 		var ticker = PIXI.ticker.shared;
 		ticker.autoStart = true;
@@ -1301,10 +1298,11 @@ function stopSlowRendering() {
 		g_Minigame.Render();
 
 		$J("#slow_fps_dialog").remove();
+		fpsThrottle = null;
 
-		console.log("slowRendering has been stopped.");
+		console.log("fpsThrottle has been stopped.");
 	} else
-		console.log("No slowRendering is running to stop.");
+		console.log("No fpsThrottle is running to stop.");
 }
 
 
@@ -1404,8 +1402,6 @@ function initEndDate() {
 }
 
 function updateStats() {
-	
-
 	var getFormattedRemainingTime = function() {
 		var secondsUntilEnd = getSecondsUntilEnd();
 		var hrs = Math.floor(secondsUntilEnd / 3600);
@@ -1784,12 +1780,12 @@ function toggleAutoUpgradeManager() {
 }
 
 function toggleFPS() {
-	if (slowRendering) {
-		stopSlowRendering();
+	if (fpsThrottle) {
+		stopFPSThrottle();
 	} else {
-		startSlowRendering();
+		startFPSThrottle();
 	}
-	updateToggle("fps", (slowRendering == null));
+	updateToggle("fps", (fpsThrottle === null));
 }
 
 function spamNoClick() {
