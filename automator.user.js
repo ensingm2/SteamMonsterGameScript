@@ -1439,7 +1439,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({ 
 		"position": "absolute", 
-		"background": "url('http://i.imgur.com/DiRpF5e.png')",
+		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/settings.png')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "500px",
@@ -1458,7 +1458,7 @@ function addExtraUI() {
 	$J("#settings").append('<div id="autoabilityuse_toggle" class="toggle"><span class="value enabled"></span><span class="title">Ability Use: </span></div>');
 	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
 	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
-	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value enabled"></span><span class="title">Particles: </span></div>');
+	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
 	$J("#sfx_toggle").click(function(e) { e.stopPropagation(); toggleSFX(true)});
 	$J("#music_toggle").click(function(e) { e.stopPropagation(); toggleMusic(true)});
 	$J("#autoclicker_toggle").click(function(e) { e.stopPropagation(); toggleAutoClicker()});
@@ -1581,10 +1581,10 @@ function customCSS() {
 	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10}");
 	addGlobalStyle("#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;}");
 	addGlobalStyle("#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;}");
-	addGlobalStyle("#settings span.value.enabled { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
-	addGlobalStyle("#settings span.value.enabled:hover { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; }");
-	addGlobalStyle("#settings span.value.disabled { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
-	addGlobalStyle("#settings span.value.disabled:hover { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
+	addGlobalStyle("#settings span.value.enabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
+	addGlobalStyle("#settings span.value.enabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; }");
+	addGlobalStyle("#settings span.value.disabled { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
+	addGlobalStyle("#settings span.value.disabled:hover { background: url(https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/icons.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
 	
 	addGlobalStyle(".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;}");
 	addGlobalStyle(".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;}");
