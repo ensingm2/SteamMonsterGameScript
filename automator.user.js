@@ -2,12 +2,12 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.88
+// @version 1.89
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_88
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_89
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -109,12 +109,6 @@ function startAutoClicker() {
 				damageStr = (damage / 1000) + "K";
 			console.log('We did roughly ' + damageStr + ' damage in the last second.');
 		}
-
-		// expand list of active abilities on hover to show all of them
-		var abilities_extra_styles = document.createElement('style');
-		abilities_extra_styles.type = 'text/css';
-		abilities_extra_styles.textContent = '#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover + #activitylog {margin-top:97px} #activitylog {margin-top: 29px}';
-		document.getElementsByTagName('head')[0].appendChild(abilities_extra_styles);
 		
 	}, autoClickerFreq);
 
@@ -1407,6 +1401,12 @@ var startAll = setInterval(function() {
 				this.m_Game.m_rgPlayerData.loot = [];
 			}
 		};
+		
+		// expand list of active abilities on hover to show all of them
+		var abilities_extra_styles = document.createElement('style');
+		abilities_extra_styles.type = 'text/css';
+		abilities_extra_styles.textContent = '#activeinlanecontainer:hover {height:auto;background:rgba(50,50,50,0.9);padding-bottom:10px;position:absolute;z-index:1} #activeinlanecontainer:hover + #activitylog {margin-top:97px} #activitylog {margin-top: 29px}';
+		document.getElementsByTagName('head')[0].appendChild(abilities_extra_styles);
 
 	}, 1000);
 
