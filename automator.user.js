@@ -1470,7 +1470,7 @@ function addExtraUI() {
 		"background": "url('" + getUploadedFilePath("master/img/settings.png") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
-		"height": "250px",
+		"height": "300px",
 		"width": "500px",
 		"margin-top": "2px",
 		"bottom": "-65px",
@@ -1487,9 +1487,9 @@ function addExtraUI() {
 	$J("#settings").append('<div id="autoabilityuse_toggle" class="toggle"><span class="value enabled"></span><span class="title">Ability Use: </span></div>');
 	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
 	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
+	$J("#settings").append('<div id="spamStatBoosters_toggle" class="toggle"><span class="value enabled"></span><span class="title">Spam StatBoosts: </span></div>');
 	$J("#settings").append('<div id="fps_toggle" class="toggle"><span class="value disabled"></span><span class="title">FPS Limiter: </span></div>');
 	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
-	$J("#settings").append('<div id="spamStatBoosters_toggle" class="toggle"><span class="value enabled"></span><span class="title">Spam StatBoosts: </span></div>');
 	$J("#sfx_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleSFX(true)
