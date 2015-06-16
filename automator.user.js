@@ -1619,32 +1619,8 @@ function toggleSFX(shouldToggle) {
 }
 
 function toggleMusic(shouldToggle) {
-	var enabled = WebStorage.GetLocal('minigame_mutemusic');
-	if (shouldToggle) {
-		if(enabled) { g_AudioManager.m_eleMusic.pause(); }
-		else { g_AudioManager.m_eleMusic.play(); }
-		enabled = !enabled;
-		WebStorage.SetLocal('minigame_mutemusic', enabled);
-	}
-	updateToggle("music", enabled);
-}
-
-function toggleAllSound() {
-	// Enable
-	if(bIsMuted()){
-		WebStorage.SetLocal('minigame_mute', false);
-		WebStorage.SetLocal('minigame_mutemusic', false);
-		g_AudioManager.m_eleMusic.play();
-	}
-	// Disable
-	else {
-		WebStorage.SetLocal('minigame_mute', true);
-		WebStorage.SetLocal('minigame_mutemusic', true);
-		g_AudioManager.m_eleMusic.pause();
-	}
-	
-	updateToggle("music", !bIsMuted());
-	updateToggle("sfx", !bIsMuted());
+	g_AudioManager.ToggleMusic();
+	updateToggle("music", WebStorage.GetLocal('minigame_mutemusic'));
 }
 
 function toggleAutoClicker() {
