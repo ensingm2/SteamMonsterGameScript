@@ -2,12 +2,12 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.05
+// @version 2.06
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_98
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=2_06
 // @grant none
 // ==/UserScript==
 
@@ -1467,7 +1467,7 @@ function addExtraUI() {
 	$J("#gamecontainer").append('<div id="settings"></div>');
 	$J('#settings').css({
 		"position": "absolute",
-		"background": "url('" + getUploadedFilePath("spamStatBoosters/img/settings.png") + "')",
+		"background": "url('" + getUploadedFilePath("master/img/settings.png?v2") + "')",
 		"background-repeat": "no-repeat",
 		"background-position": "0px 0px",
 		"height": "300px",
