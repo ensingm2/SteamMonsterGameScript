@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.06
+// @version 2.07
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -369,6 +369,28 @@ function startAutoAbilityUser() {
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		var lvl = getGameLevel();
 		
+		// Use any consumables that you won't run out of before round end
+		for (var key in ABILITIES) {
+			if (ABILITIES.hasOwnProperty(key)) {
+				var abilityID = ABILITIES[key];
+				//Only check consumables
+				if (abilityID >= ABILITIES.RESURRECT) {
+					var ignoreBufferPeriod = (abilityID == ABILITIES.THROW_MONEY_AT_SCREEN);
+					if(hasTimeLeftToUseConsumable(abilityID, ignoreBufferPeriod))
+						cast(abilityID);
+				}
+			}
+		}
+		
+		// Wormholes -- use before wasting items on lanes
+		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
+			if (((getEstimatedLevelsLeft() % 100) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 100 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
+				if (debug)
+					console.log("Casting Wormhole! Allons-y!!!");
+				castAbility(ABILITIES.WORMHOLE);
+			}
+		}
+
 		// Spam permanent stat boosters if set
 		if(spamStatBoosters){
 			// Crit
@@ -380,15 +402,6 @@ function startAutoAbilityUser() {
 				castAbility(19);
 		}
 		
-		// Wormholes -- use before wasting items on lanes
-		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (((getEstimatedLevelsLeft() % 100) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 100 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
-				if (debug)
-					console.log("Casting Wormhole! Allons-y!!!");
-				castAbility(ABILITIES.WORMHOLE);
-			}
-		}
-
 		// Abilities only used on targets
 		if (target) {
 
@@ -1991,8 +2004,11 @@ function getSecondsPerLevel() {
 	return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
 }
 
-function hasTimeLeftToUseConsumable(id) {
-	return getSecondsUntilEnd() <= ((getAbilityItemQuantity(id) * abilityCooldown(id)) + minutesBufferForConsumableDump * 60);
+function hasTimeLeftToUseConsumable(id, ignoreBuffer) {
+	if(ignoreBuffer)
+		return getSecondsUntilEnd() <= (getAbilityItemQuantity(id) * abilityCooldown(id));
+	else
+		return getSecondsUntilEnd() <= ((getAbilityItemQuantity(id) * abilityCooldown(id)) + minutesBufferForConsumableDump * 60);
 }
 	
 function getEstimatedLevelsLeft() {
