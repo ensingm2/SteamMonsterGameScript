@@ -180,6 +180,7 @@ if (typeof unsafeWindow != 'undefined') {
 	unsafeWindow.seekHealingPercent = seekHealingPercent;
 	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
 	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
+	unsafeWindow.fpsThrottle = fpsThrottle;
 
 	//item use variables
 	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
@@ -251,6 +252,7 @@ if (typeof unsafeWindow != 'undefined') {
 		seekHealingPercent = unsafeWindow.seekHealingPercent;
 		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
 		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
+		fpsThrottle = unsafeWindow.fpsThrottle;
 
 		//item use variables
 		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
