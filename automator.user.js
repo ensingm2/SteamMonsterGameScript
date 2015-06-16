@@ -2,12 +2,12 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.85
+// @version 1.86
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_85
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_86
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -1277,6 +1277,7 @@ if(typeof unsafeWindow != 'undefined') {
 	unsafeWindow.currentLaneHasAbility = currentLaneHasAbility;
 	unsafeWindow.laneHasAbility = laneHasAbility;
 	unsafeWindow.getMobTypePriority = getMobTypePriority;
+	unsafeWindow.updateStats = updateStats;
 	
 	
 	//Hacky way to let people change vars using userscript before I set up getter/setter fns tomorrow
@@ -1564,7 +1565,7 @@ function addCustomButtons() {
 		breadcrumbs.appendChild(element);
 
 		updateStats();
-		setTimeout(function() { updateStats(); }, 10000);
+		setInterval(function() { updateStats(); }, 10000);
 
 		if(typeof GM_info != 'undefined') {
 			element = document.createElement('span');
