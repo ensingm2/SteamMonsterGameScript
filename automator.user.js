@@ -1348,17 +1348,7 @@ var startAll = setInterval(function() {
 		//Update current players in lane/room count
 		updatePlayersInLane();
 		updatePlayersInRoom();
-		setInterval(function() { updatePlayersInLane(); updatePlayersInRoom(); }, 10000);
-
-		//Hide the stupid "Leave game" tooltip
-		$J('.leave_game_btn').mouseover(function(){
-				$J('.leave_game_helper').show();
-			})
-			.mouseout(function(){
-				$J('.leave_game_helper').hide();
-			});
-		$J('.leave_game_helper').hide();
-		
+		setInterval(function() { updatePlayersInLane(); updatePlayersInRoom(); }, 10000);		
 		
 		if(typeof runMaster == 'function'){
 			//Setup for slave windows
@@ -1443,53 +1433,87 @@ function updateStats() {
 }
 
 function addExtraUI() {
-	addCustomButtons();
-
 	//Add in player count for current room
 	var old = $J(".title_activity").html();
 	$J(".title_activity").html(old+'&nbsp;[<span id="players_in_room">0</span> in room]');
+	$J("#gamecontainer").append('<div id="settings"></div>');
+	$J('#settings').css({ 
+		"position": "absolute", 
+		"background": "url('http://i.imgur.com/DiRpF5e.png')",
+		"background-repeat": "no-repeat",
+		"background-position": "0px 0px",
+		"height": "500px",
+		"width": "250px",
+		"margin-top": "2px",
+		"top": "125px",
+		"right": "-50px",
+		"padding-top": "15px"
+	});
+	
+	//Add replacement settings options
+	$J("#settings").append('<div id="music_toggle" class="toggle"><span class="value disabled"></span><span class="title">Music: </span></div>');
+	$J("#settings").append('<div id="sfx_toggle" class="toggle"><span class="value disabled"></span><span class="title">SFX: </span></div>');
+	$J("#settings").append('<div id="autoclicker_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto-Clicker: </span></div>');
+	$J("#settings").append('<div id="autotargetswapper_toggle" class="toggle"><span class="value enabled"></span><span class="title">Target Swapper: </span></div>');
+	$J("#settings").append('<div id="autoabilityuse_toggle" class="toggle"><span class="value enabled"></span><span class="title">Ability Use: </span></div>');
+	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
+	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
+	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value enabled"></span><span class="title">Particles: </span></div>');
+	$J("#sfx_toggle").click(function(e) { e.stopPropagation(); toggleSFX(true)});
+	$J("#music_toggle").click(function(e) { e.stopPropagation(); toggleMusic(true)});
+	$J("#autoclicker_toggle").click(function(e) { e.stopPropagation(); toggleAutoClicker()});
+	$J("#autotargetswapper_toggle").click(function(e) { e.stopPropagation(); toggleAutoTargetSwapper()});
+	$J("#autoabilityuse_toggle").click(function(e) { e.stopPropagation(); toggleAutoAbilityUser()});
+	$J("#autoconsume_toggle").click(function(e) { e.stopPropagation(); toggleAutoItemUser()});
+	$J("#autoupgrade_toggle").click(function(e) { e.stopPropagation(); toggleAutoUpgradeManager()});
+	$J("#particles_toggle").click(function(e) { e.stopPropagation(); toggleSpammer()});
 
+	// We force update the icon once to sync with active settings
+	toggleSFX(false);
+	toggleMusic(false);
+
+	// Slide the settings panel out on click
+	$J("#settings").click (function() {
+		var op = $J("#settings");
+		op.animate({ right: parseInt(op.css('right') , 10) == -50 ? -op.outerWidth() : -50 });
+	});
+
+	//Other UI elements
 	customCSS();
+	addCustomButtons();
 }
 
 function addCustomButtons() {
 	//Smack the TV Easter Egg
 	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
 	
-	//Reformat current buttons
-	$J(".leave_game_btn").css({"width": "125px", "background-position": "-75px 0px", "position": "absolute", "bottom": "144px", "z-index": "12", "left": "340px"});
-	$J(".leave_game_helper").css({"left": "150px", "top": "-75px", "z-index": "12"});
-	$J(".leave_game_btn").html('<span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span>');
-	
-	//Overwrite their functions
-	$J(".toggle_music_btn").click(toggleMusic).attr('id', 'toggleMusicBtn');
-	$J('#toggleMusicBtn').html('<span>' + (WebStorage.GetLocal('minigame_mutemusic') ? 'Enable' : 'Disable') + ' Music</span>');
-	$J(".toggle_sfx_btn").click(toggleSFX).attr('id', 'toggleSFXBtn');
-	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
+	//Remove unneeded options area 
+	$J(".game_options").remove();
 
-	$J("#toggleMusicBtn").after('<span id="toggleAllSoundBtn" class="toggle_music_btn" style="display:inline-block;"><span>' + (bIsMuted() ? 'Enable' : 'Disable') + ' All Sound' + '</span></span>');
-	$J("#toggleAllSoundBtn").click (toggleAllSound);
-    
-	//Automator buttons
-	$J(".game_options").after('<div class="game_options" id="auto_options"></div>'); // background
-
-	$J("#auto_options").append('<span id="toggleAutoClickerBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;margin-left:6px"><span>AutoClicker</span><br /><span class="status">Enabled</span></span>');
-	$J("#toggleAutoClickerBtn").click (toggleAutoClicker);
+	//Bring the close button back
+	$J('<a href="http://steamcommunity.com/minigame/" class="leave_game_btn"><span style="padding-right: 50px;">Close</span><br><span style="padding-right: 50px;">Game</span></a>').insertAfter("#settings");
+	$J(".leave_game_btn").css({
+		"width": "120px", 
+		"position": "absolute", 
+		"bottom": "72px", 
+		"z-index": "12", 
+		"left": "340px",
+		"background": "url('http://steamcommunity-a.akamaihd.net/public/images/promo/towerattack/leave_game_btn.png')",
+		"background-repeat": "no-repeat",
+		"background-position": "-75px 0px", 
+		"height": "56px",
+		"float": "right",
+		"margin-right": "7px",
+		"padding-top": "14px",
+		"cursor": "pointer"
+	});
+	$J('<div class="leave_game_helper">You can safely close the game or leave this screen at any time—you will continue collecting gold and damaging monsters even while away from your computer. Check back occasionally to see how you\'re doing and use in-game gold to purchase upgrades.</div>').insertAfter("#settings");
+	$J(".leave_game_helper").css({"left": "150px", "top": "initial", "bottom": "-20px",  "z-index": "12"});
 	
-	$J("#auto_options").append('<span id="toggleAutoTargetSwapperBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Target Swap</span><br /><span class="status">Enabled</span></span>');
-	$J("#toggleAutoTargetSwapperBtn").click (toggleAutoTargetSwapper);
-	
-	$J("#auto_options").append('<span id="toggleAutoAbilityUserBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Ability/Item Use</span><br /><span class="status">Enabled</span></span>');
-	$J("#toggleAutoAbilityUserBtn").click (toggleAutoAbilityUser);
-	
-	$J("#auto_options").append('<span id="toggleAutoItemUserBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Auto Consumable Use</span><br /><span class="status">Enabled</span></span>');
-	$J("#toggleAutoItemUserBtn").click (toggleAutoItemUser);
-	
-	$J("#auto_options").append('<span id="toggleAutoUpgradeBtn" class="toggle_music_btn toggle_btn enabled" style="display:inline-block;"><span>Upgrader</span><br /><span class="status">Enabled</span></span>');
-	$J("#toggleAutoUpgradeBtn").click (toggleAutoUpgradeManager);
-	
-	$J("#auto_options").append('<span id="toggleSpammerBtn" class="toggle_music_btn toggle_btn disabled" style="display:inline-block;"><span>Particle Spam</span><br /><span class="status">Disabled</span></span>');
-	$J("#toggleSpammerBtn").click (toggleSpammer);
+	//Hide the stupid "Leave game" tooltip
+	$J('.leave_game_btn').mouseover(function(){	$J('.leave_game_helper').show(); })
+		.mouseout(function(){ $J('.leave_game_helper').hide();	});
+	$J('.leave_game_helper').hide();
 
 	// Append gameid to breadcrumbs
 	var breadcrumbs = document.querySelector('.breadcrumbs');
@@ -1554,30 +1578,41 @@ function customCSS() {
 	addGlobalStyle(".game_options .toggle_btn.disabled:hover { background: url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/button_icons.png');background-repeat: no-repeat;background-position: -150px -112px;color: #fff;}");
 
 	addGlobalStyle(".game_options .toggle_btn span { position: relative; top: -20px; }");
-}
-
-
-function toggleSFX() {
-	var disable = WebStorage.GetLocal('minigame_mute');
-	if(disable)
-		WebStorage.SetLocal('minigame_mute', true);
-	else
-		WebStorage.SetLocal('minigame_mute', false);
-		
-	updateSoundBtnText();
-}
-function toggleMusic() {
-	var disable = WebStorage.GetLocal('minigame_mutemusic');
-	if(disable){
-		WebStorage.SetLocal('minigame_mutemusic', true);
-		g_AudioManager.m_eleMusic.pause();
-	}
-	else {
-		WebStorage.SetLocal('minigame_mutemusic', false);
-		g_AudioManager.m_eleMusic.play();
-	}
+	addGlobalStyle("#settings .toggle { position: relative; margin-top: 10px; width: 75%; height: 32px; z-index: 10}");
+	addGlobalStyle("#settings span.title { position: relative; top: 10px; float: right; right:15px; text-align:right; width: 80%;}");
+	addGlobalStyle("#settings span.value { position: relative; float: right; right:10px; display: inline-block; z-index:11; cursor: pointer;}");
+	addGlobalStyle("#settings span.value.enabled { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:0px 0px;width:30px;height:30px; }");
+	addGlobalStyle("#settings span.value.enabled:hover { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:-30px 0px;width:30px;height:30px; }");
+	addGlobalStyle("#settings span.value.disabled { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:0px -30px;width:30px;height:32px; }");
+	addGlobalStyle("#settings span.value.disabled:hover { background: url(http://i.imgur.com/oXuFeVL.png); background-repeat: no-repeat;background-position:-30px -30px;width:30px;height:32px; }");
 	
-	updateSoundBtnText();
+	addGlobalStyle(".toggle_btn {background: #d6d6d6;-webkit-border-radius: 7; -moz-border-radius: 7; border-radius: 7px; color: #333; text-decoration: none; text-align: center;cursor: pointer;font-weight: bold;}");
+	addGlobalStyle(".toggle_btn:hover { background: #85c8f2; text-decoration: none; color: #fff;cursor: pointer;font-weight: bold;}");
+}
+
+function updateToggle(id, enabled) {
+	if (enabled) { $J("#"+id+"_toggle span.value").removeClass("enabled").addClass("disabled"); }
+	else { $J("#"+id+"_toggle span.value").removeClass("disabled").addClass("enabled"); }
+}
+
+function toggleSFX(shouldToggle) {
+	var enabled = WebStorage.GetLocal('minigame_mute');
+	if (shouldToggle) {
+		enabled = !enabled;
+		WebStorage.SetLocal('minigame_mute', enabled);
+	}
+	updateToggle("sfx", enabled);
+}
+
+function toggleMusic(shouldToggle) {
+	var enabled = WebStorage.GetLocal('minigame_mutemusic');
+	if (shouldToggle) {
+		if(enabled) { g_AudioManager.m_eleMusic.pause(); }
+		else { g_AudioManager.m_eleMusic.play(); }
+		enabled = !enabled;
+		WebStorage.SetLocal('minigame_mutemusic', enabled);
+	}
+	updateToggle("music", enabled);
 }
 
 function toggleAllSound() {
@@ -1594,76 +1629,34 @@ function toggleAllSound() {
 		g_AudioManager.m_eleMusic.pause();
 	}
 	
-	updateSoundBtnText();
-}
-
-function updateSoundBtnText() {
-	$J('#toggleSFXBtn').html('<span>' + (WebStorage.GetLocal('minigame_mute') ? 'Enable' : 'Disable') + ' SFX</span>');
-	$J('#toggleMusicBtn').html('<span>' + (WebStorage.GetLocal('minigame_mutemusic') ? 'Enable' : 'Disable') + ' Music</span>');
-	$J("#toggleAllSoundBtn").html("<span>"+(bIsMuted() ? "Enable" : "Disable")+" All Sound</span>");
-}
-
-function toggleAutoClass(id, isOn) {
-	if (isOn) {
-		$J(id).addClass("enabled");
-		$J(id).removeClass("disabled");
-		$J(id+' .status').html('Enabled');
-	} else {
-		$J(id).removeClass("enabled");
-		$J(id).addClass("disabled");
-		$J(id+' .status').html('Disabled');
-	}
+	updateToggle("music", !bIsMuted());
+	updateToggle("sfx", !bIsMuted());
 }
 
 function toggleAutoClicker() {
-	if(autoClicker) {
-		stopAutoClicker();
-		toggleAutoClass('#toggleAutoClickerBtn', false);
-	}
-	else {
-		startAutoClicker();
-		toggleAutoClass('#toggleAutoClickerBtn', true);
-	}
+	if(autoClicker) {stopAutoClicker(); }
+	else { startAutoClicker(); }
+	updateToggle("autoclicker", !autoClicker);
 }
 function toggleAutoTargetSwapper() {
-	if(autoTargetSwapper) {
-		stopAutoTargetSwapper();
-		toggleAutoClass('#toggleAutoTargetSwapperBtn', false);
-	}
-	else {
-		startAutoTargetSwapper();
-		toggleAutoClass('#toggleAutoTargetSwapperBtn', true);
-	}
+	if(autoTargetSwapper) {	stopAutoTargetSwapper(); }
+	else { startAutoTargetSwapper(); }
+	updateToggle("autotargetswapper", !autoTargetSwapper);
 }
 function toggleAutoAbilityUser(){
-	if(autoAbilityUser) {
-		stopAutoAbilityUser();
-		toggleAutoClass('#toggleAutoAbilityUserBtn', false);
-	}
-	else {
-		startAutoAbilityUser();
-		toggleAutoClass('#toggleAutoAbilityUserBtn', true);
-	}
+	if(autoAbilityUser) { stopAutoAbilityUser(); }
+	else { startAutoAbilityUser(); }
+	updateToggle("autoabilityuse", !autoAbilityUser);
 }
 function toggleAutoItemUser(){
-	if(autoUseConsumables) {
-		stopAutoItemUser();
-		toggleAutoClass('#toggleAutoItemUserBtn', false);
-	}
-	else {
-		startAutoItemUser();
-		toggleAutoClass('#toggleAutoItemUserBtn', true);
-	}
+	if(autoUseConsumables) { stopAutoItemUser(); }
+	else { startAutoItemUser(); }
+	updateToggle("autoconsume", !autoUseConsumables);
 }
 function toggleAutoUpgradeManager(){
-	if(autoUpgradeManager) {
-		stopAutoUpgradeManager();
-		toggleAutoClass('#toggleAutoUpgradeBtn', false);
-	}
-	else {
-		startAutoUpgradeManager();
-		toggleAutoClass('#toggleAutoUpgradeBtn', true);
-	}
+	if(autoUpgradeManager) { stopAutoUpgradeManager(); }
+	else { startAutoUpgradeManager(); }
+	updateToggle("autoupgrade", !autoUpgradeManager);
 }
 
 var spammer;
@@ -1695,15 +1688,11 @@ function toggleSpammer() {
 	if(spammer) {
 		clearInterval(spammer);
 		spammer = null;
-		//$J("#toggleSpammerBtn").html('<span>Particle Spam</span><br /><span class="status">Disabled</span>');
-		toggleAutoClass('#toggleSpammerBtn', false);
 	}
 	else {
 		if(confirm("Are you SURE you want to do this? This leads to massive memory leaks fairly quickly.")) {
 			spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
-			//$J("#toggleSpammerBtn").html('<span>Particle Spam</span><br /><span class="status">Disabled</span>');
-			toggleAutoClass('#toggleSpammerBtn', true);
 		}
-	}
-		
+	}	
+	updateToggle("particles", (spammer == null));
 }
