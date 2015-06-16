@@ -2,7 +2,7 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.90
+// @version 1.91
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -1384,6 +1384,14 @@ var startAll = setInterval(function() {
 				$J('#newplayer').hide();
 			}
 		};
+
+		//Keep Playing while minimized - http://www.reddit.com/r/SteamMonsterGame/comments/39yng9/keep_autoclicking_after_minimizingchanging_tabs/
+		setInterval(function(p) {
+		    return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
+		        function() {
+		            p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
+		        }
+		}(CSceneGame.prototype), 1e3);
 
 		setTimeout(function() {
 			//Try to reload every 15s
