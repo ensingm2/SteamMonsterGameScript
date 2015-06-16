@@ -1656,7 +1656,7 @@ function addCustomButtons() {
 			element.style.cssFloat = 'right';
 			element.style.color = '#D4E157';
 			element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
-			element.innerHTML = '<a href="'+GM_info.namespace+'">'+GM_info.script.name + ' v' + GM_info.script.version+'</a>';
+			element.innerHTML = '<a href="'+GM_info.script.namespace+'">'+GM_info.script.name + ' v' + GM_info.script.version+'</a>';
 			breadcrumbs.appendChild(element);
 		}
 	}
