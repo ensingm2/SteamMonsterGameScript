@@ -1518,7 +1518,7 @@ function addExtraUI() {
 	//Add in stats
 	$J("#statistics").append('<div id="stat_player_dpc" class="stat"><span class="title">Dmg Per Click: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_player_dps" class="stat"><span class="title">Dmg Per Second: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_player_crit" class="stat"><span class="title">Critical Dmg: </span><span class="value">0</span></div>');
+	$J("#statistics").append('<div id="stat_player_crit" class="stat"><span class="title">Critical Chance: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_crit_mul" class="stat"><span class="title">Critical Dmg Multiplier: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_elemental_mul" class="stat"><span class="title">Elemental Multiplier: </span><span class="value">0</span></div>');
 	$J("#statistics").append('<div id="stat_elemental_dpc" class="stat"><span class="title">Elemental DPC: </span><span class="value">0</span></div>');
