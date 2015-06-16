@@ -646,6 +646,22 @@ function startAutoAbilityUser() {
 		
 		var currentLane = g_Minigame.m_CurrentScene.m_rgGameData.lanes[g_Minigame.CurrentScene().m_rgPlayerData.current_lane];
 		
+
+		// Wormholes -- use before wasting items on lanes
+		if (hasAbility(26) && autoUseConsumables) {
+			var nearEndWithTimeForWormholes = function() {
+				var time = new Date();
+				var hrs = time.getUTCHours();
+				var mins = time.getUTCMinutes();
+				return (hrs == 15 && (60 - mins) <= (getAbilityItemQuantity(26) + 5)); // give a little extra time to clear the last levels
+			};
+			if (nearEndWithTimeForWormholes()) {
+				if(debug)
+					console.log("Casting Wormhole! Allons-y!!!");
+				castAbility(26);
+			}
+		}
+
 		// Abilities only used on targets
 		if(target) {
 			
@@ -805,7 +821,7 @@ function startAutoAbilityUser() {
 				}
 			}
 		}
-		
+
 		//Estimate average player HP Percent in lane
 		var laneTotalPctHP = 0;
 		var laneTotalCount = 0;
