@@ -1560,11 +1560,11 @@ function addCustomButtons() {
 		element = document.createElement('span');
 		element.style.color = '#ACA5F2';
 		element.style.textShadow = '1px 1px 0px rgba( 0, 0, 0, 0.3 )';
-		element.innerHTML = 'Remaining Time: <span id="remaining_time">0 Seconds</span>.';
+		element.innerHTML = 'Remaining Time: <span id="remaining_time">0 Seconds</span> <a id="refresh_stats" title="Refresh Stats">&#x27f3;</a>';
 		breadcrumbs.appendChild(element);
 
 		updateStats();
-		setTimeout(function() { updateStats(); }, 10000);
+		$J("#refresh_stats").click (updateStats);
 
 		if(typeof GM_info != 'undefined') {
 			element = document.createElement('span');
