@@ -2,7 +2,7 @@
 // @name [esingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.99
+// @version 2.00
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -24,6 +24,7 @@ var abilityUseCheckFreq = 2000;
 var itemUseCheckFreq = 5000;
 var seekHealingPercent = 20;
 var upgradeManagerFreq = 5000;
+var slowRenderingFreq = 1000;
 var autoBuyAbilities = false;
 var refreshDelay = 3600000; //Page refresh every 60min
 
@@ -49,7 +50,7 @@ var minutesBufferForConsumableDump = 10;
 var autoClickerFreq = 1000;
 
 // Internal variables, you shouldn't need to touch these
-var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager;
+var autoRespawner, autoClicker, autoTargetSwapper, autoTargetSwapperElementUpdate, autoAbilityUser, autoUpgradeManager, slowRendering, spammer;
 var elementUpdateRate = 60000;
 var autoUseConsumables = true;
 var userElementMultipliers = [1, 1, 1, 1];
@@ -172,6 +173,7 @@ if (typeof unsafeWindow != 'undefined') {
 	unsafeWindow.seekHealingPercent = seekHealingPercent;
 	unsafeWindow.upgradeManagerFreq = upgradeManagerFreq;
 	unsafeWindow.autoBuyAbilities = autoBuyAbilities;
+	unsafeWindow.slowRendering = slowRendering;
 
 	//item use variables
 	unsafeWindow.useMedicsAtPercent = useMedicsAtPercent;
@@ -243,6 +245,7 @@ if (typeof unsafeWindow != 'undefined') {
 		seekHealingPercent = unsafeWindow.seekHealingPercent;
 		upgradeManagerFreq = unsafeWindow.upgradeManagerFreq;
 		autoBuyAbilities = unsafeWindow.autoBuyAbilities;
+		slowRendering = unsafeWindow.slowRendering;
 
 		//item use variables
 		useMedicsAtPercent = unsafeWindow.useMedicsAtPercent;
@@ -1245,6 +1248,58 @@ function stopAutoUpgradeManager() {
 		console.log("No autoUpgradeManager is running to stop.");
 }
 
+
+// ================ SLOW RENDERING ================
+var gameOldRenderer = function() {};
+function startSlowRendering(){
+	if (slowRendering) {
+		console.log("slowRendering is already running!");
+		return;
+	}
+	
+	// Stops normal render cycle
+	gameOldRenderer = g_Minigame.Render;
+	var ticker = PIXI.ticker.shared;
+	ticker.autoStart = false;
+	ticker.stop();
+	g_Minigame.Render = function() {};
+
+	// Visual Display for peoples
+	$J("#uicontainer").append('<div id="slow_fps_dialog"><div class="waiting_for_players_ctn"><div class="title_waiting">Currently in slow FPS mode to maximize performance, toggle this off in the settings if you want full FPS</div></div></div>');
+	$J("#slow_fps_dialog").css({ "position": "absolute", "top": "0", "left":"0", "right":"0", "height":"100%", "background-color": "rgba(0,0,0,0.6)", "color":"white", "text-align": "center", "font-size":"12px", "z-index":"9", "padding": "10px"});
+
+	// Custom render cycle
+	slowRendering = setInterval(function() {
+		if (!gameRunning()) return;
+		m_nLastTick = false;
+		g_Minigame.CurrentScene().Tick();
+		requestAnimationFrame(function() { g_Minigame.Renderer.render(g_Minigame.CurrentScene().m_Container); });
+
+	}, slowRenderingFreq);
+
+	console.log("slowRendering has been started.");
+}
+
+function stopSlowRendering() {
+	if (slowRendering) {
+		clearInterval(slowRendering);
+		slowRendering = null;
+
+		var ticker = PIXI.ticker.shared;
+		ticker.autoStart = true;
+		ticker.start();
+
+		g_Minigame.Render = gameOldRenderer;
+		g_Minigame.Render();
+
+		$J("#slow_fps_dialog").remove();
+
+		console.log("slowRendering has been stopped.");
+	} else
+		console.log("No slowRendering is running to stop.");
+}
+
+
 // ================ UI ELEMENTS ================
 function initGUI() {
 	updatePlayersInLane();
@@ -1286,6 +1341,10 @@ function initGUI() {
 			this.m_Game.m_rgPlayerData.loot = [];
 		}
 	};
+
+	if (WebStorage.GetLocal('minigame_fpsLimiter')) {
+		startSlowRendering();
+	}
 }
 
 function addPointer() {
@@ -1416,6 +1475,7 @@ function addExtraUI() {
 	$J("#settings").append('<div id="autoabilityuse_toggle" class="toggle"><span class="value enabled"></span><span class="title">Ability Use: </span></div>');
 	$J("#settings").append('<div id="autoconsume_toggle" class="toggle"><span class="value enabled"></span><span class="title">Consumable Use: </span></div>');
 	$J("#settings").append('<div id="autoupgrade_toggle" class="toggle"><span class="value enabled"></span><span class="title">Auto Upgrader: </span></div>');
+	$J("#settings").append('<div id="fps_toggle" class="toggle"><span class="value disabled"></span><span class="title">FPS Limiter: </span></div>');
 	$J("#settings").append('<div id="particles_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles: </span></div>');
 	$J("#sfx_toggle").click(function(e) {
 		e.stopPropagation();
@@ -1444,6 +1504,10 @@ function addExtraUI() {
 	$J("#autoupgrade_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleAutoUpgradeManager()
+	});
+	$J("#fps_toggle").click(function(e) {
+		e.stopPropagation();
+		toggleFPS()
 	});
 	$J("#particles_toggle").click(function(e) {
 		e.stopPropagation();
@@ -1500,12 +1564,14 @@ function addExtraUI() {
 	});
 
 	//Add in IRC link
-	$J(".tv_ui").css({"background": "url('" + getUploadedFilePath("master/img/game_frame_tv.png") + "')"});
-	$J("#info_block").append('<div id="irc_join" style="height: 30px"></div>');
-	$J("#irc_join").click(function(e) {
-		e.stopPropagation();
-        window.open('http://chat.mibbit.com/?channel=%23SMG_'+g_GameID+'&server=irc.mibbit.net&nick='+$J("#account_pulldown").html(),'_blank'); // Cant seem to find a local storing in js of the players username, so lets just take it from the dropdown
-	});
+	setTimeout(function() {
+		$J(".tv_ui").css({"background": "url('" + getUploadedFilePath("master/img/game_frame_tv.png") + "')"});
+		$J("#info_block").append('<div id="irc_join" style="height: 30px"></div>');
+		$J("#irc_join").click(function(e) {
+			e.stopPropagation();
+	        window.open('http://chat.mibbit.com/?channel=%23SMG_'+g_GameID+'&server=irc.mibbit.net&nick='+getUserName(),'_blank'); // Cant seem to find a local storing in js of the players username, so lets just take it from the dropdown
+		});
+	}, 1000);
 
 	//Update stats
 	setInterval(function() {
@@ -1717,6 +1783,16 @@ function toggleAutoUpgradeManager() {
 		startAutoUpgradeManager();
 	}
 	updateToggle("autoupgrade", !autoUpgradeManager);
+}
+
+function toggleFPS() {
+	if (slowRendering) {
+		stopSlowRendering();
+	} else {
+		startSlowRendering();
+	}
+	WebStorage.SetLocal('minigame_fpsLimiter', (slowRendering == null));
+	updateToggle("fps", (slowRendering == null));
 }
 
 function spamNoClick() {
@@ -2083,4 +2159,52 @@ function gameRunning() {
 
 function getUploadedFilePath(fileName) {
 	return GM_info.script.namespace.replace("github", "raw.githubusercontent") + "/" + fileName;
+}
+
+function subLong(x, y) {
+    var addLong = function(x, y) {
+        var s = '';
+        if (y.length > x.length) {
+            s = x;
+            x = y;
+            y = s;
+        }
+        s = (parseInt(x.slice(-9),10) + parseInt(y.slice(-9),10)).toString();
+        x = x.slice(0,-9); 
+        y = y.slice(0,-9);
+        if (s.length > 9) {
+            if (x === '') return s;
+            x = addLong(x, '1');
+            s = s.slice(1);
+        } else if (x.length) { while (s.length < 9) { s = '0' + s; } }
+        if (y === '') return x + s;
+        return addLong(x, y) + s; 
+    }
+    var s;
+    s = (parseInt('1'+x.slice(-9),10) - parseInt(y.slice(-9),10)).toString(); 
+    x = x.slice(0,-9);
+    y = y.slice(0,-9);
+    if (s.length === 10 || x === '') {
+        s = s.slice(1);
+    } else { 
+        if (y.length) { y = addLong(y, '1'); } 
+        else { y = '1';}
+        if (x.length) { while (s.length < 9) { s = '0' + s; }}
+    }
+    if (y === '') { 
+        s = (x + s).replace(/^0+/,'');
+        return s;
+    }
+    return subLong(x, y) + s;
+}
+
+function getAccountId(id) {
+    return parseInt(subLong(''+id, '76561197960265728'));
+}
+
+function getUserName() {
+	if (g_Minigame.m_CurrentScene.m_rgPlayerNameCache) {
+		return g_Minigame.m_CurrentScene.m_rgPlayerNameCache[getAccountId(g_steamID)];
+	}
+	return "Unknown";
 }
