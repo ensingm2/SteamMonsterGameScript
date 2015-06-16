@@ -44,7 +44,7 @@ function runMaster()
 			setTimeout(spawnSlave, i * slaveDelayBetweenSpawns);
 	}
 	
-	function killAllSlaves(){
+	function killAllSlaves(refresh){
 		while(slavesList.length) {
 			var toKill = slavesList.pop();
 			
@@ -53,8 +53,10 @@ function runMaster()
 		}
 		$J('.slaveWindowCount').text(slavesList.length);
 		
-		//Delete the local variable
-		WebStorage.SetLocal('minigame_slaveCount', 0);
+		if(!refresh){
+			//Delete the local variable
+			WebStorage.SetLocal('minigame_slaveCount', 0);
+		}
 	}
 	
 	var cont = $J('<div>').addClass('slaveManager');
