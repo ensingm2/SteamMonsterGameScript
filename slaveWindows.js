@@ -71,13 +71,13 @@ function runMaster()
 	var counterStyle = {
 		'position': 'relative',
 		'font-weight': 'bold',
-		'top': '5px',
+		'top': '15px',
 		'color': '#FF8585',
 		"float": "right",
-		"margin-right": "75px"
+		"margin-right": "40px"
 	};
 	
-	$J("#settings").append('<div id="slaves"><div id="spawn_slaves" class="toggle toggle_btn" style="width:50%;margin-left:50px"><span class="title">Spawn Slaves</span></div><div id="kill_slaves" class="toggle toggle_btn" style="width:50%;margin-left:50px"><span class="title">Kill Slaves</span></div><div class="slave_num"><span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span></div></div>');
+	$J("#settings").append('<div id="slaves"><div id="spawn_slaves" class="toggle toggle_btn" style="width:25%;margin-left:50px"><span class="title">Spawn Slaves</span></div><div id="kill_slaves" class="toggle toggle_btn" style="width:25%;margin-right:50px;float:right"><span class="title">Kill Slaves</span></div><div class="slave_num"><span id="slaveCounter">Slaves: <span class="slaveWindowCount">0</span></span></div></div>');
 	$J("#spawn_slaves").click(function(e) { e.stopPropagation(); spawnSlaves(e)});
 	$J("#kill_slaves").click(function(e) { e.stopPropagation(); killAllSlaves()});
 
