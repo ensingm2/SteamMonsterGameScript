@@ -2,12 +2,12 @@
 // @name Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 1.84
+// @version 1.85
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
 // @downloadURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
-// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_84
+// @require https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/slaveWindows.js?ver=1_85
 // ==/UserScript==
 
 // Compiled and customized by https://github.com/ensingm2
@@ -1619,7 +1619,7 @@ function toggleSFX(shouldToggle) {
 }
 
 function toggleMusic(shouldToggle) {
-	if (shouldToggle)) { g_AudioManager.ToggleMusic(); }
+	if (shouldToggle) { g_AudioManager.ToggleMusic(); }
 	updateToggle("music", WebStorage.GetLocal('minigame_mutemusic'));
 }
 
