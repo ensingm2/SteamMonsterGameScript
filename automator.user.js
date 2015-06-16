@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.07
+// @version 2.08
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -31,15 +31,13 @@ var refreshDelay = 3600000; //Page refresh every 60min
 var spamStatBoosters = true;
 
 // Boss Nuke Variables
-var nukeBossesAfterLevel = 1000;
-var farmGoldOnBossesLevelDiff = 200;
 var useNukeOnBossAbovePercent = 25;
 
 //Controls to sync us up with other scripts 
 var CONTROL = {
-	speedThreshold: 5000, // use gold rain every boss round after here
-	rainingRounds: 250, // use gold rain every x rounds
-	disableGoldRainLevels: 500 // min level to use gold rain on
+	speedThreshold: 2000, // use gold rain every boss round after here
+	rainingRounds: 500, // use gold rain every x rounds
+	disableGoldRainLevels: 200 // min level to use gold rain on
 };
 
 //item use variables
@@ -202,8 +200,6 @@ if (typeof unsafeWindow != 'undefined') {
 	unsafeWindow.slaveWindowPeriodicRestartInterval = slaveWindowPeriodicRestartInterval;
 
 	//Boss nuke vars
-	unsafeWindow.nukeBossesAfterLevel = nukeBossesAfterLevel;
-	unsafeWindow.farmGoldOnBossesLevelDiff = farmGoldOnBossesLevelDiff;
 	unsafeWindow.useNukeOnBossAbovePercent = useNukeOnBossAbovePercent;
 
 	// Functions
@@ -269,8 +265,6 @@ if (typeof unsafeWindow != 'undefined') {
 		spamStatBoosters = unsafeWindow.spamStatBoosters;
 
 		//Boss nuke vars
-		nukeBossesAfterLevel = unsafeWindow.nukeBossesAfterLevel;
-		farmGoldOnBossesLevelDiff = unsafeWindow.farmGoldOnBossesLevelDiff;
 		useNukeOnBossAbovePercent = unsafeWindow.useNukeOnBossAbovePercent;
 
 	}, 5000);
@@ -384,7 +378,7 @@ function startAutoAbilityUser() {
 		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (((getEstimatedLevelsLeft() % 100) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % 100 === 0) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
+			if (((getEstimatedLevelsLeft() % CONTROL.rainingRounds) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % CONTROL.rainingRounds === 0 && lvl > CONTROL.speedThreshold) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
 				if (debug)
 					console.log("Casting Wormhole! Allons-y!!!");
 				castAbility(ABILITIES.WORMHOLE);
@@ -412,12 +406,12 @@ function startAutoAbilityUser() {
 			// First priority since it can use Decrease Cooldowns
 
 			//Nuke bosses after the 1000th level and not every 200th level thereafter
-			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= nukeBossesAfterLevel) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel + 1) % farmGoldOnBossesLevelDiff !== 0);
+			var nukeBosses = (g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= CONTROL.speedThreshold) && ((g_Minigame.m_CurrentScene.m_nCurrentLevel + 1) % CONTROL.rainingRounds !== 0);
 
 			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
 
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
-			if ((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= nukeBossesAfterLevel) || (isBoss && nukeBosses)) {
+			if ((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= CONTROL.speedThreshold) || (isBoss && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
 				var moraleBoosterReady = hasAbility(ABILITIES.MORALE_BOOSTER);
 				var goodLuckCharmReady = hasAbility(ABILITIES.GOOD_LUCK_CHARMS);
