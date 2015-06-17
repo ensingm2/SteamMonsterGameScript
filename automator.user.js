@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.11
+// @version 2.12
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -36,7 +36,7 @@ var useNukeOnBossAbovePercent = 25;
 //Controls to sync us up with other scripts 
 var CONTROL = {
 	speedThreshold: 2000, // use gold rain every boss round after here
-	rainingRounds: 500, // use gold rain every x rounds
+	rainingRounds: 100, // use gold rain every x rounds
 	disableGoldRainLevels: 200 // min level to use gold rain on
 };
 
@@ -382,7 +382,7 @@ function startAutoAbilityUser() {
 		
 		// Wormholes -- use before wasting items on lanes
 		if (hasAbility(ABILITIES.WORMHOLE) && autoUseConsumables) {
-			if (((getEstimatedLevelsLeft() % CONTROL.rainingRounds) < getAbilityItemQuantity(ABILITIES.WORMHOLE) && lvl % CONTROL.rainingRounds === 0 && lvl > CONTROL.speedThreshold) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
+			if ((lvl % CONTROL.rainingRounds === 0 && lvl > CONTROL.speedThreshold) || hasTimeLeftToUseConsumable(ABILITIES.WORMHOLE, false)) { // Use wormhole as close to the end on every 100th level (causes a 10 level jump instead of a 1)
 				if (debug)
 					console.log("Casting Wormhole! Allons-y!!!");
 				castAbility(ABILITIES.WORMHOLE);
