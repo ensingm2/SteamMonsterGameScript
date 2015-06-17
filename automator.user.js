@@ -2057,6 +2057,10 @@ function getSecondsPerLevel() {
 }
 
 function hasTimeLeftToUseConsumable(id, ignoreBuffer) {
+	// Use early if Raining Gold or Treasure
+	if(id == 17 || id == 22)
+		ignoreBuffer *= 6;
+	
 	if(ignoreBuffer)
 		return getSecondsUntilEnd() <= (getAbilityItemQuantity(id) * abilityCooldown(id));
 	else
