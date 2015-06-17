@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.10
+// @version 2.11
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -375,7 +375,7 @@ function startAutoAbilityUser() {
 				if (abilityID >= ABILITIES.RESURRECTION) {
 					var ignoreBufferPeriod = (abilityID == ABILITIES.THROW_MONEY_AT_SCREEN);
 					if(hasTimeLeftToUseConsumable(abilityID, ignoreBufferPeriod))
-						cast(abilityID);
+						castAbility(abilityID);
 				}
 			}
 		}
