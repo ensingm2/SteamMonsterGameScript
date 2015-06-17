@@ -98,11 +98,39 @@ var ABILITIES = {
 };
 
 function startAllAutos() {
-	startAutoClicker();
 	startAutoRespawner();
+	
+	
+	startAutoClicker();
 	startAutoTargetSwapper();
 	startAutoAbilityUser();
+	startAutoItemUser();
 	startAutoUpgradeManager();
+}
+
+function loadSettings() {
+	if(WebStorage.GetLocal('autoClickerEnabled') === false)
+		toggleAutoClicker();
+	if(WebStorage.GetLocal('autoTargetSwapperEnabled') === false)
+		toggleAutoTargetSwapper();
+	if(WebStorage.GetLocal('autoAbilityUserEnabled') === false)
+		toggleAutoAbilityUser();
+	if(WebStorage.GetLocal('autoConsumableUserEnabled') === false)
+		toggleAutoItemUser();
+	if(WebStorage.GetLocal('autoUpgraderEnabled') === false)
+		toggleAutoUpgradeManager();
+	
+	
+	if(WebStorage.GetLocal('particleSpamEnabled')){
+		spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
+		updateToggle("particles", false);
+	}
+	
+	if (WebStorage.GetLocal('fpsThrottleEnabled') === true)
+		toggleFPS();
+	
+	if(WebStorage.GetLocal('spamStatBoostersEnabled') === false)
+		toggleSpamStatBoosters();
 }
 
 function stopAllAutos() {
@@ -133,10 +161,8 @@ var startAll = setInterval(function() {
 
 	startAllAutos();
 	initGUI();
-	if (WebStorage.GetLocal('minigame_fpsThrottle') === false) {
-		toggleFPS();
-	}
-
+	loadSettings();
+	
 	//Start leaderboard (if user is running userscript)
 	if (typeof unsafeWindow != 'undefined')
 		initLeaderboard();
@@ -153,8 +179,8 @@ var startAll = setInterval(function() {
 	setInterval(function(p) {
 		return p.Tick = eval("(" + ("" + p.Tick).replace(/document\.(hidden|webkitHidden|mozHidden|msHidden)/g, !1) + ")"),
 			function() {
-				p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick()
-			}
+				p = g_Minigame.m_CurrentScene, p && document.hidden && p.Tick();
+			};
 	}(CSceneGame.prototype), 1000);
 
 	setTimeout(function() {
@@ -1309,6 +1335,7 @@ function startFPSThrottle(){
 	// Custom render cycle
 	fpsThrottle = setInterval(fpsThrottleRender, slowRenderingFreq);
 	console.log("fpsThrottle has been started.");
+	
 }
 
 function stopFPSThrottle() {
@@ -1460,7 +1487,7 @@ function updateStats() {
 			}
 		}
 		return time;
-	}
+	};
 
 	$J('#avg_completion_rate').html(parseFloat(getSecondsPerLevel()).toFixed(2));
 	$J("#estimated_end_level").html(Math.round(getSecondsUntilEnd() / getSecondsPerLevel() + g_Minigame.m_CurrentScene.m_rgGameData.level));
@@ -1500,39 +1527,39 @@ function addExtraUI() {
 	$J("#settings").append('<div id="survival_time_toggle" class="toggle"><span class="title" style="top: 0px;">Survival Time: <span id="increase_survival" class="arrow"> ^ </span></span><span class="title" style="top: 0px;"><span id="survival_time">30</span> seconds<span id="decrease_survival" class="arrow"> v </span></span></div>');
 	$J("#sfx_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleSFX(true)
+		toggleSFX(true);
 	});
 	$J("#music_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleMusic(true)
+		toggleMusic(true);
 	});
 	$J("#autoclicker_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleAutoClicker()
+		toggleAutoClicker();
 	});
 	$J("#autotargetswapper_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleAutoTargetSwapper()
+		toggleAutoTargetSwapper();
 	});
 	$J("#autoabilityuse_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleAutoAbilityUser()
+		toggleAutoAbilityUser();
 	});
 	$J("#autoconsume_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleAutoItemUser()
+		toggleAutoItemUser();
 	});
 	$J("#autoupgrade_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleAutoUpgradeManager()
+		toggleAutoUpgradeManager();
 	});
 	$J("#fps_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleFPS()
+		toggleFPS();
 	});
 	$J("#particles_toggle").click(function(e) {
 		e.stopPropagation();
-		toggleSpammer()
+		toggleSpammer();
 	});
 	
 	$J("#spamStatBoosters_toggle").click(function(e) {
@@ -1785,6 +1812,7 @@ function toggleAutoClicker() {
 	} else {
 		startAutoClicker();
 	}
+	WebStorage.SetLocal('autoClickerEnabled', (autoClicker !== null));
 	updateToggle("autoclicker", !autoClicker);
 }
 
@@ -1794,6 +1822,7 @@ function toggleAutoTargetSwapper() {
 	} else {
 		startAutoTargetSwapper();
 	}
+	WebStorage.SetLocal('autoTargetSwapperEnabled', (autoTargetSwapper !== null));
 	updateToggle("autotargetswapper", !autoTargetSwapper);
 }
 
@@ -1803,6 +1832,7 @@ function toggleAutoAbilityUser() {
 	} else {
 		startAutoAbilityUser();
 	}
+	WebStorage.SetLocal('autoAbilityUserEnabled', (autoAbilityUser !== null));
 	updateToggle("autoabilityuse", !autoAbilityUser);
 }
 
@@ -1812,6 +1842,7 @@ function toggleAutoItemUser() {
 	} else {
 		startAutoItemUser();
 	}
+	WebStorage.SetLocal('autoConsumableUserEnabled', autoUseConsumables);
 	updateToggle("autoconsume", !autoUseConsumables);
 }
 
@@ -1821,6 +1852,7 @@ function toggleAutoUpgradeManager() {
 	} else {
 		startAutoUpgradeManager();
 	}
+	WebStorage.SetLocal('autoUpgraderEnabled', (autoClicker !== null));
 	updateToggle("autoupgrade", !autoUpgradeManager);
 }
 
@@ -1830,16 +1862,20 @@ function toggleFPS() {
 	} else {
 		startFPSThrottle();
 	}
-	WebStorage.SetLocal('minigame_fpsThrottle', (fpsThrottle === null));
+	WebStorage.SetLocal('fpsThrottleEnabled', (fpsThrottle !== null));
 	updateToggle("fps", (fpsThrottle === null));
 }
 
 function toggleSpamStatBoosters() {
 	spamStatBoosters = !spamStatBoosters;
+	WebStorage.SetLocal('spamStatBoostersEnabled', spamStatBoosters);
 	updateToggle("spamStatBoosters", !spamStatBoosters);
 }
 
 function spamNoClick() {
+	if(!autoClicker)
+		return;
+	
 	// Save the click count
 	var clickCount = g_Minigame.m_CurrentScene.m_nClicks;
 
@@ -1865,13 +1901,16 @@ function spamNoClick() {
 function toggleSpammer() {
 	if (spammer) {
 		clearInterval(spammer);
+		
+		WebStorage.SetLocal('particleSpamEnabled', false);
 		spammer = null;
 	} else {
 		if (confirm("Are you SURE you want to do this? This leads to massive memory leaks fairly quickly.")) {
+			WebStorage.SetLocal('particleSpamEnabled', true);
 			spammer = setInterval(spamNoClick, 1000 / clicksPerSecond);
 		}
 	}
-	updateToggle("particles", (spammer == null));
+	updateToggle("particles", (spammer === null));
 }
 
 // ================ LEADERBOARD ================
@@ -1974,7 +2013,7 @@ function getLeaderboard() {
 			}
 			var resp = JSON.parse(response.responseText);
 			var leaderboard = Object.keys(resp).map(function(key) {
-				return resp[key]
+				return resp[key];
 			});
 			leaderboard.sort(function(a, b) {
 				return b.level - a.level;
@@ -2007,7 +2046,7 @@ function getSecondsUntilEnd() {
 }
 
 function getSecondsPerLevel() {
-	return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level)
+	return ((g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level);
 }
 
 function hasTimeLeftToUseConsumable(id, ignoreBuffer) {
@@ -2236,7 +2275,8 @@ function subLong(x, y) {
         } else if (x.length) { while (s.length < 9) { s = '0' + s; } }
         if (y === '') return x + s;
         return addLong(x, y) + s; 
-    }
+    };
+	
     var s;
     s = (parseInt('1'+x.slice(-9),10) - parseInt(y.slice(-9),10)).toString(); 
     x = x.slice(0,-9);
