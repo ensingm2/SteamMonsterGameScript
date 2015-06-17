@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.12
+// @version 2.14
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -131,6 +131,11 @@ function loadSettings() {
 	
 	if(WebStorage.GetLocal('spamStatBoostersEnabled') === false)
 		toggleSpamStatBoosters();
+	
+	if(WebStorage.GetLocal('survivalTime') !== null) {
+		survivalTime = WebStorage.GetLocal('survivalTime');
+		$J("#survival_time").html(survivalTime);
+	}
 }
 
 function stopAllAutos() {
@@ -1569,12 +1574,14 @@ function addExtraUI() {
 	$J("#increase_survival").click(function(e) {
 		e.stopPropagation();
 		survivalTime += 10;
+		WebStorage.SetLocal('survivalTime', survivalTime);
 		$J("#survival_time").html(survivalTime);
 	});
 	$J("#decrease_survival").click(function(e) {
 		e.stopPropagation();
-		if (survivalTime - 10 <= 0) { return; }
-		survivalTime -= 10;
+		if (survivalTime - 10 < 0) { return; }
+			survivalTime -= 10;
+		WebStorage.SetLocal('survivalTime', survivalTime);
 		$J("#survival_time").html(survivalTime);
 	});
 	// We force update the icon once to sync with active settings
