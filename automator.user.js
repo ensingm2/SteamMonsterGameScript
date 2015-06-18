@@ -2,7 +2,7 @@
 // @name [ensingm2] Steam Monster Game Script
 // @namespace https://github.com/ensingm2/SteamMonsterGameScript
 // @description A Javascript automator for the 2015 Summer Steam Monster Minigame
-// @version 2.15
+// @version 2.16
 // @match http://steamcommunity.com/minigame/towerattack*
 // @match http://steamcommunity.com//minigame/towerattack*
 // @updateURL https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/automator.user.js
@@ -31,7 +31,7 @@ var refreshDelay = 3600000; //Page refresh every 60min
 var spamStatBoosters = true;
 
 // Boss Nuke Variables
-var useNukeOnBossAbovePercent = 25;
+var useNukeOnBossAbovePercent = 40;
 
 //Controls to sync us up with other scripts 
 var CONTROL = {
@@ -865,6 +865,7 @@ function startAutoUpgradeManager() {
 	];
 
 	var gLuckyShot = 7;
+    var gBossLoot = 19;
 	var gElementalUpgrades = [3, 4, 5, 6]; // Fire, Water, Earth, Air
 
 	var gHealthUpgrades = [];
@@ -1134,6 +1135,26 @@ function startAutoUpgradeManager() {
 			};
 		}
 
+		// Boss Loot Upgrade
+		var lootRate = g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100;
+		var levelTime = (g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level;
+		var lootCost = scene.GetUpgradeCost(gBossLoot);
+		var lootEfficient = false;
+		
+		// Case1: drop rate < 50%: if cost is <10% that of the 'best upgrade', and room isn't moving slowly.
+		// Case2: drop rate >=50%: if cost is <1% that of the 'best upgrade', and room isn't moving slowly.
+		if ( (lootRate < 50 && lootCost < best.cost * 0.1 && lootCost < best.cost * 10 / levelTime) || (lootRate < 100 && lootCost < best.cost * 0.01 && lootCost < best.cost / levelTime) ) {
+			lootEfficient = true;
+		}
+
+		if (canUpgrade(gBossLoot) && lootEfficient) {
+			best = {
+				id: gBossLoot,
+				cost: lootCost,
+				dpg: gBossLoot.cost
+			};
+		}
+                
 		return best;
 	};
 
