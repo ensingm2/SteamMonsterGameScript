@@ -52,7 +52,7 @@ var useRainingGoldAbovePercent = 50;
 var useLikeNewAboveCooldown = 14220000; // Need to save at least 14220s of cooldowns(60% of max)
 var useResurrectToSaveCount = 150; // Use revive to save 150 people
 var minutesBufferForConsumableDump = 10;
-var survivalTime = 30; // check how long we would survive on a level and prioritize armour if needed
+var survivalTime = 10; // check how long we would survive on a level and prioritize armour if needed
 
 // You shouldn't need to ever change this, you only push to server every 1s anyway
 var autoClickerFreq = 1000;
@@ -445,6 +445,12 @@ function startAutoAbilityUser() {
 
 			var isBoss = (target.m_data.type == 2 || target.m_data.type === false); // Assume false is a boss
 
+			
+			//Use Decrease Cooldowns on bosses
+			if(isBoss)
+				if(targetPercentHPRemaining > 75 && !currentLaneHasAbility(9) && hasAbility(9))
+					castAbility(9);
+			
 			// Abilities only used when targeting Spawners (sub lvl 1000) or nuking bosses (above level 1k)
 			if ((target.m_data.type === 0 && g_Minigame.m_CurrentScene.m_nCurrentLevel + 1 >= CONTROL.speedThreshold) || (isBoss && nukeBosses)) {
 				// Morale Booster, Good Luck Charm, and Decrease Cooldowns
@@ -452,6 +458,7 @@ function startAutoAbilityUser() {
 				var goodLuckCharmReady = hasAbility(ABILITIES.GOOD_LUCK_CHARMS);
 				var critReady = (hasAbility(ABILITIES.CRIT) && autoUseConsumables);
 
+				
 				// Only use items on targets that are spawners and have nearly full health
 				if (targetPercentHPRemaining >= 90 && autoUseConsumables && (hasAbility(ABILITIES.CRIPPLE_SPAWNER) || hasAbility(ABILITIES.CRIPPLE_MONSTER))) {
 					// Check to see if Cripple Spawner and Cripple Monster items are ready to use
@@ -557,13 +564,15 @@ function startAutoAbilityUser() {
 			}
 
 			//Use cases for bosses
-			else if (!nukeBosses && isBoss) {
-				//Raining Gold
-				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30 && lvl > CONTROL.disableGoldRainLevels && (lvl <= CONTROL.speedThreshold || lvl % CONTROL.rainingRounds === 0)) {
-					if (debug)
-						console.log('Using Raining Gold on boss.');
+			else if (!nukeBosses && isBoss) {				
+				if(!nukeBosses) {
+					//Raining Gold
+					if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30 && lvl > CONTROL.disableGoldRainLevels && (lvl <= CONTROL.speedThreshold || lvl % CONTROL.rainingRounds === 0)) {
+						if (debug)
+							console.log('Using Raining Gold on boss.');
 
-					castAbility(ABILITIES.RAINING_GOLD);
+						castAbility(ABILITIES.RAINING_GOLD);
+					}
 				}
 			}
 
@@ -1294,9 +1303,9 @@ function stopAutoUpgradeManager() {
 		autoUpgradeManager = null;
 
 		//Remove hooks
-		var removeHook = function removeHook(base, method) {
+		function removeHook(base, method) {
 			base.prototype[method] = (base.prototype[method + '_upgradeManager'] || base.prototype[method]);
-		};
+		}
 
 		removeHook(CSceneGame, 'TryUpgrade');
 		removeHook(CSceneGame, 'ChangeLevel');
