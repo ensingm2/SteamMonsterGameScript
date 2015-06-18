@@ -31,7 +31,7 @@ var refreshDelay = 3600000; //Page refresh every 60min
 var spamStatBoosters = true;
 
 // Boss Nuke Variables
-var useNukeOnBossAbovePercent = 25;
+var useNukeOnBossAbovePercent = 40;
 
 //Controls to sync us up with other scripts 
 var CONTROL = {
@@ -559,7 +559,7 @@ function startAutoAbilityUser() {
 			//Use cases for bosses
 			else if (!nukeBosses && isBoss) {
 				//Raining Gold
-				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30 && lvl > CONTROL.disableGoldRainLevels && (lvl <= CONTROL.speedThreshold || lvl % CONTROL.rainingRounds === 0)) {
+				if (hasAbility(ABILITIES.RAINING_GOLD) && autoUseConsumables && ((targetPercentHPRemaining > useRainingGoldAbovePercent && timeToTargetDeath > 30 && lvl > CONTROL.disableGoldRainLevels && (lvl <= CONTROL.speedThreshold || lvl % CONTROL.rainingRounds === 0)) || (Math.round(getSecondsUntilEnd() / getSecondsPerLevel()) < 15 * 30 * getAbilityItemQuantity(ABILITIES.RAINING_GOLD) + minutesBufferForConsumableDump * 60))) {
 					if (debug)
 						console.log('Using Raining Gold on boss.');
 
@@ -856,6 +856,7 @@ function startAutoUpgradeManager() {
 	];
 
 	var gLuckyShot = 7;
+        var gBossLoot = 19;
 	var gElementalUpgrades = [3, 4, 5, 6]; // Fire, Water, Earth, Air
 
 	var gHealthUpgrades = [];
@@ -1125,6 +1126,22 @@ function startAutoUpgradeManager() {
 			};
 		}
 
+	        var lootRate = Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100, 5);
+	        var levelTime = (g_Minigame.m_CurrentScene.m_rgGameData.timestamp - g_Minigame.m_CurrentScene.m_rgGameData.timestamp_game_start) / g_Minigame.m_CurrentScene.m_rgGameData.level;
+	        var lootCost = scene.GetUpgradeCost(gBossLoot);
+	        var lootEfficient = false;
+	        if ( (lootRate < 50 && lootCost < best.cost * 0.1 && lootCost < best.cost * 10 * levelTime) || (lootRate < 100 && lootCost < best.cost * 0.01 && lootCost < best.cost * levelTime) ) {
+	            lootEfficient = true;
+	        }
+	
+	        if (canUpgrade(gBossLoot) && lootEfficient) {
+	            best = {
+	                        id: gBossLoot,
+	                        cost: lootCost,
+	                        dpg: gBossLoot.cost
+	                    };
+                }
+                
 		return best;
 	};
 
