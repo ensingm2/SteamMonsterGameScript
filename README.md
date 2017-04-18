@@ -1,15 +1,15 @@
 # SteamMonsterGameScript
 A Javascript automator for the 2015 Summer Steam Monster Minigame
-###DISCLAIMER: I take no responsibility for the use of this program, or any negative effects that may result in using it!###
+### DISCLAIMER: I take no responsibility for the use of this program, or any negative effects that may result in using it! ###
 
-###ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme.###
+### ATTENTION: Before spamming me with "I don't see anything therefore it's not working wtf" messages, please read the [Notes](https://github.com/ensingm2/SteamMonsterGameScript#notes) and [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) sections of the readme. ###
 
-##Links:
+## Links:
 - [Reddit Thread](https://www.reddit.com/r/SteamMonsterGame/comments/39lv9t/customizable_js_autoclicker_targetlanechanger_and/)
 - [/r/SteamMonsterGame/](https://www.reddit.com/r/SteamMonsterGame/)
 
-#How To Use:
-###UserScript via Greasemonkey or Tampermonkey (Preferred Method, allows slave windows):
+# How To Use:
+### UserScript via Greasemonkey or Tampermonkey (Preferred Method, allows slave windows):
 1. Download the relevent addon if you don't already have it
     - [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) for Chrome
     - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) for  Firefox
@@ -17,10 +17,10 @@ A Javascript automator for the 2015 Summer Steam Monster Minigame
 3. The script will now automatically load whenever you visit http://steamcommunity.com/minigame/towerattack/
 4. Enjoy!
 
-##Javascript Only Version (No slave window support)
+## Javascript Only Version (No slave window support)
 To load the script, copy/paste the code from either automator.user.js or minified.js or into your browser console or userscript plugin, and hit return to run it.
 
-##Parts:
+## Parts:
 Any of the additions can be started or stopped individually:
 - **autoClicker:** run "startAutoClicker()" or "stopAutoClicker()" in the console.
 - **autoRespawner:** run "startAutoRespawner()" or "stopAutoRespawner()" in the console.
@@ -29,7 +29,7 @@ Any of the additions can be started or stopped individually:
 - **autoItemUser:** run "startAutoItemUser()" or "stopAutoItemUser()" in the console.
 - **autoUpgradeManager:** run "startAutoUpgradeManager()" or "stopAutoUpgradeManager()" in the console.
 
-###Slave Window Manager (created by [ags131](https://github.com/ags131/steamMinigameSlaveScript)):
+### Slave Window Manager (created by [ags131](https://github.com/ags131/steamMinigameSlaveScript)):
 - Allows opening of multiple slave windows to work around the clicks per second limit
 - Disables rendering on slave windows in order to reduce memory/cpu use
 - In-UI management of slaves from master window
@@ -40,9 +40,9 @@ Any of the additions can be started or stopped individually:
 
 *There are buttons that get added to the bottom of the game page that toggle these functions for your convenience*
 
-##Variables:
+## Variables:
 Feel free to edit any variables to suit your needs
-###Main
+### Main
 - **debug (default: false):** if true, logs all actions to the console.
 - **clicksPerSecond (default: g_TuningData.abilities[1].max_num_clicks):** Number of clicks to be sent to the server each second.
 - **autoClickerVariance (default: 10% of clicksPerSecond):** amount that the clicks per second can be randomized by (range is clicksPersecond +/- autoClickerVariance)
@@ -56,7 +56,7 @@ Feel free to edit any variables to suit your needs
 - **farmGoldOnBossesLevelDiff (default: 200):** Farms gold on bosses every nth level.
 - **useNukeOnBossAbovePercent (default: 25):** If boss nuke is active, will use a nuke on any targetted boss with above this % health remaining.
 
-###Item Use
+### Item Use
 - **useMedicsAtPercent (default: 30):** % max hp at which to use the medics ability
 - **useMedicsAtLanePercent (default: 70):** If average lane health dips below this %, Medics will be used.
 - **useMedicsAtLanePercentAliveReq (default: 30):** % of lane allies that must be alive in order to use Medics selflessly
@@ -69,29 +69,29 @@ Feel free to edit any variables to suit your needs
 - **useResurrectToSaveCount (default: 150):** Will use resurrect if over this number of players is dead in your lane.
 - **spamStatBoosters (default: true):** If set, will automatically use Crit and Pumped up whenever they become available.
 
-###Slave Window Settings (NOT CURRENTLY ACCESSABLE)
+### Slave Window Settings (NOT CURRENTLY ACCESSABLE)
 - **slaveWindowUICleanup (default: true):** Whether or not slave windows will have all graphics removed in order to reduce load.
 - **slaveWindowPeriodicRestart (default: true):** If enabled, slave windows will periodically close and reopen in an attempt to cut down on any memory leaks
 - **slaveWindowPeriodicRestartInterval (default: 300000 [5 minutes]):** Duration (in milliseconds) between slave window reloads, if slaveWindowPeriodicRestart is set
 
-##Notes:
+## Notes:
 This script does not output particles for clicks, so you will not see damage output from the autoclicker. This is intended, as it reduces lag and removes a fairly large memory leak in the base game.
 You will however see the output from the attacks made by any auto-fire cannons or your own manual clicks, as we haven't altered that code.
 See the [Testing](https://github.com/ensingm2/SteamMonsterGameScript#testing) section of this readme if you want to make sure things are working.
 
-##Testing:
+## Testing:
 If you would like to test the script, you have a few options
 - Use a browser add-on such as Firebug for Firefox and view the POST data being sent to the server. This is the best testing method as you can see exactly what's being sent to the server.
 - If you're running in chrome and just want to make sure the scripts are running, type "debug=true" into the console, and it will enable debug console logs as things happen.
 
-##Using code from this in your own script?##
+## Using code from this in your own script? ##
 Yeah, you're welcome to. It'd be nice of you to give some type of credit to whoever originally added that feature though. Don't worry about it if you're forking from this, in that case there's a trail leading back so people can see the original committers.
 
-##TODO:
+## TODO:
 - Finish automating use of abilities & items
 - Bug Fixes?
 
-##Contributors:
+## Contributors:
 (Listed alphabetically)
 - [ags131](https://github.com/ags131)
 - [DannyDaemonic](https://github.com/DannyDaemonic)
